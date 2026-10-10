@@ -19,6 +19,8 @@ Rename the selected file to `air-alert.prg` and copy it to `GARMIN/APPS/air-aler
 
 All three API providers, location presets and Text/Status dots modes remain available. Use the public complication with a watch face supporting third-party Connect IQ complications.
 
+Verified with **83 passing simulator tests per device**, manual YELLOW → background RED delivery to a separate consuming watch face on both Venu sizes, and main-view/touch-hold settings checks on both Venu sizes. All three production PRGs and the multi-device IQ package compile successfully with SDK 9.2.0.
+
 Informational only: continue using official air-alert notifications. Background delivery and complication expiry are not guaranteed; nationwide responses can exceed background memory on all supported devices. Emoji glyphs and colors depend on your watch face. Physical Venu installation and authenticated upstream requests remain unverified.
 
 CI uses an ephemeral signing key unless `CIQ_SIGNING_KEY_BASE64` is configured. No live API token is embedded.

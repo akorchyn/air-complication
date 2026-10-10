@@ -67,7 +67,7 @@ The workflow uses Java 17, official Garmin SDK 9.2.0 and the existing public dev
 
 No secrets are required for a build. By default CI creates a temporary development signing key, then deletes it; the signing identity changes between runs. For a consistent identity, set repository Actions secret **CIQ_SIGNING_KEY_BASE64** to the base64 representation of your own DER developer key. Never put the key in Git. Fork pull requests use a temporary key because repository secrets are withheld. No provider token is used or embedded by CI.
 
-CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **83-test** verification log.
+CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **83-test** verification logs for Epix and both Venu sizes.
 
 ## Installation and settings
 
