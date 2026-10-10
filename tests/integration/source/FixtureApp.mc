@@ -72,8 +72,10 @@ class FixtureView extends WatchUi.View {
         var font=WatchUi.loadResource(Rez.Fonts.TestFont);
         var r=Cache.load(Config.location());
         dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_BLACK);dc.clear();
-        dc.drawText(208,150,font,"FIXTURE KYIV",Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(208,195,font,AlertLogic.text(AlertLogic.visible(r,Time.now().value(),600)),Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(208,250,font,"START: Refresh",Graphics.TEXT_JUSTIFY_CENTER);
+        var x=dc.getWidth()/2;var h=dc.getHeight();
+        dc.drawText(x,(h*0.36).toNumber(),font,"FIXTURE KYIV",Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x,(h*0.47).toNumber(),font,AlertLogic.text(AlertLogic.visible(r,Time.now().value(),600)),Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x,(h*0.60).toNumber(),font,WatchUi.loadResource(Rez.Strings.RefreshHint),Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x,(h*0.70).toNumber(),font,WatchUi.loadResource(Rez.Strings.SettingsHint),Graphics.TEXT_JUSTIFY_CENTER);
     }
 }

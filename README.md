@@ -2,30 +2,38 @@
 
 A standalone Connect IQ **Device App** that publishes Ukrainian air-alert status as a public complication, ID `0`. Use it with any watch face that supports **third-party Connect IQ complications** on a supported device. Select **alerts.in.ua**, **Ukraine Alarm**, or **UA Siren** and monitor a city or oblast. Choose **Text** (`CLEAR`, `YELLOW`, `RED`, `N/A`, `STALE`) or **Status dots** (🟢, 🟡, 🔴, `?`, `!`), with a short location label. The included consumer watch face exists only for simulator tests.
 
-Download the installable **[air-alert.prg from the latest GitHub Release](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert.prg)** for **Epix (Gen 2)**. Copy it to `GARMIN/APPS/air-alert.prg` on the connected watch, safely disconnect, and open Air Alert UA once. Source control contains no generated binaries; release assets and GitHub Actions downloads contain the builds.
+Download the PRG for your watch from the **[latest GitHub Release](https://github.com/akorchyn/air-complication/releases/latest)**:
+
+| Watch | Installable download | Display |
+|---|---|---|
+| Epix (Gen 2) | [air-alert.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert.prg) | 416×416 |
+| Venu 4, 41 mm | [air-alert-venu441mm.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert-venu441mm.prg) | 390×390 |
+| Venu 4, 45 mm | [air-alert-venu445mm.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert-venu445mm.prg) | 454×454 |
+
+Copy **only the matching PRG**, renamed to `air-alert.prg`, to `GARMIN/APPS/air-alert.prg` on the connected watch. Safely disconnect and open Air Alert UA once. Source control contains no generated binaries; release assets and GitHub Actions downloads contain the builds.
 
 **Informational only. Continue using official Ukrainian air-alert notifications.** There are no emergency sounds or guaranteed delivery. `CLEAR` means a successful response contained no applicable **air-raid** alerts; unrelated chemical, nuclear, artillery and urban-fighting alerts are outside this display's scope.
 
-The project compiles for Epix Gen 2 and publisher-to-consumer updates were exercised in Garmin's simulator. A real UA Siren request also succeeded in the simulator. Physical integration with third-party watch faces and authenticated live API requests remain unverified. Two material limits remain: nationwide responses can exceed background memory, and Garmin provides no complication expiry mechanism. Read the limitations below before relying on this display.
+The project targets Epix Gen 2 and both Venu 4 sizes. Publisher-to-consumer updates were exercised in Garmin's simulator. A real UA Siren request also succeeded in the simulator. Physical integration with third-party watch faces and authenticated live API requests remain unverified. Two material limits remain: nationwide responses can exceed background memory, and Garmin provides no complication expiry mechanism. Read the limitations below before relying on this display.
 
 ## Compatibility
 
 The complication uses Garmin's public `Toybox.Complications` API and has no dependency on a particular watch face. The face must let you select an external/custom Connect IQ complication and display its string value. Support for built-in Garmin data fields alone does not establish support for third-party publishers. Picker names, available fields and any paid feature requirements depend on the watch face.
 
-**Released builds currently target Epix (Gen 2), 416×416 only.** Device support and watch-face support are separate requirements; an Epix PRG must not be sideloaded onto another model.
+**Supported products:** `epix2`, `venu441mm`, and `venu445mm`. Device support and watch-face support are separate requirements; use the PRG compiled for your exact model. The exported IQ package contains all supported products.
 
-Venu 4's SDK profiles support the required complication, background and networking APIs. Temporary builds with both products added to a separate test manifest compiled successfully using SDK 9.2.0:
+The main view adapts to screen dimensions and native font heights, and shortens long lines to fit the round display. It shows how to use the app:
 
-| Candidate device | SDK product ID | Display |
+| Watch | Refresh | Settings |
 |---|---|---|
-| Venu 4, 41 mm | `venu441mm` | 390×390 |
-| Venu 4, 45 mm | `venu445mm` | 454×454 |
+| Epix (Gen 2) | Press START, or tap the screen with touch enabled | Hold MENU (middle-left button), or hold the screen with touch enabled |
+| Venu 4, either size | Tap the screen, or press the top-right button | Hold the screen |
 
-**Venu 4 is not included in the current release.** Shipping support still requires adding these products to the production manifest and CI device setup, producing device-specific builds, and checking layouts and button/touch controls in the simulator and on hardware. Both models have the same 64 KiB background-memory limit as Epix, so adding them would not remove the response-size constraint. See [verification evidence](docs/VERIFICATION.md#venu-4-compatibility-check).
+On Venu, the bottom-right button goes back. These touch controls apply to the main view; the settings screens use Garmin's native menus and pickers. Venu has no Epix-style MENU button. All three devices have a 64 KiB background-memory limit, so Venu support does not remove the response-size constraint. See [verification evidence](docs/VERIFICATION.md#venu-4-support-and-main-view-controls--130) for simulator results and remaining physical-watch checks.
 
 ## Build tools
 
-1. Install Garmin's [Connect IQ SDK Manager](https://developer.garmin.com/connect-iq/sdk/), sign in, and install the current SDK, **Epix (Gen 2)** device definitions and simulator fonts. Install the Java runtime required by that SDK. The delivered build was compiled with SDK 9.2.0 and Java 17. The Monkey C VS Code extension is optional.
+1. Install Garmin's [Connect IQ SDK Manager](https://developer.garmin.com/connect-iq/sdk/), sign in, and install the current SDK, **Epix (Gen 2)** and/or **Venu 4 (41 mm / 45 mm)** device definitions and simulator fonts. Install the Java runtime required by that SDK. The delivered build was compiled with SDK 9.2.0 and Java 17. The Monkey C VS Code extension is optional.
 2. Create your own developer key outside this project:
 
    ```sh
@@ -38,22 +46,24 @@ Venu 4's SDK profiles support the required complication, background and networki
    ```sh
    export CIQ_SDK=/absolute/path/to/your/sdk
    export CIQ_KEY=/absolute/path/to/developer-key.der
-   scripts/build.sh app
+   scripts/build.sh app                # Epix Gen 2
+   scripts/build.sh app venu441mm     # Venu 4, 41 mm
+   scripts/build.sh app venu445mm     # Venu 4, 45 mm
    ```
 
-   Output: `artifacts/air-alert.prg`. Compiler intermediates remain in `build/`; local outputs are copied to the ignored `artifacts/` directory. Downloadable prebuilt binaries are GitHub Release assets. Never commit private keys or API tokens. The source declares CIQ 4.2 minimum; the current Epix device profile used for this build requires firmware **23.16 or newer** (CIQ 5.2). Update the watch first.
+   Outputs: `artifacts/air-alert.prg`, `artifacts/air-alert-venu441mm.prg`, and `artifacts/air-alert-venu445mm.prg`, respectively. Compiler intermediates remain in `build/`; local outputs are copied to the ignored `artifacts/` directory. Downloadable prebuilt binaries are GitHub Release assets. Never commit private keys or API tokens. The source declares CIQ 4.2 minimum; the pinned device profiles require Epix firmware **23.16 or newer** (CIQ 5.2) and Venu 4 firmware **17.33 or newer** (CIQ 6.0.2). Update the watch first.
 
 To export an IQ package for your own beta/store workflow, run `scripts/build.sh package`. Nothing is uploaded or published by these scripts. On Windows, use equivalent `monkeyc` commands from `scripts/build.sh`, or run the shell scripts in a suitable shell.
 
 ## GitHub Actions builds
 
-[Build Connect IQ](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) runs on pushes to `main`, pull requests, version tags and manual **Run workflow** requests. It builds the Epix PRG and IQ package and compiles the separate spike, consumer, integration and unit-test targets. Tag pushes such as `v1.2.0` automatically create a **GitHub Release** containing `air-alert.prg`, `air-alert.iq`, and `SHA256SUMS`. The tag must match the application version in `manifest.xml`. These are the downloadable binaries shown in GitHub's **Releases** sidebar; publishing a GitHub Package is unnecessary for a Garmin PRG.
+[Build Connect IQ](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) runs on pushes to `main`, pull requests, version tags and manual **Run workflow** requests. It builds a PRG for each supported model and a multi-device IQ package, and compiles the separate spike, consumer, integration and unit-test targets for all three models. Tag pushes such as `v1.3.0` automatically create a **GitHub Release** containing the three model-specific PRGs, `air-alert.iq`, and `SHA256SUMS`. The tag must match the application version in `manifest.xml`. These are the downloadable binaries shown in GitHub's **Releases** sidebar; publishing a GitHub Package is unnecessary for a Garmin PRG.
 
-For an untagged development build, open a successful run and download **Air-Alert-UA-Epix-Gen-2** under **Artifacts**. Extract the ZIP and copy `air-alert.prg` to your watch. The separate simulator-fixture download must not be installed on your everyday watch.
+For an untagged development build, open a successful run and download **Air-Alert-UA-Epix-Gen-2-and-Venu-4** under **Artifacts**. Extract the ZIP, choose your model's PRG, and copy it to your watch as `GARMIN/APPS/air-alert.prg`. The separate simulator-fixture download must not be installed on your everyday watch.
 
-Local builds produce `artifacts/air-alert.prg` and `artifacts/air-alert.iq`, with `artifacts/SHA256SUMS`. Fixture outputs are `artifacts/spike.prg`, `consumer.prg`, `integration.prg`, and `tests.prg`. Both output directories are ignored by Git. CI stores downloadable artifacts and publishes tag builds as GitHub Releases; it does not publish to the Garmin store.
+Local builds produce the PRGs listed above and `artifacts/air-alert.iq`, with `artifacts/SHA256SUMS`. Epix fixture outputs are `artifacts/spike.prg`, `consumer.prg`, `integration.prg`, and `tests.prg`; Venu fixture names include `-venu441mm` or `-venu445mm` before `.prg`. Both output directories are ignored by Git. CI stores downloadable artifacts and publishes tag builds as GitHub Releases; it does not publish to the Garmin store.
 
-The workflow uses Java 17, official Garmin SDK 9.2.0 and the existing public Epix-definition cache, pinned to an immutable commit and SHA-256 checksums. `scripts/setup-ci-sdk.sh /absolute/install/directory` reproduces the Linux CLI setup. Device/font downloads through Garmin SDK Manager require authentication; the public definition snapshot allows unattended compilation without a Garmin login. No simulator executable modifications are used for CI builds.
+The workflow uses Java 17, official Garmin SDK 9.2.0 and the existing public device-definition cache, pinned to an immutable commit and SHA-256 checksums. `scripts/setup-ci-sdk.sh /absolute/install/directory` reproduces the Linux CLI setup. Device/font downloads through Garmin SDK Manager require authentication; the public definition snapshot allows unattended compilation without a Garmin login. No simulator executable modifications are used for CI builds.
 
 No secrets are required for a build. By default CI creates a temporary development signing key, then deletes it; the signing identity changes between runs. For a consistent identity, set repository Actions secret **CIQ_SIGNING_KEY_BASE64** to the base64 representation of your own DER developer key. Never put the key in Git. Fork pull requests use a temporary key because repository secrets are withheld. No provider token is used or embedded by CI.
 
@@ -61,7 +71,7 @@ CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin 
 
 ## Installation and settings
 
-For personal sideloading, connect the watch over USB and copy **only the production PRG** to `GARMIN/APPS/air-alert.prg` using an MTP-capable file manager. Safely disconnect. Open **Air Alert UA** from the watch's activity/app list once to initialize its complication and background registration. Do not install the spike/integration binaries on your everyday watch: they share the publisher's application ID and overwrite it.
+For personal sideloading, connect the watch over USB and copy **only the production PRG for your exact model**, renamed to `air-alert.prg`, to `GARMIN/APPS/air-alert.prg` using an MTP-capable file manager. Safely disconnect. Open **Air Alert UA** from the watch's activity/app list once to initialize its complication and background registration. Do not install the spike/integration binaries on your everyday watch: they share the publisher's application ID and overwrite it.
 
 Choose **API provider** in Air Alert UA's Connect IQ application settings in Garmin Connect / Connect IQ mobile:
 
@@ -73,7 +83,7 @@ Choose **API provider** in Air Alert UA's Connect IQ application settings in Gar
 
 The two tokens are separate properties; switching provider retains each token and invalidates the cached status. There is no automatic fallback to a different provider. Enter only the token/key, without adding `Bearer`.
 
-Mobile settings availability for a sideloaded app varies by Garmin tooling; the app also provides **hold MENU → API provider / Provider token / Location** on the watch. The token picker edits the currently selected provider's token. Tokens are never printed in logs or shown back in the menu. They are stored in application properties, which are not a secret vault. Settings also include custom UID/label, refresh interval and stale threshold. The on-watch menu updates immediately when returning from a picker, including provider-specific token requirements; there is no need to close and reopen settings.
+Mobile settings availability for a sideloaded app varies by Garmin tooling; the app also provides **API provider / Provider token / Location** in its on-watch settings. On Epix, hold **MENU** (middle-left button); on Venu 4, **hold the screen**. The main screen shows the matching Refresh and Settings hints. Touch hold also works on Epix when touch is enabled. The token picker edits the currently selected provider's token. Tokens are never printed in logs or shown back in the menu. They are stored in application properties, which are not a secret vault. Settings also include custom UID/label, refresh interval and stale threshold. The on-watch menu updates immediately when returning from a picker, including provider-specific token requirements; there is no need to close and reopen settings.
 
 The location dropdown has **32 presets**: all **24 oblasts**, **Crimea**, **Kyiv city**, **Kharkiv city**, **Zaporizhzhia city**, **Sevastopol**, **Lviv**, **Odesa**, and **Dnipro**, plus **Custom UID**. Default: **Kyiv city, UID 31**, which is distinct from **Kyiv Oblast, UID 14**.
 
@@ -111,7 +121,7 @@ The publisher supplies text and a short label. **Your watch face controls colors
 
 ## Complication display mode
 
-Choose **Complication display mode** in mobile settings or **hold MENU → Display mode** on the watch:
+Choose **Complication display mode** in mobile settings or open the on-watch **Settings → Display mode** menu:
 
 | Status | Text (default) | Status dots |
 |---|---|---|
@@ -131,7 +141,7 @@ The app's own status screen keeps readable status words. Changing only the displ
 
 The app uses supported, one-shot `Background.registerForTemporalEvent(Time.Moment)` events, registering the next event before starting networking. Intervals are **5, 10, 15, 30 or 60 minutes**, default 5. No event is scheduled sooner than five minutes from registration. Services can run late or be suspended/terminated; Garmin's background service execution window is limited to 30 seconds.
 
-Opening the app displays the cache and arms background work. Press **START** for **Refresh**. Manual refresh starts a check immediately unless a check is already active, another check started within the last minute, or failure backoff is active. A city check can make up to three sequential requests when verifying parents. It does not bypass a 429 rate limit. Cached values are reused between checks. Data/refresh-setting changes reset failure backoff for recovery after replacing a token; the shared one-minute gate still applies. Display-mode-only changes retain that backoff.
+Opening the app displays the cache and arms background work. Use **Refresh**: press START on Epix, or tap the screen / press the top-right button on Venu 4. Manual refresh starts a check immediately unless a check is already active, another check started within the last minute, or failure backoff is active. A city check can make up to three sequential requests when verifying parents. It does not bypass a 429 rate limit. Cached values are reused between checks. Data/refresh-setting changes reset failure backoff for recovery after replacing a token; the shared one-minute gate still applies. Display-mode-only changes retain that backoff.
 
 The default stale threshold is **10 minutes** after the last successful check. The next execution publishes `STALE` at or beyond that boundary. Longer refresh intervals also schedule a supported stale-transition event; that event does not fetch early if the network interval has not elapsed. Failures show `N/A` while the prior successful check is fresh, and `STALE` once it is old. First launch with the default provider and no token shows `N/A` without requesting data. UA Siren needs no token but still requires a successful Refresh before showing a status.
 
@@ -171,7 +181,7 @@ The API supports `If-Modified-Since` and `Last-Modified`, but the documented `Co
 
 ## Background memory and an optional proxy
 
-Epix Gen 2's device definition allows **64 KiB background memory**, versus 768 KiB for a foreground Device App. `makeWebRequest` allocates decoded JSON before this app can filter it. The large location catalog is excluded from background code; only selected ancestry/scope is retained there. Ukraine Alarm/UA Siren **city** requests usually avoid the nationwide response, but their maximum regional payload still has no proven memory bound.
+The supported Epix Gen 2 and Venu 4 device definitions allow **64 KiB background memory**, versus 768 KiB for a foreground Device App. `makeWebRequest` allocates decoded JSON before this app can filter it. The large location catalog is excluded from background code; only selected ancestry/scope is retained there. Ukraine Alarm/UA Siren **city** requests usually avoid the nationwide response, but their maximum regional payload still has no proven memory bound.
 
 Actual simulator probes using the production callback, parser and publisher measured decoded-object memory and exercised an oversized fixture that caused **Out Of Memory**; the running consumer received **N/A**, published before allocation. See the current measurements and logs in [verification evidence](docs/VERIFICATION.md). Synthetic records do not prove a particular live body will fit or reproduce the phone's JSON transport buffers.
 
@@ -200,7 +210,9 @@ The consumer discovers the public complication by its long label, subscribes to 
 Run the actual Monkey C **Run No Evil** tests with mocked fixtures:
 
 ```sh
-scripts/test.sh
+scripts/test.sh               # Epix Gen 2
+scripts/test.sh venu441mm     # Venu 4, 41 mm
+scripts/test.sh venu445mm     # Venu 4, 45 mm
 ```
 
 The script generates Monkey C literals from JSON fixtures, compiles the production logic with tests, and checks the simulator's test summary. Tests cover all requested state, matching, switching, HTTP, connection, stale and recovery cases, plus request overlap, corrupted cache and late-response rejection. Raw malformed JSON is also provided; the callback test injects Garmin's invalid-body error rather than implementing another JSON parser.
@@ -217,15 +229,15 @@ scripts/build.sh consumer
 # Consumer must receive and draw RED.
 ```
 
-The integration subclass replaces only the transport and test scheduling gate, uses a fixture-only token, and exercises the production cache, parser, request lifecycle and publication. Its simulator event override permits immediate manual injection; production still enforces five-minute scheduling. Optional Linux X11 automation: install `python-xlib` and ImageMagick, position the standard simulator window at the top left, then run `python3 scripts/verify_simulator.py 1` (or `10`, `25`) with `DISPLAY` set. It is tailored to the standard Epix simulator layout; use the manual steps on other desktops.
+The integration subclass replaces only the transport and test scheduling gate, uses a fixture-only token, and exercises the production cache, parser, request lifecycle and publication. Its simulator event override permits immediate manual injection; production still enforces five-minute scheduling. Optional Linux X11 automation: install `python-xlib` and ImageMagick, position the standard simulator window at the top left, then run `python3 scripts/verify_simulator.py 1` (or `10`, `25`) with `DISPLAY` set. The optional third argument selects `epix2` (default), `venu441mm`, or `venu445mm`; for example, compile `scripts/build.sh consumer venu441mm` and run `python3 scripts/verify_simulator.py 1 text venu441mm`. It uses standard simulator window geometry with the window positioned at the top left; use manual steps on other desktops.
 
 To check Unicode delivery with the same publisher/consumer paths, compile the consumer and run `python3 scripts/verify_simulator.py 1 dots`. Its log must contain the exact values `CONSUMER RECEIVED: 🟡`, `CONSUMER RECEIVED: 🔴`, and `CONSUMER RECEIVED: 🟢`. This validates publication and delivery; it does not verify another watch face's glyphs or colors.
 
-The production UI uses native system fonts and simple system settings widgets. Test views use bundled ASCII raster fonts to remain readable in environments missing authenticated simulator font downloads. The release UI's native-font rendering was not visually verified here; fixture UI and consuming-face values were. See the verification record for the local Linux simulator runtime workaround and the remaining hardware checks.
+The production UI uses native system fonts and simple system settings widgets. Venu's main screen and touch-hold settings menu were exercised with a local Roboto font installed in the simulator; physical-watch rendering remains unverified. Test views use bundled ASCII raster fonts. See the verification record for the local simulator runtime/font setup and remaining hardware checks.
 
 ## Project map and references
 
-`source/`: publisher lifecycle, service, request/cache logic, matching, city resolver and watch UI. `resources/`: public complication, icons, native mobile settings/properties. `spike/`: TEST publisher. `tests/consumer/`: subscribing test face. `tests/integration/`: mocked transport/background probe. `tests/unit/`, `tests/fixtures/`: automated logic/request tests. `scripts/`: reproducible builds and fixture/catalog generation.
+`source/`: publisher lifecycle, service, request/cache logic, matching, city resolver and watch UI. `resources/`: public complication, icons, native mobile settings/properties. `resources-venu441mm/`, `resources-venu445mm/`: device-sized icons and Venu control hints. `spike/`: TEST publisher. `tests/consumer/`: subscribing test face. `tests/integration/`: mocked transport/background probe. `tests/unit/`, `tests/fixtures/`: automated logic/request tests. `scripts/`: reproducible builds and fixture/catalog generation.
 
 Official references: [Complications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html), [Background services](https://developer.garmin.com/connect-iq/articles/core-topics/Backgrounding.html), [WatchFace lifecycle](https://developer.garmin.com/connect-iq/api-docs/Toybox/WatchUi/WatchFace.html), [Communications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Communications.html), [publisher/consumer example discussion](https://forums.garmin.com/developer/connect-iq/f/discussion/353286/sample-of-ciq-complication-publisher-and-consumer-of-those-complications), [alerts.in.ua API](https://devs.alerts.in.ua/).
 

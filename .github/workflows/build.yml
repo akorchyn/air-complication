@@ -28,14 +28,16 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Cache verified SDK and Epix definition
+      - name: Cache verified SDK and supported device definitions
         id: sdk-cache
         uses: actions/cache@v4
         with:
           path: |
             ${{ runner.temp }}/connectiq
             ~/.Garmin/ConnectIQ/Devices/epix2
-          key: ciq-linux-9.2.0-epix2-cd073d7fc408-v1
+            ~/.Garmin/ConnectIQ/Devices/venu441mm
+            ~/.Garmin/ConnectIQ/Devices/venu445mm
+          key: ciq-linux-9.2.0-epix2-venu4-cd073d7fc408-v2
       - name: Install SDK and device definition
         if: steps.sdk-cache.outputs.cache-hit != 'true'
         run: scripts/setup-ci-sdk.sh "$RUNNER_TEMP/connectiq"
@@ -70,20 +72,26 @@ jobs:
       - name: Build production app and IQ package
         run: |
           scripts/build.sh app
+          scripts/build.sh app venu441mm
+          scripts/build.sh app venu445mm
           scripts/build.sh package
           (cd artifacts && sha256sum --check SHA256SUMS)
       - name: Compile simulator and test targets
         run: |
-          scripts/build.sh spike
-          scripts/build.sh consumer
-          scripts/build.sh integration
-          scripts/build.sh tests
+          for device in epix2 venu441mm venu445mm; do
+            scripts/build.sh spike "$device"
+            scripts/build.sh consumer "$device"
+            scripts/build.sh integration "$device"
+            scripts/build.sh tests "$device"
+          done
       - name: Upload production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Air-Alert-UA-Epix-Gen-2
+          name: Air-Alert-UA-Epix-Gen-2-and-Venu-4
           path: |
             artifacts/air-alert.prg
+            artifacts/air-alert-venu441mm.prg
+            artifacts/air-alert-venu445mm.prg
             artifacts/air-alert.iq
             artifacts/SHA256SUMS
           if-no-files-found: error
@@ -93,10 +101,10 @@ jobs:
         with:
           name: Simulator-fixtures-do-not-sideload
           path: |
-            artifacts/spike.prg
-            artifacts/consumer.prg
-            artifacts/integration.prg
-            artifacts/tests.prg
+            artifacts/spike*.prg
+            artifacts/consumer*.prg
+            artifacts/integration*.prg
+            artifacts/tests*.prg
           if-no-files-found: error
           retention-days: 14
       - name: Remove private signing key
@@ -113,7 +121,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: Air-Alert-UA-Epix-Gen-2
+          name: Air-Alert-UA-Epix-Gen-2-and-Venu-4
           path: artifacts
       - name: Publish GitHub Release binaries
         env:
@@ -121,6 +129,7 @@ jobs:
         run: |
           (cd artifacts && sha256sum --check SHA256SUMS)
           gh release create "$GITHUB_REF_NAME" \
-            artifacts/air-alert.prg artifacts/air-alert.iq artifacts/SHA256SUMS \
+            artifacts/air-alert.prg artifacts/air-alert-venu441mm.prg \
+            artifacts/air-alert-venu445mm.prg artifacts/air-alert.iq artifacts/SHA256SUMS \
             --verify-tag --title "Air Alert UA $GITHUB_REF_NAME" \
             --notes-file docs/RELEASE-NOTES.md

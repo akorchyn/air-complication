@@ -1,3 +1,5 @@
 project.manifest = manifest.xml
 base.sourcePath = source
 base.resourcePath = resources
+venu441mm.resourcePath = $(base.resourcePath);resources-venu441mm
+venu445mm.resourcePath = $(base.resourcePath);resources-venu445mm

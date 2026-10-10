@@ -5,6 +5,7 @@ import Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.Timer;
+using Toybox.Math;
 (:typecheck(disableBackgroundCheck))
 class AlertView extends WatchUi.View {
     var _visible=false;
@@ -27,20 +28,53 @@ class AlertView extends WatchUi.View {
             _expiryTimer.start(method(:expire),remaining*1000,false);
         }
         dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_BLACK);dc.clear();
-        var x=dc.getWidth()/2;
-        dc.drawText(x,58,Graphics.FONT_MEDIUM,"Air Alert UA",Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x,102,Graphics.FONT_XTINY,Config.providerName(),Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x,134,Graphics.FONT_SMALL,loc["name"],Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x,172,Graphics.FONT_LARGE,AlertLogic.text(AlertLogic.visible(r,now,Config.staleSeconds())),Graphics.TEXT_JUSTIFY_CENTER);
         var time="Last check: never";
         if (r["success"]>0) {
             var t=Gregorian.info(new Time.Moment(r["success"]),Time.FORMAT_SHORT);
             time="Updated "+t.hour.format("%02d")+":"+t.min.format("%02d")+"  "+((now-r["success"])/60).format("%d")+"m ago";
         }
-        dc.drawText(x,232,Graphics.FONT_XTINY,time,Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x,267,Graphics.FONT_XTINY,r["error"],Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x,308,Graphics.FONT_SMALL,"START: Refresh",Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x,345,Graphics.FONT_XTINY,"Informational only",Graphics.TEXT_JUSTIFY_CENTER);
+        var rows=[
+            ["Air Alert UA",Graphics.FONT_TINY],
+            [Config.providerName(),Graphics.FONT_XTINY],
+            [loc["name"],Graphics.FONT_TINY],
+            [AlertLogic.text(AlertLogic.visible(r,now,Config.staleSeconds())),Graphics.FONT_LARGE],
+            [time,Graphics.FONT_XTINY]
+        ];
+        if (r["error"].length()>0) { rows.add([r["error"],Graphics.FONT_XTINY]); }
+        rows.add([WatchUi.loadResource(Rez.Strings.RefreshHint),Graphics.FONT_XTINY]);
+        rows.add([WatchUi.loadResource(Rez.Strings.SettingsHint),Graphics.FONT_XTINY]);
+        rows.add(["Info only",Graphics.FONT_XTINY]);
+
+        // Native font sizes differ between Epix and the two Venu sizes. Lay out
+        // actual line heights inside the round screen, rather than fixed pixels.
+        var width=dc.getWidth();var height=dc.getHeight();var total=0;
+        for(var i=0;i<rows.size();i++) { total+=dc.getFontHeight(rows[i][1]); }
+        var available=height*0.84;
+        if (total>available) {
+            total=0;
+            for(var i=0;i<rows.size();i++) {
+                rows[i][1]=i==3 ? Graphics.FONT_MEDIUM : Graphics.FONT_XTINY;
+                total+=dc.getFontHeight(rows[i][1]);
+            }
+        }
+        var gap=(available-total)/(rows.size()-1);if (gap<0) { gap=0; }
+        var y=(height-total-gap*(rows.size()-1))/2;
+        for(var i=0;i<rows.size();i++) {
+            var font=rows[i][1];var lineHeight=dc.getFontHeight(font);
+            // Keep the whole line within the circle, including its top/bottom.
+            var top=(y-height/2).abs();var bottom=(y+lineHeight-height/2).abs();
+            var edge=top>bottom ? top : bottom;var chord=width*width/4-edge*edge;
+            var maxWidth=2*Math.sqrt(chord>0 ? chord : 0)-16;
+            var text=rows[i][0];
+            if (dc.getTextWidthInPixels(text,font)>maxWidth) {
+                while (text.length()>0 && dc.getTextWidthInPixels(text+"...",font)>maxWidth) {
+                    text=text.substring(0,text.length()-1);
+                }
+                text=text+"...";
+            }
+            dc.drawText(width/2,y.toNumber(),font,text,Graphics.TEXT_JUSTIFY_CENTER);
+            y+=lineHeight+gap;
+        }
     }
 }
 (:typecheck(disableBackgroundCheck))
@@ -48,6 +82,9 @@ class AlertDelegate extends WatchUi.BehaviorDelegate {
     var _request;
     function initialize() { BehaviorDelegate.initialize(); }
     function onMenu() as Boolean { SettingsMenu.open();return true; }
+    // Venu 4 has no Epix MENU button. A touch hold gives it a settings path.
+    function onHold(clickEvent) as Boolean { return onMenu(); }
+    function onTap(clickEvent) as Boolean { return onSelect(); }
     function onSelect() as Boolean {
         if (_request==null) { _request=Application.getApp().newRequest(method(:done)); }
         _request.start(true);WatchUi.requestUpdate();return true;

@@ -14,7 +14,8 @@ class ConsumerApp extends Application.AppBase {
   var c = iter.next();
   while (c != null) {
    var id = c.complicationId;
-   if (c.longLabel.equals("Air Alert UA")) { Complications.subscribeToUpdates(id); changed(id); }
+   // Built-in complications on newer devices may have no long label.
+   if (c.longLabel instanceof Lang.String && c.longLabel.equals("Air Alert UA")) { Complications.subscribeToUpdates(id); changed(id); }
    c = iter.next();
   }
  }
@@ -35,6 +36,6 @@ class ConsumerView extends WatchUi.WatchFace {
   if (value.equals("🟢")) { value="GREEN DOT"; }
   else if (value.equals("🟡")) { value="YELLOW DOT"; }
   else if (value.equals("🔴")) { value="RED DOT"; }
-  dc.drawText(208,190,WatchUi.loadResource(Rez.Fonts.TestFont),value,Graphics.TEXT_JUSTIFY_CENTER);
+  dc.drawText(dc.getWidth()/2,dc.getHeight()/2-18,WatchUi.loadResource(Rez.Fonts.TestFont),value,Graphics.TEXT_JUSTIFY_CENTER);
  }
 }

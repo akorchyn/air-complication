@@ -1,0 +1,4 @@
+<resources>
+ <strings><string id="RefreshHint">Tap: Refresh</string><string id="SettingsHint">Hold screen: Settings</string></strings>
+ <drawables><bitmap id="LauncherIcon" filename="launcher.svg"/><bitmap id="ComplicationIcon" filename="complication.svg"/></drawables>
+</resources>

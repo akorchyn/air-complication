@@ -20,7 +20,7 @@ download_verified() {
 download_verified "$sdk_url" "$sdk_archive" 4907d8455b651c5a00a865e364cc4f1921c055b9279c7c8634c7a7a6773b5593
 download_verified "$devices_url" "$devices_archive" 329ebb68bf55a07d86cda993a1381b20f7fc786eba059737abbf1d72778d2feb
 unzip -q -o "$sdk_archive" -d "$ciq_install_root/sdk"
-# Extract only the target's definition; the service catalog remains external.
-tar -xzf "$devices_archive" -C "$HOME/.Garmin/ConnectIQ/Devices" ./epix2
+# Extract only supported device definitions; the service catalog remains external.
+tar -xzf "$devices_archive" -C "$HOME/.Garmin/ConnectIQ/Devices" ./epix2 ./venu441mm ./venu445mm
 chmod +x "$ciq_install_root/sdk/bin/monkeyc"
-echo "SDK 9.2.0 and pinned Epix Gen 2 definition installed in $ciq_install_root/sdk"
+echo "SDK 9.2.0 and pinned Epix Gen 2 / Venu 4 definitions installed in $ciq_install_root/sdk"

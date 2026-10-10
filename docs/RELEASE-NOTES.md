@@ -1,19 +1,24 @@
-Adds **Display mode** with two choices: **Text** (default) and **Status dots**.
+Adds **Venu 4 support for both 41 mm and 45 mm models**, alongside Epix (Gen 2).
 
-| State | Text | Status dots |
-|---|---|---|
-| No applicable active air-raid alert after a validated check | CLEAR | 🟢 |
-| Yellow alert | YELLOW | 🟡 |
-| Red alert | RED | 🔴 |
-| Unavailable or unknown | N/A | ? |
-| Stale | STALE | ! |
+The main screen now shows how to open settings and refresh:
 
-Choose the mode in mobile settings or hold MENU → Display mode on the watch. Switching modes immediately republishes cached status without a network request or resetting failure backoff. The app's own screen keeps readable status words.
+- **Epix:** START: Refresh; Hold MENU: Settings (middle-left button).
+- **Venu 4:** Tap: Refresh; Hold screen: Settings. The top-right button also refreshes; bottom-right goes back.
 
-**Glyph/color support depends on your watch face's font.** The publisher sends Unicode text, not colored images. These circles may render monochrome, as boxes, or blank; switch to Text if unreadable. Physical watch-face emoji/color rendering is unverified. Never interpret ? or ! as clear.
+Touch hold also opens settings on Epix when touch is enabled. The main layout uses actual screen dimensions and font heights; long lines are shortened to fit the round display. Each Venu size has matching launcher/complication icons.
 
-Download **air-alert.prg** and replace `GARMIN/APPS/air-alert.prg` on the watch, then safely disconnect. The IQ package is for Garmin distribution tooling, not USB sideloading. CI builds and publishes these assets from the version tag.
+Choose **only the PRG for your exact model**:
 
-All three providers and the region presets remain available. Informational only: continue using official air-alert notifications. Garmin background delivery and complication expiry are not guaranteed; whole-oblast responses can exceed background memory. Authenticated upstream requests remain unverified.
+| Watch | Release asset |
+|---|---|
+| Epix (Gen 2) | air-alert.prg |
+| Venu 4, 41 mm | air-alert-venu441mm.prg |
+| Venu 4, 45 mm | air-alert-venu445mm.prg |
+
+Rename the selected file to `air-alert.prg` and copy it to `GARMIN/APPS/air-alert.prg`, then safely disconnect. The multi-device IQ package is for Garmin distribution tooling, not USB sideloading. CI compiles and publishes every model's assets from the version tag.
+
+All three API providers, location presets and Text/Status dots modes remain available. Use the public complication with a watch face supporting third-party Connect IQ complications.
+
+Informational only: continue using official air-alert notifications. Background delivery and complication expiry are not guaranteed; nationwide responses can exceed background memory on all supported devices. Emoji glyphs and colors depend on your watch face. Physical Venu installation and authenticated upstream requests remain unverified.
 
 CI uses an ephemeral signing key unless `CIQ_SIGNING_KEY_BASE64` is configured. No live API token is embedded.
