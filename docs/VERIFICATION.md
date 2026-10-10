@@ -90,6 +90,26 @@ For this local Venu UI check, `Roboto-Regular.ttf` from the upstream [Google Fon
 
 Earlier temporary-manifest compilation logs are retained as the preliminary compatibility check: [41 mm](venu4-41mm-build.log), [45 mm](venu4-45mm-build.log).
 
+## Ukrainian text and letter case — 1.4.0
+
+Added independently selectable status language and case. English uppercase remains the default. Ukrainian Default publishes `Немає`, `Жовта`, `Червона`, `н.д.`, `Застар.`; UPPERCASE and lowercase have explicit Cyrillic variants. The production main view uses the same text formatter. Status dots retain their existing values. The settings callback republishes cached values while preserving request generation, leases, backoff and the background schedule for presentation-only edits.
+
+Executed **89 Monkey C Run No Evil tests on each supported device**, all passing with zero failures/errors: [Epix](unit-tests.log), [Venu 41 mm](unit-tests-venu441mm.log), [Venu 45 mm](unit-tests-venu445mm.log). These replace the earlier 83-test logs linked above; historical results remain in git. Six added tests cover every Ukrainian state/case, English lowercase and invalid-setting fallback, unknown/stale safety, cached-success and 429 backoff preservation, formatting edits during an in-flight request, and reactive language/case labels on the same settings menu instance.
+
+Stock SDK 9.2.0 strict production builds and multi-device export succeeded: [Epix](epix2-build-1.4.0.log), [Venu 41 mm](venu441mm-build-1.4.0.log), [Venu 45 mm](venu445mm-build-1.4.0.log), [package](package-build-1.4.0.log). All four local release binaries passed their SHA-256 checks.
+
+The separate subscribing watch face received Ukrainian values after the production manual Refresh delegate and subsequent temporal events with mocked red and empty responses:
+
+- Epix Default: [Жовта → Червона → Немає](ua-1-consumer.log).
+- Epix lowercase: [жовта → червона → немає](ua-lower-1-consumer.log).
+- Epix UPPERCASE: [ЖОВТА → ЧЕРВОНА → НЕМАЄ](ua-upper-1-consumer.log).
+- Venu 41 mm lowercase: [consumer log](ua-lower-1-venu441mm-consumer.log), [ASCII caption after manual refresh](ua-lower-1-venu441mm-manual.png).
+- Venu 45 mm lowercase: [consumer log](ua-lower-1-venu445mm-consumer.log), [ASCII caption after manual refresh](ua-lower-1-venu445mm-manual.png).
+
+These logs record exact Unicode strings read by the consumer through `getComplication()` and its change callback, beyond the publisher's `updateComplication()` return. The fixture's ASCII font displays translated captions (`YELLOW UA`, `RED UA`, `CLEAR UA`), so the checks establish delivery rather than Cyrillic rendering in a third-party face. Font size, case transformations and glyph coverage remain controlled by that face.
+
+Reproduce after building the consumer for the model: `scripts/verify_simulator.py 1 ua epix2`, `1 ua-upper epix2`, or `1 ua-lower epix2` / `venu441mm` / `venu445mm`. The script restores its temporary fixture properties when finished and selects the background-event menu relative to the desktop-scaled popup. No live alert events or tokens are used. The one-alert Ukrainian probe consumed 35,984 B after allocation in Epix's background service (25,272 B free), and 36,080 B on each Venu (25,176 B free); this does not establish that a nationwide response fits.
+
 ## Verification environment and remaining checks
 
 The official Garmin Linux simulator was run under X11 with Epix Gen 2 and both Venu 4 definitions. This workspace lacked the old WebKit/libs required by the downloaded simulator and authenticated Garmin simulator fonts. Legacy runtime libraries were supplied locally. A collision between the simulator's exported static FreeType symbols and the host FreeType was corrected by hiding those exported symbols in the local simulator executable. This is an environment workaround only: no patched simulator is distributed, and application APIs/VM logic were not replaced.

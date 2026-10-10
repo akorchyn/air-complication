@@ -37,7 +37,7 @@ class AlertView extends WatchUi.View {
             ["Air Alert UA",Graphics.FONT_TINY],
             [Config.providerName(),Graphics.FONT_XTINY],
             [loc["name"],Graphics.FONT_TINY],
-            [AlertLogic.text(AlertLogic.visible(r,now,Config.staleSeconds())),Graphics.FONT_LARGE],
+            [AlertDisplay.text(AlertLogic.visible(r,now,Config.staleSeconds())),Graphics.FONT_LARGE],
             [time,Graphics.FONT_XTINY]
         ];
         if (r["error"].length()>0) { rows.add([r["error"],Graphics.FONT_XTINY]); }

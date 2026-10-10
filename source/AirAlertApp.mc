@@ -36,7 +36,8 @@ class AirAlertApp extends Application.AppBase {
     }
     function settingsSnapshot() as Array {
         // In-memory only. Credentials remain in application properties; never
-        // persist or print this snapshot. displayMode is intentionally omitted.
+        // persist or print this snapshot. Presentation settings (displayMode,
+        // textLanguage and textCase) are intentionally omitted.
         var keys=["apiProvider","apiToken","ukraineAlarmToken","cityUid","customUid","customLabel","refreshMinutes","staleMinutes"];
         var values=[];
         for (var i=0;i<keys.size();i++) { values.add(Application.Properties.getValue(keys[i])); }

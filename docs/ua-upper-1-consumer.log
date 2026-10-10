@@ -1,0 +1,14 @@
+CONSUMER RECEIVED: ЖОВТА
+Background: INTEGRATION: background event
+Background: INTEGRATION: response red
+Background: INTEGRATION: response memory used=33672 free=27584
+Background: MEMORY: before rows=1 used=33872 free=27384
+Background: MEMORY: after rows=1 used=35984 free=25272
+CONSUMER RECEIVED: ЧЕРВОНА
+CONSUMER RECEIVED: ЧЕРВОНА
+CONSUMER RECEIVED: ЧЕРВОНА
+Background: INTEGRATION: background event
+Background: INTEGRATION: response clear
+CONSUMER RECEIVED: НЕМАЄ
+CONSUMER RECEIVED: НЕМАЄ
+CONSUMER RECEIVED: НЕМАЄ

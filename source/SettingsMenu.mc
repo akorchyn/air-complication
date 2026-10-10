@@ -10,7 +10,7 @@ module SettingsMenu {
         if (view instanceof AirAlertSettingsMenu) { view.refreshValues(); }
     }
     function selectList(key, names as Array, values as Array) {
-        var menu=new WatchUi.Menu2({:title=>key.equals("cityUid") ? "Location" : key.equals("apiProvider") ? "API provider" : key.equals("displayMode") ? "Display mode" : "Minutes"});
+        var menu=new WatchUi.Menu2({:title=>key.equals("cityUid") ? "Location" : key.equals("apiProvider") ? "API provider" : key.equals("displayMode") ? "Display mode" : key.equals("textLanguage") ? "Text language" : key.equals("textCase") ? "Text case" : "Minutes"});
         for(var i=0;i<names.size();i++) { menu.addItem(new WatchUi.MenuItem(names[i],null,values[i],null)); }
         WatchUi.pushView(menu,new PropertyListDelegate(key),WatchUi.SLIDE_UP);
     }
@@ -28,6 +28,8 @@ class AirAlertSettingsMenu extends WatchUi.Menu2 {
         Menu2.initialize({:title=>"Air Alert settings"});
         addItem(new WatchUi.MenuItem("API provider",null,"provider",null));
         addItem(new WatchUi.MenuItem("Display mode",null,"display",null));
+        addItem(new WatchUi.MenuItem("Text language",null,"language",null));
+        addItem(new WatchUi.MenuItem("Text case",null,"case",null));
         addItem(new WatchUi.MenuItem("Provider token",null,"token",null));
         addItem(new WatchUi.MenuItem("Location",null,"city",null));
         addItem(new WatchUi.MenuItem("Custom UID",null,"custom",null));
@@ -48,6 +50,8 @@ class AirAlertSettingsMenu extends WatchUi.Menu2 {
     function refreshValues() {
         setValue("provider",Config.providerName());
         setValue("display",Config.displayModeName());
+        setValue("language",Config.textLanguageName());
+        setValue("case",Config.textCaseName());
         setValue("token",!Config.needsToken() ? "Not required" : Config.token().length()==0 ? "Not set" : "Configured");
         setValue("city",Config.location()["name"]);
         var uid=Application.Properties.getValue("customUid");
@@ -64,6 +68,8 @@ class SettingsDelegate extends WatchUi.Menu2InputDelegate {
         var id=item.getId();
         if (id.equals("provider")) { SettingsMenu.selectList("apiProvider",["alerts.in.ua","Ukraine Alarm","UA Siren (no token)"],[0,1,2]); }
         else if (id.equals("display")) { SettingsMenu.selectList("displayMode",["Text","Status dots"],[0,1]); }
+        else if (id.equals("language")) { SettingsMenu.selectList("textLanguage",["English","Українська"],[0,1]); }
+        else if (id.equals("case")) { SettingsMenu.selectList("textCase",["Default","UPPERCASE","lowercase"],[0,1,2]); }
         else if (id.equals("token")) { if (Config.needsToken()) { SettingsMenu.edit(Config.provider()==1 ? "ukraineAlarmToken" : "apiToken"); } }
         else if (id.equals("custom")) { SettingsMenu.edit("customUid"); }
         else if (id.equals("label")) { SettingsMenu.edit("customLabel"); }

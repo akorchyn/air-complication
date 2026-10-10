@@ -36,6 +36,9 @@ class ConsumerView extends WatchUi.WatchFace {
   if (value.equals("🟢")) { value="GREEN DOT"; }
   else if (value.equals("🟡")) { value="YELLOW DOT"; }
   else if (value.equals("🔴")) { value="RED DOT"; }
+  else if (value.equals("Немає") || value.equals("НЕМАЄ") || value.equals("немає")) { value="CLEAR UA"; }
+  else if (value.equals("Жовта") || value.equals("ЖОВТА") || value.equals("жовта")) { value="YELLOW UA"; }
+  else if (value.equals("Червона") || value.equals("ЧЕРВОНА") || value.equals("червона")) { value="RED UA"; }
   dc.drawText(dc.getWidth()/2,dc.getHeight()/2-18,WatchUi.loadResource(Rez.Fonts.TestFont),value,Graphics.TEXT_JUSTIFY_CENTER);
  }
 }

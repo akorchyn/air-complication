@@ -37,3 +37,15 @@ function settings_return_updates_location_and_intervals(logger) {
     Test.assertEqual(menu.getItem(menu.findItemById("display")).getSubLabel(),"Status dots");
     return true;
 }
+
+(:test)
+function settings_return_updates_language_and_case(logger) {
+    resetTest();var menu=new AirAlertSettingsMenu();
+    Test.assertEqual(menu.getItem(menu.findItemById("language")).getSubLabel(),"English");
+    Test.assertEqual(menu.getItem(menu.findItemById("case")).getSubLabel(),"Default");
+    Application.Properties.setValue("textLanguage",1);Application.Properties.setValue("textCase",2);menu.onShow();
+    Test.assertEqual(menu.getItem(menu.findItemById("language")).getSubLabel(),"Українська");
+    Test.assertEqual(menu.getItem(menu.findItemById("case")).getSubLabel(),"lowercase");
+    Application.Properties.setValue("textCase",1);menu.onShow();
+    Test.assertEqual(menu.getItem(menu.findItemById("case")).getSubLabel(),"UPPERCASE");return true;
+}

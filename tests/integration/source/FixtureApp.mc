@@ -13,6 +13,8 @@ class FixtureApp extends AirAlertApp {
         Application.Properties.setValue("cityUid",31);
         Application.Properties.setValue("apiProvider",0);
         Application.Properties.setValue("displayMode",ProbeConfig.DISPLAY_MODE);
+        Application.Properties.setValue("textLanguage",ProbeConfig.TEXT_LANGUAGE);
+        Application.Properties.setValue("textCase",ProbeConfig.TEXT_CASE);
         Application.Properties.setValue("apiToken","SIMULATOR_FIXTURE_ONLY");
         Application.Properties.setValue("refreshMinutes",5);
         Application.Storage.deleteValue("cache");Application.Storage.deleteValue("requestGate");Application.Storage.setValue("fixtureStep",0);

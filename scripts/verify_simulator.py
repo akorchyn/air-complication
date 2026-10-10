@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Optional Linux X11 automation for the separate publisher + consumer fixtures.
 Requires python-xlib and a RUNNING Garmin simulator. Never uses the live API.
-Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50] [text|dots] [epix2|venu441mm|venu445mm]
+Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50] [text|dots|ua|ua-upper|ua-lower] [epix2|venu441mm|venu445mm]
 The test temporarily changes only tests/integration/source/ProbeConfig.mc.
 """
 import os,sys,time,subprocess,json
@@ -11,12 +11,12 @@ from Xlib.ext import xtest
 ROOT=Path(__file__).resolve().parents[1]
 SDK=Path(os.environ['CIQ_SDK']);KEY=os.environ['CIQ_KEY'];rows=int(sys.argv[1]) if len(sys.argv)>1 else 1
 mode=sys.argv[2] if len(sys.argv)>2 else 'text'
-if mode not in ['text','dots']:raise SystemExit('Mode must be text or dots')
+if mode not in ['text','dots','ua','ua-upper','ua-lower']:raise SystemExit('Unsupported display mode')
 device=sys.argv[3] if len(sys.argv)>3 else 'epix2'
 if device not in ['epix2','venu441mm','venu445mm']:raise SystemExit('Unsupported device')
 suffix='' if device=='epix2' else '-'+device
 profile=json.loads((Path.home()/'.Garmin/ConnectIQ/Devices'/device/'simulator.json').read_text())
-prefix=f'probe-{rows}' if mode=='text' else f'dots-{rows}'
+prefix=f'probe-{rows}' if mode=='text' else f'{mode}-{rows}'
 prefix+=suffix
 probe=ROOT/'tests/integration/source/ProbeConfig.mc';original=probe.read_text()
 d=display.Display()
@@ -26,11 +26,20 @@ def click(x,y):
 def key(name):
     k=d.keysym_to_keycode(XK.string_to_keysym(name));xtest.fake_input(d,X.KeyPress,k);xtest.fake_input(d,X.KeyRelease,k);d.sync();time.sleep(.2)
 def window(title):
-    for w in d.screen().root.query_tree().children:
-        if title in (w.get_wm_name() or ''):return w
+    deadline=time.monotonic()+5
+    while time.monotonic()<deadline:
+        for w in d.screen().root.query_tree().children:
+            if title in (w.get_wm_name() or '') and w.get_attributes().map_state==X.IsViewable:return w
+        time.sleep(.1)
     raise RuntimeError('Window not found: '+title)
 def temporal():
-    key('Escape');click(145,12);click(180,179) # Simulation > Background Events
+    key('Escape');click(145,12) # Simulation menu.
+    # GTK scales these 11 menu rows with the desktop font. Select row six
+    # relative to the popup geometry rather than hard-coding its screen Y.
+    popup=next(w for w in d.screen().root.query_tree().children
+        if w.get_attributes().override_redirect and w.get_wm_name()=='simulator'
+        and w.get_geometry().height>200)
+    g=popup.get_geometry();click(g.x+g.width//2,g.y+int(g.height*5.5/11))
     w=window('Background Events');g=w.get_geometry();x,y=g.x,g.y
     click(x+200,y+125);key('Home');key('Down');key('Return') # Air Alert UA
     click(x+166,y+170);time.sleep(1)
@@ -43,7 +52,9 @@ def run(prg,log):
     time.sleep(.3);return p,handle
 processes=[]
 try:
-    probe.write_text(f'(:background)\nmodule ProbeConfig {{ const ROWS={rows}; const DISPLAY_MODE={1 if mode=="dots" else 0}; }}\n')
+    language=1 if mode.startswith('ua') else 0
+    case=1 if mode=='ua-upper' else 2 if mode=='ua-lower' else 0
+    probe.write_text(f'(:background)\nmodule ProbeConfig {{ const ROWS={rows}; const DISPLAY_MODE={1 if mode=="dots" else 0}; const TEXT_LANGUAGE={language}; const TEXT_CASE={case}; }}\n')
     result=subprocess.run([str(ROOT/'scripts/build.sh'),'integration',device],cwd=ROOT,capture_output=True,text=True)
     (ROOT/f'docs/{prefix}-build.log').write_text(result.stdout+result.stderr)
     if result.returncode:raise RuntimeError('Fixture compilation failed')
@@ -58,13 +69,14 @@ try:
     if rows==1 and device!='epix2':
         subprocess.run(['import','-window',hex(window('CIQ Simulator').id),str(ROOT/f'docs/{prefix}-manual.png')],check=True,timeout=10)
     temporal()
-    if mode=='dots' and rows<=10:temporal() # Valid empty response must publish green.
+    if (mode=='dots' or language==1) and rows<=10:temporal() # Valid empty response.
     out=(ROOT/f'docs/{prefix}-consumer.log').read_text()
     print(out)
-    expected='RED' if mode=='text' else '🔴'
-    yellow='YELLOW' if mode=='text' else '🟡'
+    expected,yellow,clear={'text':('RED','YELLOW','CLEAR'),'dots':('🔴','🟡','🟢'),
+        'ua':('Червона','Жовта','Немає'),'ua-upper':('ЧЕРВОНА','ЖОВТА','НЕМАЄ'),
+        'ua-lower':('червона','жовта','немає')}[mode]
     if rows<=10 and (f'CONSUMER RECEIVED: {expected}' not in out or f'CONSUMER RECEIVED: {yellow}' not in out):raise RuntimeError('Missing consumer manual/background update')
-    if mode=='dots' and rows<=10 and 'CONSUMER RECEIVED: 🟢' not in out:raise RuntimeError('Missing consumer green update')
+    if (mode=='dots' or language==1) and rows<=10 and f'CONSUMER RECEIVED: {clear}' not in out:raise RuntimeError('Missing consumer clear update')
     if rows==1 and mode=='text':
         screenshot='background-red.png' if device=='epix2' else f'{prefix}-background.png'
         subprocess.run(['import','-window',hex(window('CIQ Simulator').id),str(ROOT/f'docs/{screenshot}')],check=True,timeout=10)

@@ -19,6 +19,10 @@ module Config {
     function needsToken() { return provider()!=2; }
     function displayMode() { return number("displayMode",0)==1 ? 1 : 0; }
     function displayModeName() { return displayMode()==1 ? "Status dots" : "Text"; }
+    function textLanguage() { return number("textLanguage",0)==1 ? 1 : 0; }
+    function textLanguageName() { return textLanguage()==1 ? "Українська" : "English"; }
+    function textCase() { var c=number("textCase",0);return (c>=0 && c<=2) ? c : 0; }
+    function textCaseName() { return ["Default","UPPERCASE","lowercase"][textCase()]; }
     function staleSeconds() { var n=number("staleMinutes",10); return (n>=5 && n<=60) ? n*60 : 600; }
     function location() as Dictionary {
         var id=number("cityUid",31);

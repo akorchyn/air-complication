@@ -167,6 +167,21 @@ PASS
 Executing test dot_mode_change_does_not_reset_failure_backoff...
 PASS
 ------------------------------------------------------------------------------
+Executing test ukrainian_text_cases_and_invalid_states...
+PASS
+------------------------------------------------------------------------------
+Executing test english_case_defaults_and_invalid_settings...
+PASS
+------------------------------------------------------------------------------
+Executing test ukrainian_unknown_and_stale_never_show_clear...
+PASS
+------------------------------------------------------------------------------
+Executing test language_case_edits_preserve_cache_and_failure_backoff...
+PASS
+------------------------------------------------------------------------------
+Executing test language_case_edit_preserves_inflight_response...
+PASS
+------------------------------------------------------------------------------
 Executing test missing_token_avoids_network...
 PASS
 ------------------------------------------------------------------------------
@@ -216,6 +231,9 @@ Executing test settings_return_updates_provider_and_token_requirement...
 PASS
 ------------------------------------------------------------------------------
 Executing test settings_return_updates_location_and_intervals...
+PASS
+------------------------------------------------------------------------------
+Executing test settings_return_updates_language_and_case...
 PASS
 ------------------------------------------------------------------------------
 Executing test first_launch_without_token...
@@ -307,6 +325,11 @@ display_mode_maps_all_states_and_rejects_invalid_setting    PASS
 dot_mode_never_shows_green_for_failed_or_stale_check        PASS
 mode_change_preserves_cache_schedule_and_request_generation PASS
 dot_mode_change_does_not_reset_failure_backoff              PASS
+ukrainian_text_cases_and_invalid_states                     PASS
+english_case_defaults_and_invalid_settings                  PASS
+ukrainian_unknown_and_stale_never_show_clear                PASS
+language_case_edits_preserve_cache_and_failure_backoff      PASS
+language_case_edit_preserves_inflight_response              PASS
 missing_token_avoids_network                                PASS
 manual_request_updates_persisted_status                     PASS
 old_response_cannot_contaminate_new_city                    PASS
@@ -324,6 +347,7 @@ provider_auth_headers_and_request_scope                     PASS
 volyn_hierarchy_is_not_crimea                               PASS
 settings_return_updates_provider_and_token_requirement      PASS
 settings_return_updates_location_and_intervals              PASS
+settings_return_updates_language_and_case                   PASS
 first_launch_without_token                                  PASS
 stale_boundary_and_clock_rollback                           PASS
 switching_city_invalidates_cache                            PASS
@@ -334,6 +358,6 @@ rate_limit_backoff                                          PASS
 custom_location_is_official_and_exact                       PASS
 intervals_are_validated                                     PASS
 corrupted_cache_is_unknown                                  PASS
-Ran 83 tests
+Ran 89 tests
 
-PASSED (passed=83, failed=0, errors=0)
+PASSED (passed=89, failed=0, errors=0)

@@ -2,6 +2,8 @@
  <property id="apiToken" type="string"></property>
  <property id="apiProvider" type="number">0</property>
  <property id="displayMode" type="number">0</property>
+ <property id="textLanguage" type="number">0</property>
+ <property id="textCase" type="number">0</property>
  <property id="ukraineAlarmToken" type="string"></property>
  <property id="cityUid" type="number">31</property>
  <property id="customUid" type="string"></property>

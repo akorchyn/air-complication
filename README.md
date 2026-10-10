@@ -1,6 +1,6 @@
 # Air Alert UA — Garmin air-alert complication
 
-A standalone Connect IQ **Device App** that publishes Ukrainian air-alert status as a public complication, ID `0`. Use it with any watch face that supports **third-party Connect IQ complications** on a supported device. Select **alerts.in.ua**, **Ukraine Alarm**, or **UA Siren** and monitor a city or oblast. Choose **Text** (`CLEAR`, `YELLOW`, `RED`, `N/A`, `STALE`) or **Status dots** (🟢, 🟡, 🔴, `?`, `!`), with a short location label. The included consumer watch face exists only for simulator tests.
+A standalone Connect IQ **Device App** that publishes Ukrainian air-alert status as a public complication, ID `0`. Use it with any watch face that supports **third-party Connect IQ complications** on a supported device. Select **alerts.in.ua**, **Ukraine Alarm**, or **UA Siren** and monitor a city or oblast. Choose **Text** in English or Ukrainian with configurable letter case, or **Status dots** (🟢, 🟡, 🔴, `?`, `!`), with a short location label. The included consumer watch face exists only for simulator tests.
 
 Download the PRG for your watch from the **[latest GitHub Release](https://github.com/akorchyn/air-complication/releases/latest)**:
 
@@ -57,7 +57,7 @@ To export an IQ package for your own beta/store workflow, run `scripts/build.sh 
 
 ## GitHub Actions builds
 
-[Build Connect IQ](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) runs on pushes to `main`, pull requests, version tags and manual **Run workflow** requests. It builds a PRG for each supported model and a multi-device IQ package, and compiles the separate spike, consumer, integration and unit-test targets for all three models. Tag pushes such as `v1.3.0` automatically create a **GitHub Release** containing the three model-specific PRGs, `air-alert.iq`, and `SHA256SUMS`. The tag must match the application version in `manifest.xml`. These are the downloadable binaries shown in GitHub's **Releases** sidebar; publishing a GitHub Package is unnecessary for a Garmin PRG.
+[Build Connect IQ](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) runs on pushes to `main`, pull requests, version tags and manual **Run workflow** requests. It builds a PRG for each supported model and a multi-device IQ package, and compiles the separate spike, consumer, integration and unit-test targets for all three models. Tag pushes such as `v1.4.0` automatically create a **GitHub Release** containing the three model-specific PRGs, `air-alert.iq`, and `SHA256SUMS`. The tag must match the application version in `manifest.xml`. These are the downloadable binaries shown in GitHub's **Releases** sidebar; publishing a GitHub Package is unnecessary for a Garmin PRG.
 
 For an untagged development build, open a successful run and download **Air-Alert-UA-Epix-Gen-2-and-Venu-4** under **Artifacts**. Extract the ZIP, choose your model's PRG, and copy it to your watch as `GARMIN/APPS/air-alert.prg`. The separate simulator-fixture download must not be installed on your everyday watch.
 
@@ -67,7 +67,7 @@ The workflow uses Java 17, official Garmin SDK 9.2.0 and the existing public dev
 
 No secrets are required for a build. By default CI creates a temporary development signing key, then deletes it; the signing identity changes between runs. For a consistent identity, set repository Actions secret **CIQ_SIGNING_KEY_BASE64** to the base64 representation of your own DER developer key. Never put the key in Git. Fork pull requests use a temporary key because repository secrets are withheld. No provider token is used or embedded by CI.
 
-CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **83-test** verification logs for Epix and both Venu sizes.
+CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **89-test** verification logs for Epix and both Venu sizes.
 
 ## Installation and settings
 
@@ -117,23 +117,33 @@ All these rules have mocked regression tests. The generator cross-checks the off
 
 Some faces can launch a complication's associated app when its field is selected or long-pressed. This interaction depends on the face and is unverified here. You can open Air Alert UA from the watch's app list to use Refresh and settings.
 
-The publisher supplies text and a short label. **Your watch face controls colors, font, placement, truncation and repainting.** Dynamic text/background coloring is not implemented or claimed. `YELLOW` is the longest value in Text mode (six characters); check readability in your chosen field.
+The publisher supplies text and a short label. **Your watch face controls colors, font size, placement, truncation and repainting.** Dynamic text/background coloring is not implemented or claimed. `YELLOW` and `Червона` are the longest normal English/Ukrainian values; check readability in your chosen field.
 
 ## Complication display mode
 
 Choose **Complication display mode** in mobile settings or open the on-watch **Settings → Display mode** menu:
 
-| Status | Text (default) | Status dots |
+| Status | English text (default) | Ukrainian text | Status dots |
+|---|---|---|---|
+| No applicable active air-raid alert after a validated check | CLEAR | Немає | 🟢 |
+| Yellow-level air-raid alert | YELLOW | Жовта | 🟡 |
+| Red-level air-raid alert | RED | Червона | 🔴 |
+| Unavailable / failed / unknown | N/A | н.д. | `?` |
+| Last successful check is stale | STALE | Застар. | `!` |
+
+For Ukrainian, select **Status text language → Українська** in mobile settings or **Settings → Text language → Українська** on the watch. **Status text case / Text case** offers:
+
+| Choice | English example | Ukrainian example |
 |---|---|---|
-| No applicable active air-raid alert after a validated check | CLEAR | 🟢 |
-| Yellow-level air-raid alert | YELLOW | 🟡 |
-| Red-level air-raid alert | RED | 🔴 |
-| Unavailable / failed / unknown | N/A | `?` |
-| Last successful check is stale | STALE | `!` |
+| Default | YELLOW | Жовта |
+| UPPERCASE | YELLOW | ЖОВТА |
+| lowercase | yellow | жовта |
+
+For a less prominent appearance, try **Українська + lowercase**: `немає`, `жовта`, `червона`, `н.д.` and `застар.`. This changes the characters supplied to the face; the face determines their size and may enforce its own capitalization. Its font must contain Cyrillic glyphs to display Ukrainian. Cyrillic delivery is tested in the simulator; rendering in your chosen third-party face remains device/font dependent. Language and case apply to status words on the app's own screen too; Status dots keep the same symbols.
 
 These are literal Unicode characters (U+1F7E2, U+1F7E1, U+1F534), not published images or instructions to recolor text. Dot mode is optional: **your watch face's font must support those characters**. They may appear monochrome, as missing-glyph boxes or blank. Colored emoji rendering by third-party watch faces is **unverified** and cannot be guaranteed by the publisher; switch back to Text if the symbols are unreadable. The included ASCII-font consumer proves the Unicode values arrive, but draws captions rather than claiming to render color emoji.
 
-The app's own status screen keeps readable status words. Changing only the display mode republishes the same cached state immediately without an API request, resetting failure backoff, interrupting an in-flight request or moving the existing background event. After a restart, the app still applies the saved mode to its cache. Selecting a different provider/location continues to invalidate old status.
+The app's own status screen keeps readable status words. Changing only display mode, text language or letter case republishes the same cached state immediately, without an API request. It preserves failure backoff, in-flight requests and the existing background event. After a restart, the app applies the saved presentation settings to its cache. Selecting a different provider/location continues to invalidate old status.
 
 ## Refresh and stale data
 
@@ -141,7 +151,7 @@ The app's own status screen keeps readable status words. Changing only the displ
 
 The app uses supported, one-shot `Background.registerForTemporalEvent(Time.Moment)` events, registering the next event before starting networking. Intervals are **5, 10, 15, 30 or 60 minutes**, default 5. No event is scheduled sooner than five minutes from registration. Services can run late or be suspended/terminated; Garmin's background service execution window is limited to 30 seconds.
 
-Opening the app displays the cache and arms background work. Use **Refresh**: press START on Epix, or tap the screen / press the top-right button on Venu 4. Manual refresh starts a check immediately unless a check is already active, another check started within the last minute, or failure backoff is active. A city check can make up to three sequential requests when verifying parents. It does not bypass a 429 rate limit. Cached values are reused between checks. Data/refresh-setting changes reset failure backoff for recovery after replacing a token; the shared one-minute gate still applies. Display-mode-only changes retain that backoff.
+Opening the app displays the cache and arms background work. Use **Refresh**: press START on Epix, or tap the screen / press the top-right button on Venu 4. Manual refresh starts a check immediately unless a check is already active, another check started within the last minute, or failure backoff is active. A city check can make up to three sequential requests when verifying parents. It does not bypass a 429 rate limit. Cached values are reused between checks. Data/refresh-setting changes reset failure backoff for recovery after replacing a token; the shared one-minute gate still applies. Presentation-only changes retain that backoff.
 
 The default stale threshold is **10 minutes** after the last successful check. The next execution publishes `STALE` at or beyond that boundary. Longer refresh intervals also schedule a supported stale-transition event; that event does not fetch early if the network interval has not elapsed. Failures show `N/A` while the prior successful check is fresh, and `STALE` once it is old. First launch with the default provider and no token shows `N/A` without requesting data. UA Siren needs no token but still requires a successful Refresh before showing a status.
 
@@ -163,7 +173,7 @@ For the latter two, a city check verifies the selected location and applicable p
 
 Only validated HTTP 200 data can produce `CLEAR`. alerts.in.ua requires an `alerts` array and recognized `red`/`yellow` severity for applicable `air_raid` alerts; threats can raise severity to red. Ukraine Alarm/UA Siren require an array of valid regional records; applicable `AIR` alerts need a nonempty `activeAlertLevels` array containing recognized `Red`/`Yellow` levels. Red wins over yellow and uncertain additional rows. Missing/unknown levels, malformed relevant rows, unsupported relevant types, invalid JSON and contradictory ended alerts yield `N/A` unless an applicable red warning exists. Unknown location classification is conservative; recognized unrelated alert types are excluded.
 
-Application storage retains selected scope/ancestry, provider identity, state, successful-check epoch, request sequence/lease/gate, retry time, failure count and error message. Application properties retain selection and settings. Responses from an old location/provider or data-setting generation are discarded; a display-mode-only edit keeps the in-flight request and formats its result with the current mode. The shared gate spans data-setting changes; requests have expiring leases. No token or authorization header is logged. The foreground settings comparison is held only in memory, not copied into storage.
+Application storage retains selected scope/ancestry, provider identity, state, successful-check epoch, request sequence/lease/gate, retry time, failure count and error message. Application properties retain selection and settings. Responses from an old location/provider or data-setting generation are discarded; a presentation-only edit keeps the in-flight request and formats its result with the current mode, language and case. The shared gate spans data-setting changes; requests have expiring leases. No token or authorization header is logged. The foreground settings comparison is held only in memory, not copied into storage.
 
 | Outcome | Behavior |
 |---|---|
