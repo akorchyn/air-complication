@@ -1,12 +1,27 @@
-# Air Alert UA — Epix Gen 2 complication publisher
+# Air Alert UA — Garmin air-alert complication
 
-A standalone Connect IQ **Device App** with a public complication, ID `0`. Install it alongside Tronic; it does not change Tronic. Select **alerts.in.ua**, **Ukraine Alarm**, or **UA Siren** and monitor a city or oblast. The app publishes `CLEAR`, `YELLOW`, `RED`, `N/A`, or `STALE`, with a short location label. The included consumer watch face exists only for simulator tests.
+A standalone Connect IQ **Device App** that publishes Ukrainian air-alert status as a public complication, ID `0`. Use it with any watch face that supports **third-party Connect IQ complications** on a supported device. Select **alerts.in.ua**, **Ukraine Alarm**, or **UA Siren** and monitor a city or oblast. Choose **Text** (`CLEAR`, `YELLOW`, `RED`, `N/A`, `STALE`) or **Status dots** (🟢, 🟡, 🔴, `?`, `!`), with a short location label. The included consumer watch face exists only for simulator tests.
 
-Download the installable **[air-alert.prg from the latest GitHub Release](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert.prg)**. Copy it to `GARMIN/APPS/air-alert.prg` on the connected watch, safely disconnect, and open Air Alert UA once. Source control contains no generated binaries; release assets and GitHub Actions downloads contain the builds.
+Download the installable **[air-alert.prg from the latest GitHub Release](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert.prg)** for **Epix (Gen 2)**. Copy it to `GARMIN/APPS/air-alert.prg` on the connected watch, safely disconnect, and open Air Alert UA once. Source control contains no generated binaries; release assets and GitHub Actions downloads contain the builds.
 
 **Informational only. Continue using official Ukrainian air-alert notifications.** There are no emergency sounds or guaranteed delivery. `CLEAR` means a successful response contained no applicable **air-raid** alerts; unrelated chemical, nuclear, artillery and urban-fighting alerts are outside this display's scope.
 
-The project compiles for Epix Gen 2 and publisher-to-consumer updates were exercised in Garmin's simulator. A real UA Siren request also succeeded in the simulator. Physical Tronic integration and authenticated live API requests remain unverified. Two material limits remain: nationwide responses can exceed background memory, and Garmin provides no complication expiry mechanism. Read the limitations below before relying on this display.
+The project compiles for Epix Gen 2 and publisher-to-consumer updates were exercised in Garmin's simulator. A real UA Siren request also succeeded in the simulator. Physical integration with third-party watch faces and authenticated live API requests remain unverified. Two material limits remain: nationwide responses can exceed background memory, and Garmin provides no complication expiry mechanism. Read the limitations below before relying on this display.
+
+## Compatibility
+
+The complication uses Garmin's public `Toybox.Complications` API and has no dependency on a particular watch face. The face must let you select an external/custom Connect IQ complication and display its string value. Support for built-in Garmin data fields alone does not establish support for third-party publishers. Picker names, available fields and any paid feature requirements depend on the watch face.
+
+**Released builds currently target Epix (Gen 2), 416×416 only.** Device support and watch-face support are separate requirements; an Epix PRG must not be sideloaded onto another model.
+
+Venu 4's SDK profiles support the required complication, background and networking APIs. Temporary builds with both products added to a separate test manifest compiled successfully using SDK 9.2.0:
+
+| Candidate device | SDK product ID | Display |
+|---|---|---|
+| Venu 4, 41 mm | `venu441mm` | 390×390 |
+| Venu 4, 45 mm | `venu445mm` | 454×454 |
+
+**Venu 4 is not included in the current release.** Shipping support still requires adding these products to the production manifest and CI device setup, producing device-specific builds, and checking layouts and button/touch controls in the simulator and on hardware. Both models have the same 64 KiB background-memory limit as Epix, so adding them would not remove the response-size constraint. See [verification evidence](docs/VERIFICATION.md#venu-4-compatibility-check).
 
 ## Build tools
 
@@ -32,7 +47,7 @@ To export an IQ package for your own beta/store workflow, run `scripts/build.sh 
 
 ## GitHub Actions builds
 
-[Build Connect IQ](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) runs on pushes to `main`, pull requests, version tags and manual **Run workflow** requests. It builds the Epix PRG and IQ package and compiles the separate spike, consumer, integration and unit-test targets. Tag pushes such as `v1.1.0` automatically create a **GitHub Release** containing `air-alert.prg`, `air-alert.iq`, and `SHA256SUMS`. The tag must match the application version in `manifest.xml`. These are the downloadable binaries shown in GitHub's **Releases** sidebar; publishing a GitHub Package is unnecessary for a Garmin PRG.
+[Build Connect IQ](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) runs on pushes to `main`, pull requests, version tags and manual **Run workflow** requests. It builds the Epix PRG and IQ package and compiles the separate spike, consumer, integration and unit-test targets. Tag pushes such as `v1.2.0` automatically create a **GitHub Release** containing `air-alert.prg`, `air-alert.iq`, and `SHA256SUMS`. The tag must match the application version in `manifest.xml`. These are the downloadable binaries shown in GitHub's **Releases** sidebar; publishing a GitHub Package is unnecessary for a Garmin PRG.
 
 For an untagged development build, open a successful run and download **Air-Alert-UA-Epix-Gen-2** under **Artifacts**. Extract the ZIP and copy `air-alert.prg` to your watch. The separate simulator-fixture download must not be installed on your everyday watch.
 
@@ -83,17 +98,16 @@ For an **oblast**, matching accepts its own alert and district/community alerts 
 
 All these rules have mocked regression tests. The generator cross-checks the official CSV's hierarchy against the Ukraine Alarm directory snapshot; the CSV inserts Crimea between Volyn and its districts, so row order alone must not assign Volyn's communities to Crimea. See [data provenance](research/PROVENANCE.md). To update mappings, refresh both directory snapshots, inspect differences, run `python3 scripts/generate_locations.py`, and run the tests.
 
-## Add to Tronic
+## Add to a watch face
 
-Use [Tronic by frinkr](https://apps.garmin.com/en-UA/apps/a67586af-b888-4c60-9845-1aa064cc3d6d), version 3.0.0 or newer.
+1. Install and open **Air Alert UA** once. Configure its provider, token if required, and location; use **Refresh** to obtain a status.
+2. In your watch face's settings, assign an **external/custom complication** to an available field. Depending on the face, this is configured in its mobile settings, its on-watch customization menu, or both. Follow the face author's instructions.
+3. In the complication picker, select **Air Alert UA** and save/apply the changes. If the face does not offer third-party publishers, it cannot consume this complication.
+4. Refresh Air Alert UA manually, then return to the watch face and check that the field displays the updated status and location label.
 
-1. In Tronic's mobile settings, assign **Custom Complication** to an available data field (near the end of the source list).
-2. On the watch, open **Watch Faces → Tronic → Customize → Custom Complication**, choose **Air Alert UA**, and apply the changes.
-3. Check that the field shows the published text. Refresh Air Alert UA manually and return to Tronic to check the update on your actual watch.
+Some faces can launch a complication's associated app when its field is selected or long-pressed. This interaction depends on the face and is unverified here. You can open Air Alert UA from the watch's app list to use Refresh and settings.
 
-These steps follow [the author's complication instructions](https://ko-fi.com/Post/Complications-S6S21PPWWW). The author describes a long press on the field launching its associated app; this has not been tested on physical Tronic. Opening Air Alert UA from the app list always provides the explicit Refresh action. Tronic advertises some Pro-only features, but the available instructions do not establish whether this particular field requires a Pro unlock. Confirm that in your installed version; no Pro requirement is assumed here.
-
-The publisher supplies text and a short label. **Tronic controls colors, font, placement, truncation and repainting.** Dynamic text/background coloring is not implemented or claimed. `YELLOW` is the longest value in Text mode (six characters); actual truncation in each Tronic layout needs hardware checking.
+The publisher supplies text and a short label. **Your watch face controls colors, font, placement, truncation and repainting.** Dynamic text/background coloring is not implemented or claimed. `YELLOW` is the longest value in Text mode (six characters); check readability in your chosen field.
 
 ## Complication display mode
 
@@ -107,13 +121,13 @@ Choose **Complication display mode** in mobile settings or **hold MENU → Displ
 | Unavailable / failed / unknown | N/A | `?` |
 | Last successful check is stale | STALE | `!` |
 
-These are literal Unicode characters (U+1F7E2, U+1F7E1, U+1F534), not published images or instructions to recolor text. Dot mode is optional: **Tronic's actual font must support those characters**. They may appear monochrome, as missing-glyph boxes or blank. Colored emoji rendering on Epix/Tronic is **unverified** and cannot be guaranteed by the publisher; switch back to Text if the symbols are unreadable. The included ASCII-font consumer proves the Unicode values arrive, but draws captions rather than claiming to render color emoji.
+These are literal Unicode characters (U+1F7E2, U+1F7E1, U+1F534), not published images or instructions to recolor text. Dot mode is optional: **your watch face's font must support those characters**. They may appear monochrome, as missing-glyph boxes or blank. Colored emoji rendering by third-party watch faces is **unverified** and cannot be guaranteed by the publisher; switch back to Text if the symbols are unreadable. The included ASCII-font consumer proves the Unicode values arrive, but draws captions rather than claiming to render color emoji.
 
 The app's own status screen keeps readable status words. Changing only the display mode republishes the same cached state immediately without an API request, resetting failure backoff, interrupting an in-flight request or moving the existing background event. After a restart, the app still applies the saved mode to its cache. Selecting a different provider/location continues to invalidate old status.
 
 ## Refresh and stale data
 
-**Refresh on wrist raise is unsupported for this separate app.** `WatchFace.onExitSleep()` belongs to the active watch face, Tronic. Neither public complication subscription nor publication gives another Device App that callback. There is no invented wake hook or fast polling timer.
+**Refresh on wrist raise is unsupported for this separate app.** `WatchFace.onExitSleep()` belongs to the active watch face. Neither public complication subscription nor publication gives another Device App that callback. There is no invented wake hook or fast polling timer.
 
 The app uses supported, one-shot `Background.registerForTemporalEvent(Time.Moment)` events, registering the next event before starting networking. Intervals are **5, 10, 15, 30 or 60 minutes**, default 5. No event is scheduled sooner than five minutes from registration. Services can run late or be suspended/terminated; Garmin's background service execution window is limited to 30 seconds.
 
@@ -121,9 +135,9 @@ Opening the app displays the cache and arms background work. Press **START** for
 
 The default stale threshold is **10 minutes** after the last successful check. The next execution publishes `STALE` at or beyond that boundary. Longer refresh intervals also schedule a supported stale-transition event; that event does not fetch early if the network interval has not elapsed. Failures show `N/A` while the prior successful check is fresh, and `STALE` once it is old. First launch with the default provider and no token shows `N/A` without requesting data. UA Siren needs no token but still requires a successful Refresh before showing a status.
 
-While the Device App's status screen remains open, a single foreground-only timer repaints at the stale deadline. It performs no networking and is stopped when the screen is hidden. It cannot wake the separate app while Tronic is active.
+While the Device App's status screen remains open, a single foreground-only timer repaints at the stale deadline. It performs no networking and is stopped when the screen is hidden. It cannot wake the separate app while a watch face is active.
 
-**A strict ten-minute expiry in Tronic cannot be guaranteed.** `Complications.Data` has no TTL or expiry field. If Garmin prevents every subsequent execution, a consuming face can retain the last published value, including an earlier `CLEAR`. The app invalidates the published value to `N/A` before each request, which covers termination during fetching, but cannot invalidate a value when it never receives CPU time. There is also no guarantee that Tronic will immediately repaint after a publisher update. This is a platform limitation and an unmet hard-expiry guarantee, not a safety assurance.
+**A strict ten-minute expiry in a consuming watch face cannot be guaranteed.** `Complications.Data` has no TTL or expiry field. If Garmin prevents every subsequent execution, a consuming face can retain the last published value, including an earlier `CLEAR` or green dot. The app invalidates the published value to `N/A` (or `?` in dot mode) before each request, which covers termination during fetching, but cannot invalidate a value when it never receives CPU time. There is also no guarantee that a watch face will immediately repaint after a publisher update. This is a platform limitation and an unmet hard-expiry guarantee, not a safety assurance.
 
 ## API, validation and caching
 
@@ -205,7 +219,7 @@ scripts/build.sh consumer
 
 The integration subclass replaces only the transport and test scheduling gate, uses a fixture-only token, and exercises the production cache, parser, request lifecycle and publication. Its simulator event override permits immediate manual injection; production still enforces five-minute scheduling. Optional Linux X11 automation: install `python-xlib` and ImageMagick, position the standard simulator window at the top left, then run `python3 scripts/verify_simulator.py 1` (or `10`, `25`) with `DISPLAY` set. It is tailored to the standard Epix simulator layout; use the manual steps on other desktops.
 
-To check Unicode delivery with the same publisher/consumer paths, compile the consumer and run `python3 scripts/verify_simulator.py 1 dots`. Its log must contain the exact values `CONSUMER RECEIVED: 🟡`, `CONSUMER RECEIVED: 🔴`, and `CONSUMER RECEIVED: 🟢`. This validates publication and delivery, not Tronic's glyphs or colors.
+To check Unicode delivery with the same publisher/consumer paths, compile the consumer and run `python3 scripts/verify_simulator.py 1 dots`. Its log must contain the exact values `CONSUMER RECEIVED: 🟡`, `CONSUMER RECEIVED: 🔴`, and `CONSUMER RECEIVED: 🟢`. This validates publication and delivery; it does not verify another watch face's glyphs or colors.
 
 The production UI uses native system fonts and simple system settings widgets. Test views use bundled ASCII raster fonts to remain readable in environments missing authenticated simulator font downloads. The release UI's native-font rendering was not visually verified here; fixture UI and consuming-face values were. See the verification record for the local Linux simulator runtime workaround and the remaining hardware checks.
 
@@ -213,6 +227,6 @@ The production UI uses native system fonts and simple system settings widgets. T
 
 `source/`: publisher lifecycle, service, request/cache logic, matching, city resolver and watch UI. `resources/`: public complication, icons, native mobile settings/properties. `spike/`: TEST publisher. `tests/consumer/`: subscribing test face. `tests/integration/`: mocked transport/background probe. `tests/unit/`, `tests/fixtures/`: automated logic/request tests. `scripts/`: reproducible builds and fixture/catalog generation.
 
-Official references: [Complications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html), [Background services](https://developer.garmin.com/connect-iq/articles/core-topics/Backgrounding.html), [WatchFace lifecycle](https://developer.garmin.com/connect-iq/api-docs/Toybox/WatchUi/WatchFace.html), [Communications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Communications.html), [publisher/consumer example discussion](https://forums.garmin.com/developer/connect-iq/f/discussion/353286/sample-of-ciq-complication-publisher-and-consumer-of-those-complications), [alerts.in.ua API](https://devs.alerts.in.ua/), [Tronic instructions](https://ko-fi.com/Post/Complications-S6S21PPWWW).
+Official references: [Complications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html), [Background services](https://developer.garmin.com/connect-iq/articles/core-topics/Backgrounding.html), [WatchFace lifecycle](https://developer.garmin.com/connect-iq/api-docs/Toybox/WatchUi/WatchFace.html), [Communications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Communications.html), [publisher/consumer example discussion](https://forums.garmin.com/developer/connect-iq/f/discussion/353286/sample-of-ciq-complication-publisher-and-consumer-of-those-complications), [alerts.in.ua API](https://devs.alerts.in.ua/).
 
-Test font attribution and license: [docs/FONT-LICENSE.txt](docs/FONT-LICENSE.txt). No Garmin SDK, simulator executable, Tronic binary, private developer key or live API token is included.
+Test font attribution and license: [docs/FONT-LICENSE.txt](docs/FONT-LICENSE.txt). No Garmin SDK, simulator executable, third-party watch face binary, private developer key or live API token is included.

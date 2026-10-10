@@ -10,7 +10,7 @@ Adds **Display mode** with two choices: **Text** (default) and **Status dots**.
 
 Choose the mode in mobile settings or hold MENU → Display mode on the watch. Switching modes immediately republishes cached status without a network request or resetting failure backoff. The app's own screen keeps readable status words.
 
-**Glyph/color support depends on Tronic's font.** The publisher sends Unicode text, not colored images. These circles may render monochrome, as boxes, or blank; switch to Text if unreadable. Physical Tronic emoji/color rendering is unverified. Never interpret ? or ! as clear.
+**Glyph/color support depends on your watch face's font.** The publisher sends Unicode text, not colored images. These circles may render monochrome, as boxes, or blank; switch to Text if unreadable. Physical watch-face emoji/color rendering is unverified. Never interpret ? or ! as clear.
 
 Download **air-alert.prg** and replace `GARMIN/APPS/air-alert.prg` on the watch, then safely disconnect. The IQ package is for Garmin distribution tooling, not USB sideloading. CI builds and publishes these assets from the version tag.
 

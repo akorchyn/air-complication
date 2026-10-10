@@ -26,4 +26,4 @@ Oblast scope contains the region and its districts/communities, excluding Kyiv, 
 
 Garmin SDK 9.2.0 and the API reference were obtained from the official Garmin SDK/documentation sources. Epix device definitions used for local verification came from the public cache at https://github.com/blackshadev/garmin-connectiq-tools , commit `cd073d7fc4083edf75eb3e1068d7ee4087c19423`, because direct device/font downloads required an authenticated Garmin session. Users should install current official definitions and fonts with SDK Manager.
 
-No downloaded SDK, private key, authenticated API response, or Tronic executable is part of this project.
+No downloaded SDK, private key, authenticated API response, or third-party watch face executable is part of this project.

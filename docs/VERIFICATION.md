@@ -18,7 +18,7 @@ The temporal integration fixture makes the request immediately due when a simula
 
 Four new simulator tests validate Text/dot mappings, invalid-mode fallback, failed/stale checks never producing green, immediate formatting-only changes preserving cached success/request generation/next-check time, and preserving 429 failure backoff. The settings lifecycle regression also checks the mode label updates on return. All 83 tests passed.
 
-The mode publishes literal Unicode strings for green/yellow/red and ASCII ?/! for unknown/stale. Background callbacks use the selected mode; the foreground status view intentionally retains words. Emoji glyph/color support in Tronic is unverified. The ASCII-only test consumer logs the exact received Unicode string and draws an explanatory caption; it does not demonstrate native colored emoji.
+The mode publishes literal Unicode strings for green/yellow/red and ASCII ?/! for unknown/stale. Background callbacks use the selected mode; the foreground status view intentionally retains words. Emoji glyph/color support in third-party watch faces is unverified. The ASCII-only test consumer logs the exact received Unicode string and draws an explanatory caption; it does not demonstrate native colored emoji.
 
 The actual simulator consumer received 🟡 after a mocked manual refresh, 🔴 after a temporal background event, and 🟢 after a subsequent background event returning a validated empty response. See [dots-1-consumer.log](dots-1-consumer.log), [publisher log](dots-1-publisher.log), and [build log](dots-1-build.log). Reproduce with `scripts/verify_simulator.py 1 dots` after compiling the consumer. The current one-alert dot-mode background probe used 34,904 B after synthetic payload allocation; large-response constraints still apply.
 
@@ -71,12 +71,20 @@ Epix definition: background 65,536 bytes; foreground Device App 786,432 bytes. T
 
 These are current 1.1.0 measurements, including all three provider adapters and the preset metadata. Logs: [one](probe-1-consumer.log), [ten](probe-10-consumer.log), [twenty-five](probe-25-consumer.log). The payload uses the alerts.in.ua shape with distinct strings/dictionaries and long threat text. It is not a live nationwide snapshot or a measurement of phone-side deserialization buffers. Parent requests are sequential, but the maximum Ukraine Alarm/UA Siren response and whole-oblast scope overhead remain unbounded by these tests. No blanket claim that direct nationwide JSON fits is justified.
 
+## Venu 4 compatibility check
+
+Garmin SDK 9.2.0's `venu441mm` and `venu445mm` profiles expose the required complication publisher, background and communications APIs. The 41 mm display is 390×390; the 45 mm display is 454×454. Both allow 65,536 bytes for background services and 786,432 bytes for foreground Device Apps.
+
+Compiled the current production source/resources against both profiles, using a temporary manifest that adds those products and a separate jungle file. Both builds reported `BUILD SUCCESSFUL` at strict type-check level 1. The compiler warned that the 60×60 launcher icon would be scaled to 54×54 (41 mm) and 65×65 (45 mm). Logs: [41 mm](venu4-41mm-build.log), [45 mm](venu4-45mm-build.log).
+
+This is a compilation check, not released device support or a simulator/hardware test. The production manifest, build script and CI still target Epix only. Venu layout and input handling require verification: its profiles have two buttons plus touch, while the current Epix instructions use START and MENU. Device-specific launch icons and release assets should be provided when enabling these products. No Venu binary is published by this check.
+
 ## Verification environment and remaining checks
 
 The official Garmin Linux simulator was run under X11 with Epix Gen 2 definitions. This workspace lacked the old WebKit/libs required by the downloaded simulator and authenticated Garmin simulator fonts. Legacy runtime libraries were supplied locally. A collision between the simulator's exported static FreeType symbols and the host FreeType was corrected by hiding those exported symbols in the local simulator executable. This is an environment workaround only: no patched simulator is distributed, and application APIs/VM logic were not replaced.
 
 The compatibility/integration/consumer views use bundled DejaVu-derived ASCII raster fonts. The production app uses Garmin native fonts. Its native-font rendering and on-watch text picker were compiled but not visually verified in this workspace. The status deadline timer is foreground-only and performs no request.
 
-Still unverified: physical Epix installation, Tronic's actual field updates/truncation, Pro unlock gating, long-press app launch, authenticated live requests, Garmin Connect disconnection/reconnection timing, and real OS-delayed five-minute delivery. Tronic's proprietary executable was unavailable; the included consumer is independent test code and is not a Tronic replacement.
+Still unverified: physical Epix installation, third-party watch faces' actual field updates/truncation and app-launch interactions, authenticated live requests, Garmin Connect disconnection/reconnection timing, and real OS-delayed five-minute delivery. No third-party watch face binary was tested; the included consumer is independent test code for public API delivery.
 
-Unsupported guarantees: wrist-raise refresh of this separate Device App; consumer text/background colors; strict automatic expiry while Garmin suppresses all publisher execution. The Complications API has no TTL. A previously published value can remain visible when no service executes, and this publisher cannot force Tronic's repaint policy. See README before installation.
+Unsupported guarantees: wrist-raise refresh of this separate Device App; consumer text/background colors; strict automatic expiry while Garmin suppresses all publisher execution. The Complications API has no TTL. A previously published value can remain visible when no service executes, and this publisher cannot force a consuming watch face's repaint policy. See README before installation.
