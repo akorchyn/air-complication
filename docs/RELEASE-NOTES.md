@@ -1,13 +1,12 @@
-Standalone Epix Gen 2 Device App publishing a public air-alert complication for compatible watch faces, including Tronic.
+Fixes on-watch settings showing old values after returning from a selection dialog.
 
-Download **air-alert.prg** below and copy it to the watch's `GARMIN/APPS` directory. The IQ package is intended for Garmin distribution tooling; it is not the USB sideload file.
+- Selecting an API provider immediately updates its name and whether a token is required, without reopening settings.
+- Location, custom UID/label, refresh interval and stale threshold also refresh when their picker closes.
+- Settings delivered from the phone update the currently visible settings menu.
+- The existing menu is updated in place, retaining its position.
 
-- Select **alerts.in.ua**, **Ukraine Alarm**, or **UA Siren** in application settings. The first two use separate personal tokens; UA Siren requires no token.
-- Choose from all 24 oblasts, Crimea, Kyiv, Kharkiv, Zaporizhzhia, Sevastopol, Lviv, Odesa and Dnipro, or enter a supported custom community UID.
-- Oblast status includes applicable district/community alerts and excludes independently declared cities. It means an alert somewhere in the selected alert region, not a claim that every locality shares that alert.
-- Refresh every 5–60 minutes using supported background events, or press START in the app for manual Refresh. Failures and unsupported locations display N/A; expired checks display STALE when execution occurs.
-- Binaries are published as release assets, not stored in the source tree. Tag builds compile production and simulator targets and verify asset checksums before publishing.
+Download **air-alert.prg** and copy it to `GARMIN/APPS/air-alert.prg` on the watch, then safely disconnect. The IQ package is for Garmin distribution tooling, not USB sideloading. CI builds and publishes these release assets automatically from the version tag.
 
-Informational only: continue using official air-alert notifications. Garmin cannot guarantee service delivery or complication expiry while the app is suspended, and watch-face colors are controlled by the consumer. Whole-oblast monitoring uses nationwide responses, which can exceed background memory during widespread alerts. UA Siren adds a third-party intermediary. Authenticated Ukraine Alarm/alerts.in.ua requests and physical Tronic integration were not verified here; mocked response tests and simulator consumer propagation are documented in the repository.
+The three providers and all region presets remain available. This is an informational display: keep using official air-alert notifications. Garmin service delivery and complication expiry are not guaranteed; whole-oblast responses can exceed background memory. Physical Tronic integration and authenticated upstream requests remain unverified.
 
-CI uses a temporary signing key unless the repository's `CIQ_SIGNING_KEY_BASE64` secret is configured. Configure a stable developer key for consistent release signing. No live API token is included.
+CI uses an ephemeral signing key unless `CIQ_SIGNING_KEY_BASE64` is configured. No live API token is embedded.

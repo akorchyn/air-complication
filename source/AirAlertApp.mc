@@ -22,6 +22,7 @@ class AirAlertApp extends Application.AppBase {
         // Also reject callbacks from requests started before these settings.
         r["sequence"]=0;r["request"]=0;r["lease"]=0;r["failed"]=true;
         Cache.save(r);Cache.publish(r,loc,Time.now().value());Cache.schedule(r,Time.now().value());
+        SettingsMenu.refresh();
         WatchUi.requestUpdate();
     }
     function onBackgroundData(data) { WatchUi.requestUpdate(); }

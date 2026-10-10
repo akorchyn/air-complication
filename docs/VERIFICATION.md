@@ -6,13 +6,21 @@
 - Before implementing REST integration, installed a standalone public TEST publisher and a separate subscribing watch face in the actual Garmin simulator. The consumer displayed TEST. The final source tree retains both targets for reproduction.
 
   The final clean spike was also re-run: [spike-consumer.log](spike-consumer.log) and [spike-test.png](spike-test.png) show `CONSUMER RECEIVED: TEST` and the consumer display.
-- Executed **77 actual Monkey C Run No Evil tests** for version 1.1.0: `PASSED (passed=77, failed=0, errors=0)`. See [unit-tests.log](unit-tests.log). These compile and invoke production Monkey C logic, not a Python reimplementation. New cases cover both response formats, separate tokens, provider switching, whole-oblast partial alerts, Crimea's alias, unsupported provider locations and all-parent request aggregation.
+- Executed **79 actual Monkey C Run No Evil tests** for version 1.1.1: `PASSED (passed=79, failed=0, errors=0)` (77 passed in 1.1.0). See [unit-tests.log](unit-tests.log). These compile and invoke production Monkey C logic, not a Python reimplementation. New cases cover both response formats, separate tokens, provider switching, whole-oblast partial alerts, Crimea's alias, unsupported provider locations and all-parent request aggregation.
 - Made a **real HTTPS UA Siren request** through the official simulator's `Communications.makeWebRequest` transport, using the production request/cache/parser path and a temporary diagnostic subclass. A decoded root JSON array arrived with HTTP 200 and the cache recorded a successful check. See [network-uasiren.log](network-uasiren.log). This checks the SDK callback boundary, whose published static type omits root arrays despite runtime support. The log contains no alert body, API token or headers; live events are not test fixtures. Authenticated providers still need personal-token/hardware checks.
 - Pressed simulated Epix START through the production Refresh delegate with a mocked transport. It published YELLOW; subsequently loaded consumer read YELLOW.
 - Injected a Garmin simulator temporal background event for the publisher while the consumer watch face was active. The real service/request/cache/parser path published RED; subscribed consumer received RED and repainted. See [probe-1-consumer.log](probe-1-consumer.log), [manual-yellow.png](manual-yellow.png), and [background-red.png](background-red.png).
 - Tested 10 and 25 distinct realistic alert dictionaries with long threat messages in the service. Ten propagated RED. Twenty-five exhausted memory; the consumer received N/A, which had been published before allocation. See the logs below.
 
 The temporal integration fixture makes the request immediately due when a simulator event is injected. This tests the service and delivery path without waiting five minutes; production does not have that override. Automated tests and consumer/memory probes use mocked data exclusively; the separate live smoke check is listed above.
+
+## Settings reactivity patch — 1.1.1
+
+The settings menu reloads values in `onShow()` when a picker closes. It updates the existing MenuItems in place; the same menu instance and position are retained. The application settings callback also updates a currently visible settings menu for phone-delivered changes. This change does not fetch network data when a setting is edited.
+
+Two new actual simulator Run No Evil regressions invoke the same menu instance’s return-to-screen lifecycle after changing properties. `settings_return_updates_provider_and_token_requirement` verifies alerts.in.ua → UA Siren → Ukraine Alarm and the dependent token label; `settings_return_updates_location_and_intervals` verifies location, custom UID/label and both intervals. Both passed, and the complete suite reports 79 passes. Production Epix compilation also passed. Native menu rendering remains unverified because this workspace lacks authenticated Garmin simulator fonts; the diagnostic native view reported Invalid Font Specified. These are programmatic lifecycle/label checks, not a claim of visual hardware verification.
+
+The consumer propagation, live transport and background memory evidence below was recorded for 1.1.0.
 
 ## Requested case coverage
 

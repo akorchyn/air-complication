@@ -3,15 +3,11 @@ using Toybox.Application;
 import Toybox.Lang;
 module SettingsMenu {
     function open() {
-        var menu=new WatchUi.Menu2({:title=>"Air Alert settings"});
-        menu.addItem(new WatchUi.MenuItem("API provider",Config.providerName(),"provider",null));
-        menu.addItem(new WatchUi.MenuItem("Provider token",!Config.needsToken() ? "Not required" : Config.token().length()==0 ? "Not set" : "Configured","token",null));
-        menu.addItem(new WatchUi.MenuItem("Location",Config.location()["name"],"city",null));
-        menu.addItem(new WatchUi.MenuItem("Custom UID",null,"custom",null));
-        menu.addItem(new WatchUi.MenuItem("Custom label",null,"label",null));
-        menu.addItem(new WatchUi.MenuItem("Refresh interval",(Config.interval()/60)+" minutes","interval",null));
-        menu.addItem(new WatchUi.MenuItem("Stale after",(Config.staleSeconds()/60)+" minutes","stale",null));
-        WatchUi.pushView(menu,new SettingsDelegate(),WatchUi.SLIDE_UP);
+        WatchUi.pushView(new AirAlertSettingsMenu(),new SettingsDelegate(),WatchUi.SLIDE_UP);
+    }
+    function refresh() {
+        var view=WatchUi.getCurrentView()[0];
+        if (view instanceof AirAlertSettingsMenu) { view.refreshValues(); }
     }
     function selectList(key, names as Array, values as Array) {
         var menu=new WatchUi.Menu2({:title=>key.equals("cityUid") ? "Location" : key.equals("apiProvider") ? "API provider" : "Minutes"});
@@ -26,6 +22,39 @@ module SettingsMenu {
         }
     }
     function changed() { Application.getApp().onSettingsChanged(); }
+}
+class AirAlertSettingsMenu extends WatchUi.Menu2 {
+    function initialize() {
+        Menu2.initialize({:title=>"Air Alert settings"});
+        addItem(new WatchUi.MenuItem("API provider",null,"provider",null));
+        addItem(new WatchUi.MenuItem("Provider token",null,"token",null));
+        addItem(new WatchUi.MenuItem("Location",null,"city",null));
+        addItem(new WatchUi.MenuItem("Custom UID",null,"custom",null));
+        addItem(new WatchUi.MenuItem("Custom label",null,"label",null));
+        addItem(new WatchUi.MenuItem("Refresh interval",null,"interval",null));
+        addItem(new WatchUi.MenuItem("Stale after",null,"stale",null));
+        refreshValues();
+    }
+    function onShow() as Void {
+        Menu2.onShow();
+        // Returning from a picker reveals this same menu instance.
+        refreshValues();WatchUi.requestUpdate();
+    }
+    function setValue(id as String, value as String) {
+        var index=findItemById(id);var item=getItem(index);
+        if (item!=null) { item.setSubLabel(value);updateItem(item,index); }
+    }
+    function refreshValues() {
+        setValue("provider",Config.providerName());
+        setValue("token",!Config.needsToken() ? "Not required" : Config.token().length()==0 ? "Not set" : "Configured");
+        setValue("city",Config.location()["name"]);
+        var uid=Application.Properties.getValue("customUid");
+        var label=Application.Properties.getValue("customLabel");
+        setValue("custom",uid instanceof String && uid.length()>0 ? uid : "Not set");
+        setValue("label",label instanceof String && label.length()>0 ? label : "ALERT");
+        setValue("interval",(Config.interval()/60)+" minutes");
+        setValue("stale",(Config.staleSeconds()/60)+" minutes");
+    }
 }
 class SettingsDelegate extends WatchUi.Menu2InputDelegate {
     function initialize() { Menu2InputDelegate.initialize(); }

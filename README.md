@@ -42,7 +42,7 @@ The workflow uses Java 17, official Garmin SDK 9.2.0 and the existing public Epi
 
 No secrets are required for a build. By default CI creates a temporary development signing key, then deletes it; the signing identity changes between runs. For a consistent identity, set repository Actions secret **CIQ_SIGNING_KEY_BASE64** to the base64 representation of your own DER developer key. Never put the key in Git. Fork pull requests use a temporary key because repository secrets are withheld. No provider token is used or embedded by CI.
 
-CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **77-test** verification log.
+CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **79-test** verification log.
 
 ## Installation and settings
 
@@ -58,7 +58,7 @@ Choose **API provider** in Air Alert UA's Connect IQ application settings in Gar
 
 The two tokens are separate properties; switching provider retains each token and invalidates the cached status. There is no automatic fallback to a different provider. Enter only the token/key, without adding `Bearer`.
 
-Mobile settings availability for a sideloaded app varies by Garmin tooling; the app also provides **hold MENU → API provider / Provider token / Location** on the watch. The token picker edits the currently selected provider's token. Tokens are never printed in logs or shown back in the menu. They are stored in application properties, which are not a secret vault. Settings also include custom UID/label, refresh interval and stale threshold.
+Mobile settings availability for a sideloaded app varies by Garmin tooling; the app also provides **hold MENU → API provider / Provider token / Location** on the watch. The token picker edits the currently selected provider's token. Tokens are never printed in logs or shown back in the menu. They are stored in application properties, which are not a secret vault. Settings also include custom UID/label, refresh interval and stale threshold. The on-watch menu updates immediately when returning from a picker, including provider-specific token requirements; there is no need to close and reopen settings.
 
 The location dropdown has **32 presets**: all **24 oblasts**, **Crimea**, **Kyiv city**, **Kharkiv city**, **Zaporizhzhia city**, **Sevastopol**, **Lviv**, **Odesa**, and **Dnipro**, plus **Custom UID**. Default: **Kyiv city, UID 31**, which is distinct from **Kyiv Oblast, UID 14**.
 
