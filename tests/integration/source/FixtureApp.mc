@@ -11,6 +11,7 @@ class FixtureApp extends AirAlertApp {
     function newRequest(done as Lang.Method) { return new FixtureRequest(done); }
     function getInitialView() {
         Application.Properties.setValue("cityUid",31);
+        Application.Properties.setValue("apiProvider",0);
         Application.Properties.setValue("apiToken","SIMULATOR_FIXTURE_ONLY");
         Application.Properties.setValue("refreshMinutes",5);
         Application.Storage.deleteValue("cache");Application.Storage.deleteValue("requestGate");Application.Storage.setValue("fixtureStep",0);

@@ -13,5 +13,6 @@ lines=['using Toybox.Test;','using Toybox.Application;','import Toybox.Lang;']
 for file in sorted((ROOT/'tests/fixtures').glob('*.json')):
  d=json.loads(file.read_text())
  if 'expected' not in d:continue
- lines.extend(['(:test)',f'function {file.stem}(logger) {{',f' Application.Properties.setValue("cityUid",{d["uid"]});',f' var got=AlertLogic.parse({mc(d["response"])},Config.location());',f' Test.assertEqual(got,{d["expected"]});',' return true;','}'])
+ parser=f'ApiProvider.parse({mc(d["response"])},Config.location(),{d.get("query",d["uid"])})' if d.get('provider',0)!=0 else f'AlertLogic.parse({mc(d["response"])},Config.location())'
+ lines.extend(['(:test)',f'function {file.stem}(logger) {{',f' Application.Properties.setValue("apiProvider",{d.get("provider",0)});',f' Application.Properties.setValue("cityUid",{d["uid"]});',' LocationCatalog.resolveCustom();',f' var got={parser};',f' Test.assertEqual(got,{d["expected"]});',' return true;','}'])
 (ROOT/'tests/generated/Fixtures.mc').write_text('\n'.join(lines)+'\n')

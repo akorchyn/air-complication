@@ -7,26 +7,32 @@ module Config {
         return v instanceof Number ? v : fallback;
     }
     function token() {
-        var v=Application.Properties.getValue("apiToken");
+        var v=Application.Properties.getValue(provider()==1 ? "ukraineAlarmToken" : "apiToken");
         return v instanceof String ? v : "";
     }
     function interval() {
         var n=number("refreshMinutes",5);
         return (n==5 || n==10 || n==15 || n==30 || n==60) ? n*60 : 300;
     }
+    function provider() { var p=number("apiProvider",0);return (p>=0 && p<=2) ? p : 0; }
+    function providerName() { return ["alerts.in.ua","Ukraine Alarm","UA Siren"][provider()]; }
+    function needsToken() { return provider()!=2; }
     function staleSeconds() { var n=number("staleMinutes",10); return (n>=5 && n<=60) ? n*60 : 600; }
     function location() as Dictionary {
         var id=number("cityUid",31);
         if (id==0) { id=AlertLogic.uid(Application.Properties.getValue("customUid")); }
         if (id==null) { id=0; }
-        if (id==31) { return {"uid"=>31,"name"=>"Kyiv","label"=>"KYIV","oblast"=>0,"raion"=>0,"valid"=>true}; }
-        if (id==1293) { return {"uid"=>1293,"name"=>"Kharkiv","label"=>"KHARK","oblast"=>0,"raion"=>0,"valid"=>true}; }
-        if (id==564) { return {"uid"=>564,"name"=>"Zaporizhzhia","label"=>"ZAPOR","oblast"=>0,"raion"=>0,"valid"=>true}; }
-        if (id==845) { return {"uid"=>845,"name"=>"Lviv","label"=>"LVIV","oblast"=>27,"raion"=>90,"valid"=>true}; }
-        if (id==964) { return {"uid"=>964,"name"=>"Odesa","label"=>"ODESA","oblast"=>18,"raion"=>104,"valid"=>true}; }
-        if (id==332) { return {"uid"=>332,"name"=>"Dnipro","label"=>"DNIPR","oblast"=>9,"raion"=>44,"valid"=>true}; }
+        var preset=LocationPresets.lookup(id);
+        if (preset!=null) {
+            if (preset["kind"].equals("oblast")) {
+                var scope=Application.Storage.getValue("resolvedScope");
+                if (scope instanceof Dictionary && scope["uid"]==id && scope["members"] instanceof String && scope["known"] instanceof String) { preset["members"]=scope["members"];preset["known"]=scope["known"]; }
+                else { preset["valid"]=false; }
+            }
+            return preset;
+        }
         var resolved=Application.Storage.getValue("customLocation");
         if (resolved instanceof Dictionary && resolved["uid"]==id) { return resolved; }
-        return {"uid"=>id,"name"=>"Custom UID "+id,"label"=>"ALERT","oblast"=>0,"raion"=>0,"valid"=>false};
+        return {"uid"=>id,"name"=>"Custom UID "+id,"label"=>"ALERT","kind"=>"city","oblast"=>0,"raion"=>0,"valid"=>false,"uaSupported"=>false};
     }
 }

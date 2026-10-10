@@ -1,4 +1,19 @@
 ------------------------------------------------------------------------------
+Executing test alerts_new_child...
+PASS
+------------------------------------------------------------------------------
+Executing test alerts_oblast_child...
+PASS
+------------------------------------------------------------------------------
+Executing test alerts_oblast_foreign...
+PASS
+------------------------------------------------------------------------------
+Executing test alerts_oblast_separate...
+PASS
+------------------------------------------------------------------------------
+Executing test alerts_volyn_child...
+PASS
+------------------------------------------------------------------------------
 Executing test ended_airraid...
 PASS
 ------------------------------------------------------------------------------
@@ -50,6 +65,69 @@ PASS
 Executing test sibling_city...
 PASS
 ------------------------------------------------------------------------------
+Executing test ua_both_levels...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_crimea_alias...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_empty_regional_response...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_invalid_root...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_missing_levels...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_new_unmapped_location...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_no_alerts...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_oblast_foreign...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_oblast_parent...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_oblast_partial...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_oblast_separate_city...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_red...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_red_bad_row...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_sibling_city...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_unknown_level...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_unknown_region_type...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_unknown_type...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_unrelated_type...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_wrong_region...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_yellow...
+PASS
+------------------------------------------------------------------------------
+Executing test ua_yellow_bad_row...
+PASS
+------------------------------------------------------------------------------
 Executing test uid_bad_string...
 PASS
 ------------------------------------------------------------------------------
@@ -92,6 +170,36 @@ PASS
 Executing test malformed_json_callback_is_unknown...
 PASS
 ------------------------------------------------------------------------------
+Executing test public_provider_needs_no_token...
+PASS
+------------------------------------------------------------------------------
+Executing test official_provider_uses_separate_key...
+PASS
+------------------------------------------------------------------------------
+Executing test provider_switch_invalidates_cache...
+PASS
+------------------------------------------------------------------------------
+Executing test old_provider_response_is_discarded...
+PASS
+------------------------------------------------------------------------------
+Executing test city_requires_all_parent_checks_before_clear...
+PASS
+------------------------------------------------------------------------------
+Executing test parent_failure_never_clears_city...
+PASS
+------------------------------------------------------------------------------
+Executing test parent_red_stops_remaining_requests...
+PASS
+------------------------------------------------------------------------------
+Executing test unsupported_provider_location_avoids_network...
+PASS
+------------------------------------------------------------------------------
+Executing test provider_auth_headers_and_request_scope...
+PASS
+------------------------------------------------------------------------------
+Executing test volyn_hierarchy_is_not_crimea...
+PASS
+------------------------------------------------------------------------------
 Executing test first_launch_without_token...
 PASS
 ------------------------------------------------------------------------------
@@ -124,48 +232,84 @@ PASS
 
 ==============================================================================
 RESULTS
-Test:                                    Status:
-ended_airraid                            PASS
-invalid_alerts                           PASS
-invalid_row                              PASS
-kharkiv_separate                         PASS
-known_red_bad_row                        PASS
-kyiv_oblast_separate                     PASS
-malformed_threat                         PASS
-missing_alerts                           PASS
-missing_level                            PASS
-missing_uid                              PASS
-no_alerts                                PASS
-oblast_inheritance                       PASS
-raion_inheritance                        PASS
-red_city                                 PASS
-red_priority                             PASS
-red_threat_over_yellow                   PASS
-sibling_city                             PASS
-uid_bad_string                           PASS
-uid_is_number                            PASS
-unknown_location_type                    PASS
-unrelated_type                           PASS
-unsupported_level                        PASS
-unsupported_type                         PASS
-yellow_bad_row                           PASS
-yellow_city                              PASS
-zaporizhzhia_separate                    PASS
-missing_token_avoids_network             PASS
-manual_request_updates_persisted_status  PASS
-old_response_cannot_contaminate_new_city PASS
-shared_gate_survives_city_switch         PASS
-malformed_json_callback_is_unknown       PASS
-first_launch_without_token               PASS
-stale_boundary_and_clock_rollback        PASS
-switching_city_invalidates_cache         PASS
-http_failures_never_clear                PASS
-recovery_after_reconnection              PASS
-overlapping_requests_and_manual_floor    PASS
-rate_limit_backoff                       PASS
-custom_location_is_official_and_exact    PASS
-intervals_are_validated                  PASS
-corrupted_cache_is_unknown               PASS
-Ran 41 tests
+Test:                                        Status:
+alerts_new_child                             PASS
+alerts_oblast_child                          PASS
+alerts_oblast_foreign                        PASS
+alerts_oblast_separate                       PASS
+alerts_volyn_child                           PASS
+ended_airraid                                PASS
+invalid_alerts                               PASS
+invalid_row                                  PASS
+kharkiv_separate                             PASS
+known_red_bad_row                            PASS
+kyiv_oblast_separate                         PASS
+malformed_threat                             PASS
+missing_alerts                               PASS
+missing_level                                PASS
+missing_uid                                  PASS
+no_alerts                                    PASS
+oblast_inheritance                           PASS
+raion_inheritance                            PASS
+red_city                                     PASS
+red_priority                                 PASS
+red_threat_over_yellow                       PASS
+sibling_city                                 PASS
+ua_both_levels                               PASS
+ua_crimea_alias                              PASS
+ua_empty_regional_response                   PASS
+ua_invalid_root                              PASS
+ua_missing_levels                            PASS
+ua_new_unmapped_location                     PASS
+ua_no_alerts                                 PASS
+ua_oblast_foreign                            PASS
+ua_oblast_parent                             PASS
+ua_oblast_partial                            PASS
+ua_oblast_separate_city                      PASS
+ua_red                                       PASS
+ua_red_bad_row                               PASS
+ua_sibling_city                              PASS
+ua_unknown_level                             PASS
+ua_unknown_region_type                       PASS
+ua_unknown_type                              PASS
+ua_unrelated_type                            PASS
+ua_wrong_region                              PASS
+ua_yellow                                    PASS
+ua_yellow_bad_row                            PASS
+uid_bad_string                               PASS
+uid_is_number                                PASS
+unknown_location_type                        PASS
+unrelated_type                               PASS
+unsupported_level                            PASS
+unsupported_type                             PASS
+yellow_bad_row                               PASS
+yellow_city                                  PASS
+zaporizhzhia_separate                        PASS
+missing_token_avoids_network                 PASS
+manual_request_updates_persisted_status      PASS
+old_response_cannot_contaminate_new_city     PASS
+shared_gate_survives_city_switch             PASS
+malformed_json_callback_is_unknown           PASS
+public_provider_needs_no_token               PASS
+official_provider_uses_separate_key          PASS
+provider_switch_invalidates_cache            PASS
+old_provider_response_is_discarded           PASS
+city_requires_all_parent_checks_before_clear PASS
+parent_failure_never_clears_city             PASS
+parent_red_stops_remaining_requests          PASS
+unsupported_provider_location_avoids_network PASS
+provider_auth_headers_and_request_scope      PASS
+volyn_hierarchy_is_not_crimea                PASS
+first_launch_without_token                   PASS
+stale_boundary_and_clock_rollback            PASS
+switching_city_invalidates_cache             PASS
+http_failures_never_clear                    PASS
+recovery_after_reconnection                  PASS
+overlapping_requests_and_manual_floor        PASS
+rate_limit_backoff                           PASS
+custom_location_is_official_and_exact        PASS
+intervals_are_validated                      PASS
+corrupted_cache_is_unknown                   PASS
+Ran 77 tests
 
-PASSED (passed=41, failed=0, errors=0)
+PASSED (passed=77, failed=0, errors=0)

@@ -11,9 +11,4 @@
 *.iq
 __pycache__/
 
-# Keep the verified production artifacts, but not intermediate/test binaries.
-!/artifacts/
-/artifacts/*
-!/artifacts/air-alert.prg
-!/artifacts/air-alert.iq
-!/artifacts/SHA256SUMS
+# Generated binaries are distributed through GitHub Releases and CI downloads.

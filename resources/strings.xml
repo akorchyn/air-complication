@@ -1,6 +1,9 @@
 <strings>
+ <string id="ProviderTitle">Air alert API provider</string>
+ <string id="ProviderAlerts">alerts.in.ua (token required)</string><string id="ProviderUkraine">Ukraine Alarm (token required)</string><string id="ProviderSiren">UA Siren (no token)</string>
+ <string id="UkraineTokenTitle">Ukraine Alarm API key (different from alerts.in.ua)</string>
  <string id="TokenTitle">alerts.in.ua API token (personal use)</string>
- <string id="CityTitle">Monitored city</string><string id="Kyiv">Kyiv city (31)</string>
+ <string id="CityTitle">Monitored location</string><string id="Kyiv">Kyiv city (31)</string>
  <string id="Kharkiv">Kharkiv (1293)</string><string id="Lviv">Lviv (845)</string>
  <string id="Odesa">Odesa (964)</string><string id="Dnipro">Dnipro (332)</string>
  <string id="Zaporizhzhia">Zaporizhzhia (564)</string><string id="Custom">Custom location UID</string>

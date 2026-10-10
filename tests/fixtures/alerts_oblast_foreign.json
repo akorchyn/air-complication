@@ -1,0 +1,16 @@
+{
+  "uid": 27,
+  "provider": 0,
+  "response": {
+    "alerts": [
+      {
+        "location_uid": "332",
+        "location_type": "hromada",
+        "location_oblast_uid": "9",
+        "alert_type": "air_raid",
+        "alert_level": "yellow"
+      }
+    ]
+  },
+  "expected": 0
+}

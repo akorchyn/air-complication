@@ -1,7 +1,8 @@
 using Toybox.Application;
 import Toybox.Lang;
 using Toybox.Test;
-function resetTest() {
+function resetTest() as Dictionary {
+ Application.Properties.setValue("apiProvider",0);
  Application.Properties.setValue("cityUid",31);
  Application.Properties.setValue("staleMinutes",10);
  Application.Properties.setValue("refreshMinutes",5);

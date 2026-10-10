@@ -3,6 +3,7 @@ name: Build Connect IQ
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -57,7 +58,15 @@ jobs:
         run: |
           python3 scripts/generate_tests.py
           python3 scripts/generate_locations.py
-          git diff --exit-code -- tests/generated/Fixtures.mc source/LocationCatalog.mc
+          git diff --exit-code -- tests/generated/Fixtures.mc source/LocationCatalog.mc source/LocationPresets.mc resources/locations.xml resources/settings.xml
+      - name: Check release tag matches manifest
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          python3 - <<'PY'
+          import os,xml.etree.ElementTree as ET
+          app=ET.parse('manifest.xml').getroot().find('{http://www.garmin.com/xml/connectiq}application')
+          assert os.environ['GITHUB_REF_NAME']=='v'+app.attrib['version'], 'Tag must match manifest version'
+          PY
       - name: Build production app and IQ package
         run: |
           scripts/build.sh app
@@ -93,3 +102,25 @@ jobs:
       - name: Remove private signing key
         if: always()
         run: rm -f "$CIQ_KEY" "$RUNNER_TEMP/ciq-developer-key.pem"
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: Air-Alert-UA-Epix-Gen-2
+          path: artifacts
+      - name: Publish GitHub Release binaries
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          (cd artifacts && sha256sum --check SHA256SUMS)
+          gh release create "$GITHUB_REF_NAME" \
+            artifacts/air-alert.prg artifacts/air-alert.iq artifacts/SHA256SUMS \
+            --verify-tag --title "Air Alert UA $GITHUB_REF_NAME" \
+            --notes-file docs/RELEASE-NOTES.md

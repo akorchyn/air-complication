@@ -1,0 +1,25 @@
+{
+  "uid": 27,
+  "provider": 2,
+  "response": [
+    {
+      "regionId": "20001",
+      "regionType": "Community",
+      "activeAlerts": [
+        {
+          "regionId": "20001",
+          "regionType": "Community",
+          "type": "AIR",
+          "activeAlertLevels": [
+            {
+              "alertLevel": "Yellow",
+              "reason": "Synthetic test only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected": 3,
+  "query": 0
+}

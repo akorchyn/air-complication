@@ -1,0 +1,25 @@
+{
+  "uid": 22,
+  "provider": 2,
+  "response": [
+    {
+      "regionId": "1293",
+      "regionType": "State",
+      "activeAlerts": [
+        {
+          "regionId": "1293",
+          "regionType": "State",
+          "type": "AIR",
+          "activeAlertLevels": [
+            {
+              "alertLevel": "Red",
+              "reason": "Synthetic test only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected": 0,
+  "query": 0
+}

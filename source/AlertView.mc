@@ -28,8 +28,9 @@ class AlertView extends WatchUi.View {
         }
         dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_BLACK);dc.clear();
         var x=dc.getWidth()/2;
-        dc.drawText(x,70,Graphics.FONT_MEDIUM,"Air Alert UA",Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x,120,Graphics.FONT_SMALL,loc["name"],Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x,58,Graphics.FONT_MEDIUM,"Air Alert UA",Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x,102,Graphics.FONT_XTINY,Config.providerName(),Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x,134,Graphics.FONT_SMALL,loc["name"],Graphics.TEXT_JUSTIFY_CENTER);
         dc.drawText(x,172,Graphics.FONT_LARGE,AlertLogic.text(AlertLogic.visible(r,now,Config.staleSeconds())),Graphics.TEXT_JUSTIFY_CENTER);
         var time="Last check: never";
         if (r["success"]>0) {

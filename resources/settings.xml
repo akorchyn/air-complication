@@ -1,10 +1,43 @@
 <settings>
+ <setting propertyKey="@Properties.apiProvider" title="@Strings.ProviderTitle"><settingConfig type="list">
+  <listEntry value="0">@Strings.ProviderAlerts</listEntry><listEntry value="1">@Strings.ProviderUkraine</listEntry><listEntry value="2">@Strings.ProviderSiren</listEntry>
+ </settingConfig></setting>
  <setting propertyKey="@Properties.apiToken" title="@Strings.TokenTitle"><settingConfig type="alphaNumeric"/></setting>
+ <setting propertyKey="@Properties.ukraineAlarmToken" title="@Strings.UkraineTokenTitle"><settingConfig type="alphaNumeric"/></setting>
  <setting propertyKey="@Properties.cityUid" title="@Strings.CityTitle"><settingConfig type="list">
-  <listEntry value="31">@Strings.Kyiv</listEntry><listEntry value="1293">@Strings.Kharkiv</listEntry>
-  <listEntry value="845">@Strings.Lviv</listEntry><listEntry value="964">@Strings.Odesa</listEntry>
-  <listEntry value="332">@Strings.Dnipro</listEntry><listEntry value="564">@Strings.Zaporizhzhia</listEntry>
-  <listEntry value="0">@Strings.Custom</listEntry>
+  <listEntry value="31">@Strings.Location31</listEntry>
+  <listEntry value="1293">@Strings.Location1293</listEntry>
+  <listEntry value="564">@Strings.Location564</listEntry>
+  <listEntry value="30">@Strings.Location30</listEntry>
+  <listEntry value="845">@Strings.Location845</listEntry>
+  <listEntry value="964">@Strings.Location964</listEntry>
+  <listEntry value="332">@Strings.Location332</listEntry>
+  <listEntry value="24">@Strings.Location24</listEntry>
+  <listEntry value="25">@Strings.Location25</listEntry>
+  <listEntry value="26">@Strings.Location26</listEntry>
+  <listEntry value="29">@Strings.Location29</listEntry>
+  <listEntry value="9">@Strings.Location9</listEntry>
+  <listEntry value="28">@Strings.Location28</listEntry>
+  <listEntry value="13">@Strings.Location13</listEntry>
+  <listEntry value="22">@Strings.Location22</listEntry>
+  <listEntry value="23">@Strings.Location23</listEntry>
+  <listEntry value="3">@Strings.Location3</listEntry>
+  <listEntry value="15">@Strings.Location15</listEntry>
+  <listEntry value="14">@Strings.Location14</listEntry>
+  <listEntry value="16">@Strings.Location16</listEntry>
+  <listEntry value="27">@Strings.Location27</listEntry>
+  <listEntry value="17">@Strings.Location17</listEntry>
+  <listEntry value="18">@Strings.Location18</listEntry>
+  <listEntry value="19">@Strings.Location19</listEntry>
+  <listEntry value="5">@Strings.Location5</listEntry>
+  <listEntry value="20">@Strings.Location20</listEntry>
+  <listEntry value="21">@Strings.Location21</listEntry>
+  <listEntry value="4">@Strings.Location4</listEntry>
+  <listEntry value="8">@Strings.Location8</listEntry>
+  <listEntry value="11">@Strings.Location11</listEntry>
+  <listEntry value="12">@Strings.Location12</listEntry>
+  <listEntry value="10">@Strings.Location10</listEntry>
+  <listEntry value="0">@Strings.Location0</listEntry>
  </settingConfig></setting>
  <setting propertyKey="@Properties.customUid" title="@Strings.CustomTitle"><settingConfig type="alphaNumeric"/></setting>
  <setting propertyKey="@Properties.customLabel" title="@Strings.LabelTitle"><settingConfig type="alphaNumeric" maxLength="5"/></setting>

@@ -6,19 +6,19 @@ using Toybox.Background;
 (:background)
 module Cache {
     function empty(location as Dictionary) as Dictionary {
-        return {"schema"=>1,"uid"=>location["uid"],"oblast"=>location["oblast"],"raion"=>location["raion"],"state"=>AlertLogic.UNKNOWN,"success"=>0,"failed"=>true,"failures"=>0,"next"=>0,"lease"=>0,"request"=>0,"modified"=>null,"error"=>"Configure API token"};
+        return {"schema"=>2,"provider"=>Config.provider(),"uid"=>location["uid"],"oblast"=>location["oblast"],"raion"=>location["raion"],"state"=>AlertLogic.UNKNOWN,"success"=>0,"failed"=>true,"failures"=>0,"next"=>0,"lease"=>0,"request"=>0,"sequence"=>0,"modified"=>null,"error"=>"Refresh to obtain status"};
     }
     function load(location as Dictionary) as Dictionary {
         var r=Application.Storage.getValue("cache");
-        if (!(r instanceof Dictionary) || !valid(r) || r["uid"]!=location["uid"] || r["oblast"]!=location["oblast"] || r["raion"]!=location["raion"]) {
+        if (!(r instanceof Dictionary) || !valid(r) || r["provider"]!=Config.provider() || r["uid"]!=location["uid"] || r["oblast"]!=location["oblast"] || r["raion"]!=location["raion"]) {
             r=empty(location);save(r);
         }
         return r;
     }
     function valid(r as Dictionary) {
-        var numbers=["schema","uid","oblast","raion","state","success","failures","next","lease","request"];
+        var numbers=["schema","provider","uid","oblast","raion","state","success","failures","next","lease","request","sequence"];
         for(var i=0;i<numbers.size();i++) { if (!(r[numbers[i]] instanceof Number)) { return false; } }
-        return r["schema"]==1 && r["state"]>=0 && r["state"]<=3 && r["failed"] instanceof Boolean && r["error"] instanceof String;
+        return r["schema"]==2 && r["state"]>=0 && r["state"]<=3 && r["failed"] instanceof Boolean && r["error"] instanceof String;
     }
     function save(r as Dictionary) { Application.Storage.setValue("cache",r); }
     function publish(r as Dictionary, location as Dictionary, now) {
@@ -58,8 +58,10 @@ module Cache {
         // We do not send conditional headers: makeWebRequest exposes no response
         // headers / Last-Modified. An unsolicited 304 cannot validate the cache.
         if (value==AlertLogic.UNKNOWN) { failure(r,code==200 ? -400 : code,now);return false; }
+        success(r,value,now);return true;
+    }
+    function success(r as Dictionary, value, now) {
         r["state"]=value;r["success"]=now;r["failed"]=false;
         r["failures"]=0;r["lease"]=0;r["next"]=now+Config.interval();r["error"]="";
-        return true;
     }
 }

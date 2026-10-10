@@ -13,7 +13,7 @@ class RequestObserver {
  function initialize() {}
  function done() as Void { finished+=1; }
 }
-function requestSetup() {
+function requestSetup() as RequestObserver {
  resetTest();Application.Properties.setValue("apiToken","FIXTURE_ONLY");
  Application.Storage.deleteValue("requestGate");return new RequestObserver();
 }
@@ -48,4 +48,71 @@ function shared_gate_survives_city_switch(logger) {
 function malformed_json_callback_is_unknown(logger) {
  var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);req.response(-400,null);
  var r=Cache.load(Config.location());Test.assert(r["failed"]);Test.assertEqual(r["success"],0);return true;
+}
+
+function uaRegion(uid, levels) {
+ var alerts=[];
+ if (levels!=null) { alerts.add({"regionId"=>""+uid,"regionType"=>"State","type"=>"AIR","activeAlertLevels"=>levels}); }
+ return [{"regionId"=>""+uid,"regionType"=>"State","activeAlerts"=>alerts}];
+}
+(:test)
+function public_provider_needs_no_token(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiToken","");Application.Properties.setValue("apiProvider",2);
+ var req=new MockRequest(o.method(:done));req.start(true);Test.assertEqual(req.sends,1);
+ req.response(200,uaRegion(31,null));Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.NONE);return true;
+}
+(:test)
+function official_provider_uses_separate_key(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiProvider",1);Application.Properties.setValue("ukraineAlarmToken","");
+ var req=new MockRequest(o.method(:done));req.start(true);Test.assertEqual(req.sends,0);
+ Application.Properties.setValue("ukraineAlarmToken","FIXTURE_UKRAINE_ONLY");
+ Test.assertEqual(Config.token(),"FIXTURE_UKRAINE_ONLY");return true;
+}
+(:test)
+function provider_switch_invalidates_cache(logger) {
+ var r=resetTest();Cache.accept(r,200,{"alerts"=>[]},Config.location(),1000);Cache.save(r);
+ Application.Properties.setValue("apiProvider",2);r=Cache.load(Config.location());Test.assertEqual(r["success"],0);return true;
+}
+(:test)
+function old_provider_response_is_discarded(logger) {
+ var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
+ Application.Properties.setValue("apiProvider",2);req.response(200,{"alerts"=>[]});
+ Test.assertEqual(Cache.load(Config.location())["success"],0);return true;
+}
+(:test)
+function city_requires_all_parent_checks_before_clear(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiProvider",2);Application.Properties.setValue("cityUid",845);
+ var req=new MockRequest(o.method(:done));req.start(true);req.response(200,uaRegion(845,null));
+ Test.assertEqual(req.sends,2);Test.assertEqual(o.finished,0);Test.assert(Cache.load(Config.location())["failed"]);
+ req.response(200,uaRegion(27,null));Test.assertEqual(req.sends,3);Test.assertEqual(o.finished,0);
+ req.response(200,uaRegion(90,null));Test.assertEqual(o.finished,1);Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.NONE);return true;
+}
+(:test)
+function parent_failure_never_clears_city(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiProvider",2);Application.Properties.setValue("cityUid",845);
+ var req=new MockRequest(o.method(:done));req.start(true);req.response(200,uaRegion(845,null));req.response(429,null);
+ Test.assert(Cache.load(Config.location())["failed"]);Test.assertEqual(req.sends,2);return true;
+}
+(:test)
+function parent_red_stops_remaining_requests(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiProvider",2);Application.Properties.setValue("cityUid",845);
+ var req=new MockRequest(o.method(:done));req.start(true);req.response(200,uaRegion(845,null));
+ req.response(200,uaRegion(27,[{"alertLevel"=>"Red"}]));
+ Test.assertEqual(req.sends,2);Test.assertEqual(o.finished,1);Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.RED);return true;
+}
+(:test)
+function unsupported_provider_location_avoids_network(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiProvider",2);Application.Properties.setValue("cityUid",30);
+ var req=new MockRequest(o.method(:done));req.start(true);Test.assertEqual(req.sends,0);Test.assert(Cache.load(Config.location())["failed"]);return true;
+}
+(:test)
+function provider_auth_headers_and_request_scope(logger) {
+ Test.assertEqual(ApiProvider.headers(0,"TOKEN")["Authorization"],"Bearer TOKEN");
+ Test.assertEqual(ApiProvider.headers(1,"KEY")["Authorization"],"KEY");Test.assert(!ApiProvider.headers(2,"").hasKey("Authorization"));
+ resetTest();Application.Properties.setValue("cityUid",845);Test.assertEqual(ApiProvider.queries(2,Config.location()).size(),3);
+ Application.Properties.setValue("cityUid",27);LocationCatalog.resolveCustom();Test.assertEqual(ApiProvider.queries(2,Config.location())[0],0);return true;
+}
+(:test)
+function volyn_hierarchy_is_not_crimea(logger) {
+ Test.assertEqual(LocationCatalog.parents(255)[0],8);Test.assert(LocationCatalog.members(8).find("|255|")!=null);return true;
 }

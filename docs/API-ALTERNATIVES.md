@@ -1,6 +1,6 @@
 # Alternative air-alert APIs
 
-Researched **10 October 2026** for this Garmin publisher. Production still uses alerts.in.ua; no provider has been changed. Public documentation and unauthenticated endpoints were checked. No Ukraine Alarm API key was available, so its authenticated live responses were not tested.
+Researched **10 October 2026** for this Garmin publisher. Version **1.1.0 integrates alerts.in.ua, Ukraine Alarm and UA Siren** as selectable providers. Public documentation and unauthenticated endpoints were checked, and a real UA Siren request succeeded through Garmin's simulator transport. No Ukraine Alarm or alerts.in.ua key was available, so authenticated live responses remain unverified. Other services below are research findings only.
 
 ## Comparison
 
@@ -29,7 +29,7 @@ AlertRegionModel.activeAlerts[]:
   activeAlertLevels[].createdAt
 ```
 
-Authentication is an API key in the `Authorization` header according to the schema. Do not reuse an alerts.in.ua token or assume its `Bearer` convention applies. Confirm authenticated request limits and the regional inheritance contract with the provider. Missing severity must remain UNKNOWN; an active AIR alert does not itself establish a red level.
+Authentication is an API key in the `Authorization` header according to the schema. The adapter sends the raw Ukraine Alarm key, with a separate property from the alerts.in.ua Bearer token. Missing severity remains UNKNOWN; an active AIR alert alone does not establish a red level. Authenticated request limits and maximum regional payload sizes still need provider confirmation.
 
 **Public wrapper: UA Siren.** The site's [wrapper library](https://github.com/PaulAnnekov/uasiren) states a limit of **200 requests per five minutes per IP**. [Home Assistant's documentation](https://www.home-assistant.io/integrations/ukraine_alarm/) explicitly identifies this wrapper and documents simultaneous red and yellow levels. These requests succeeded without credentials:
 
@@ -49,7 +49,9 @@ The wrapper's directory independently confirmed all six mappings:
 | Odesa | 964 | Oblast 18 → district 104 → community 964 |
 | Dnipro | 332 | Oblast 9 → district 44 → community 332 |
 
-A single-city response is promising for Epix's 64 KiB background budget, but the 152-byte no-alert example does not prove the maximum fits. Validate simultaneous alerts and long reasons with synthetic fixtures. Verify whether a city's endpoint includes inherited parent alerts: an empty city array cannot establish CLEAR until that contract is known. If necessary, fetch applicable city/parent regions and combine them only after every required response validates. Preserve the separate-city exceptions.
+A single-city response is promising for Epix's 64 KiB background budget, but the 152-byte no-alert example does not prove the maximum fits. The implemented adapter verifies the selected city and each applicable whole-parent region sequentially before publishing CLEAR. Separate cities need only their exact region. An empty response array is invalid; a valid regional record with empty `activeAlerts` can be combined only after every required check succeeds. Mocked tests cover mixed levels, missing/unknown values, sibling exclusion, failed parent requests and Crimea's provider alias (canonical UID 29 → provider ID 9999). Sevastopol (30) is absent from this directory and is unavailable with these two adapters.
+
+Live regional checks found oblast responses that contained no whole-oblast alert while the nationwide response contained active district alerts inside that oblast. Therefore **whole-oblast monitoring requests `/api/v3/alerts`**, filters the verified descendant scope and excludes separately declared cities. A small empty oblast response cannot prove that the entire region is clear. This nationwide request retains the background-memory risk of the original provider.
 
 The Garmin five-minute temporal-event limit and complication expiry limitations remain regardless of provider. Home Assistant's faster polling cannot be copied into a Garmin service.
 
@@ -61,4 +63,4 @@ The Garmin five-minute temporal-event limit and complication expiry limitations 
 - alerts.in.ua's compact IoT routes discard the required severity. A small proxy preserving detailed real levels remains an option when staying with the original provider.
 - The old alerts.com.ua root/API pages returned 404 in this check; no current supported production endpoint was established. This does not establish that every legacy deployment is unavailable.
 
-The most useful next implementation is a provider adapter for **Ukraine Alarm or UA Siren**, retaining alerts.in.ua as a separately tested adapter. It needs provider-specific fixtures, validated parent matching, provider settings and background memory probes. These alternatives are research findings, not integrations already shipped.
+The shipped providers retain separate settings, tokens and provider-specific parsing, with fail-closed cached status and shared rate limiting. Vadym Klymenko, Tryvoha and Ubilling are not integrated because their location/level contracts do not yet meet the same verified behavior.

@@ -1,0 +1,25 @@
+{
+  "uid": 27,
+  "provider": 2,
+  "response": [
+    {
+      "regionId": "90",
+      "regionType": "District",
+      "activeAlerts": [
+        {
+          "regionId": "90",
+          "regionType": "District",
+          "type": "AIR",
+          "activeAlertLevels": [
+            {
+              "alertLevel": "Yellow",
+              "reason": "Synthetic test only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected": 1,
+  "query": 0
+}

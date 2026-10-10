@@ -1,8 +1,8 @@
 CONSUMER RECEIVED: YELLOW
 Background: INTEGRATION: background event
 Background: INTEGRATION: response red
-Background: INTEGRATION: response memory used=19440 free=41816
-Background: MEMORY: before rows=25 used=19640 free=41616
+Background: INTEGRATION: response memory used=31552 free=29704
+Background: MEMORY: before rows=25 used=31752 free=29504
 
 Error: Out Of Memory Error
 Details: Failed invoking <symbol>

@@ -1,0 +1,24 @@
+{
+  "uid": 845,
+  "provider": 2,
+  "response": [
+    {
+      "regionId": "845",
+      "regionType": "Community",
+      "activeAlerts": [
+        {
+          "regionId": "964",
+          "regionType": "Community",
+          "type": "AIR",
+          "activeAlertLevels": [
+            {
+              "alertLevel": "Red",
+              "reason": "Synthetic test only"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "expected": 0
+}
