@@ -14,7 +14,10 @@ class AirAlertApp extends Application.AppBase {
         LocationCatalog.resolveCustom();
         var loc=Config.location();var r=Cache.load(loc);var now=Time.now().value();
         Cache.publish(r,loc,now);Cache.schedule(r,now);
-        return [new AlertView(),new AlertDelegate()];
+        var delegate=new AlertDelegate();
+        // Fetch after the initial view is installed. Reuse manual Refresh's
+        // request path, including the shared gate, active lease and backoff.
+        return [new AlertView(delegate.method(:onSelect)),delegate];
     }
     function onSettingsChanged() as Void {
         var snapshot=settingsSnapshot();

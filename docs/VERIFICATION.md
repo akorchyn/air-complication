@@ -1,4 +1,4 @@
-# Verification record — 2026-10-10
+# Verification record — updated 2026-10-11
 
 ## Executed
 
@@ -109,6 +109,26 @@ The separate subscribing watch face received Ukrainian values after the producti
 These logs record exact Unicode strings read by the consumer through `getComplication()` and its change callback, beyond the publisher's `updateComplication()` return. The fixture's ASCII font displays translated captions (`YELLOW UA`, `RED UA`, `CLEAR UA`), so the checks establish delivery rather than Cyrillic rendering in a third-party face. Font size, case transformations and glyph coverage remain controlled by that face.
 
 Reproduce after building the consumer for the model: `scripts/verify_simulator.py 1 ua epix2`, `1 ua-upper epix2`, or `1 ua-lower epix2` / `venu441mm` / `venu445mm`. The script restores its temporary fixture properties when finished and selects the background-event menu relative to the desktop-scaled popup. No live alert events or tokens are used. The one-alert Ukrainian probe consumed 35,984 B after allocation in Epix's background service (25,272 B free), and 36,080 B on each Venu (25,176 B free); this does not establish that a nationwide response fits.
+
+## Refresh on opening and retained status while fetching — 1.5.0 (2026-10-11)
+
+The production `getInitialView()` creates a Refresh delegate and passes its `onSelect()` callback to the initial view. The first `onShow()` consumes that callback before invoking it, so returning from Settings does not fetch again. Opening follows the existing manual path and preserves shared gates, active-request leases, missing-token/location checks and failure backoff. The background scheduler retains a matching already registered future network/stale deadline instead of postponing it on a skipped foreground request.
+
+Request startup now retains the previous validated state and success timestamp. `Refreshing...` is foreground UI metadata; only a validated response updates state/success. A failed response keeps historical state/time but displays UNKNOWN or STALE. Unknown/failed/stale caches are not made current merely by fetching. An expired nonzero request lease evaluates as UNKNOWN while the old success is otherwise fresh, and retrying an interrupted request marks the old result unavailable until a valid response arrives. The foreground deadline timer also considers lease expiry and performs no network request.
+
+Executed **102 actual Monkey C tests on every model**, with no failures/errors: [Epix](unit-tests.log), [Venu 41 mm](unit-tests-venu441mm.log), [Venu 45 mm](unit-tests-venu445mm.log). The 13 new cases cover opening a fresh cache, one callback per launch, Settings return, manual/reopen gating, missing tokens, 429 backoff, overlap with a background request, retained network/stale deadlines, changed deadlines, all three cached valid states and timestamps while pending, HTTP/network failures, stale transition during fetching, expired leases, and retrying an interrupted CLEAR without prematurely restoring it. The launch tests call the production initial-view factory and replace only the request transport. These logs replace the earlier 89-test logs linked above; historical results remain in git.
+
+Stock SDK 9.2.0 strict production compilation and multi-device export succeeded: [Epix](epix2-build-1.5.0.log), [Venu 41 mm](venu441mm-build-1.5.0.log), [Venu 45 mm](venu445mm-build-1.5.0.log), [package](package-build-1.5.0.log). All four binaries passed local SHA-256 verification.
+
+Using the inherited production view lifecycle with an ASCII drawing override and mocked transport, the fixture fetched YELLOW immediately on opening. The automation did **not** press START or tap Refresh. A separate subscribing face then received YELLOW and, after a temporal event, RED:
+
+- Epix: [publisher](open-probe-1-publisher.log), [consumer](open-probe-1-consumer.log), [background RED](open-probe-1-background.png).
+- Venu 41 mm: [publisher](open-probe-1-venu441mm-publisher.log), [consumer](open-probe-1-venu441mm-consumer.log), [opening YELLOW](open-probe-1-venu441mm-manual.png), [background RED](open-probe-1-venu441mm-background.png).
+- Venu 45 mm: [publisher](open-probe-1-venu445mm-publisher.log), [consumer](open-probe-1-venu445mm-consumer.log), [opening YELLOW](open-probe-1-venu445mm-manual.png), [background RED](open-probe-1-venu445mm-background.png).
+
+The consumer callback logs show actual delivery through `getComplication()`, beyond successful publisher calls. Reproduce with `scripts/verify_simulator.py 1 text MODEL open` after building that model's consumer. The default `manual` fixture mode disables its automatic callback so existing manual-Refresh probes still test the button/tap. Probe properties are restored after each run. A fixture screenshot's `-manual.png` suffix denotes the pre-background snapshot even in `open` mode; no Refresh input was sent.
+
+The one-alert background probe used 36,200 B after allocation on Epix (25,056 B free) and 36,296 B on each Venu (24,960 B free). Earlier full-response memory limits still apply. Pre-1.5.0 logs describing N/A published before allocation are historical: 1.5.0 intentionally keeps validated history visible during requests. If Garmin terminates the process, consumers can retain that value until another execution evaluates lease/staleness; there is still no complication TTL. This does not guarantee physical delivery or native third-party rendering.
 
 ## Verification environment and remaining checks
 

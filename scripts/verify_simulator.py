@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Optional Linux X11 automation for the separate publisher + consumer fixtures.
 Requires python-xlib and a RUNNING Garmin simulator. Never uses the live API.
-Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50] [text|dots|ua|ua-upper|ua-lower] [epix2|venu441mm|venu445mm]
+Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50] [text|dots|ua|ua-upper|ua-lower] [epix2|venu441mm|venu445mm] [manual|open]
 The test temporarily changes only tests/integration/source/ProbeConfig.mc.
 """
 import os,sys,time,subprocess,json
@@ -14,9 +14,12 @@ mode=sys.argv[2] if len(sys.argv)>2 else 'text'
 if mode not in ['text','dots','ua','ua-upper','ua-lower']:raise SystemExit('Unsupported display mode')
 device=sys.argv[3] if len(sys.argv)>3 else 'epix2'
 if device not in ['epix2','venu441mm','venu445mm']:raise SystemExit('Unsupported device')
+trigger=sys.argv[4] if len(sys.argv)>4 else 'manual'
+if trigger not in ['manual','open']:raise SystemExit('Trigger must be manual or open')
 suffix='' if device=='epix2' else '-'+device
 profile=json.loads((Path.home()/'.Garmin/ConnectIQ/Devices'/device/'simulator.json').read_text())
 prefix=f'probe-{rows}' if mode=='text' else f'{mode}-{rows}'
+if trigger=='open':prefix='open-'+prefix
 prefix+=suffix
 probe=ROOT/'tests/integration/source/ProbeConfig.mc';original=probe.read_text()
 d=display.Display()
@@ -54,16 +57,22 @@ processes=[]
 try:
     language=1 if mode.startswith('ua') else 0
     case=1 if mode=='ua-upper' else 2 if mode=='ua-lower' else 0
-    probe.write_text(f'(:background)\nmodule ProbeConfig {{ const ROWS={rows}; const DISPLAY_MODE={1 if mode=="dots" else 0}; const TEXT_LANGUAGE={language}; const TEXT_CASE={case}; }}\n')
+    probe.write_text(f'(:background)\nmodule ProbeConfig {{ const ROWS={rows}; const DISPLAY_MODE={1 if mode=="dots" else 0}; const TEXT_LANGUAGE={language}; const TEXT_CASE={case}; const AUTO_REFRESH={"true" if trigger=="open" else "false"}; }}\n')
     result=subprocess.run([str(ROOT/'scripts/build.sh'),'integration',device],cwd=ROOT,capture_output=True,text=True)
     (ROOT/f'docs/{prefix}-build.log').write_text(result.stdout+result.stderr)
     if result.returncode:raise RuntimeError('Fixture compilation failed')
     key('Escape')
     processes.append(run(ROOT/f'artifacts/integration{suffix}.prg',ROOT/f'docs/{prefix}-publisher.log'))
     key('Escape')
-    # Device image begins below the simulator's 27-pixel menu bar.
-    target=profile['display']['location'] if device!='epix2' else next(k['location'] for k in profile['keys'] if k['id']=='enter')
-    click(target['x']+target['width']//2,target['y']+target['height']//2+27)
+    if trigger=='manual':
+        # Device image begins below the simulator's 27-pixel menu bar.
+        target=profile['display']['location'] if device!='epix2' else next(k['location'] for k in profile['keys'] if k['id']=='enter')
+        click(target['x']+target['width']//2,target['y']+target['height']//2+27)
+    else:
+        # No START/tap input: the inherited production onShow must fetch.
+        publisher=ROOT/f'docs/{prefix}-publisher.log';deadline=time.monotonic()+5
+        while time.monotonic()<deadline and 'INTEGRATION: response yellow' not in publisher.read_text():time.sleep(.1)
+        if 'INTEGRATION: response yellow' not in publisher.read_text():raise RuntimeError('Opening did not fetch automatically')
     time.sleep(.5)
     processes.append(run(ROOT/f'artifacts/consumer{suffix}.prg',ROOT/f'docs/{prefix}-consumer.log'))
     if rows==1 and device!='epix2':
@@ -78,7 +87,7 @@ try:
     if rows<=10 and (f'CONSUMER RECEIVED: {expected}' not in out or f'CONSUMER RECEIVED: {yellow}' not in out):raise RuntimeError('Missing consumer manual/background update')
     if (mode=='dots' or language==1) and rows<=10 and f'CONSUMER RECEIVED: {clear}' not in out:raise RuntimeError('Missing consumer clear update')
     if rows==1 and mode=='text':
-        screenshot='background-red.png' if device=='epix2' else f'{prefix}-background.png'
+        screenshot='background-red.png' if device=='epix2' and trigger=='manual' else f'{prefix}-background.png'
         subprocess.run(['import','-window',hex(window('CIQ Simulator').id),str(ROOT/f'docs/{screenshot}')],check=True,timeout=10)
 finally:
     probe.write_text(original)

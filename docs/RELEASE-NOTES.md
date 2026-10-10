@@ -1,18 +1,12 @@
-Adds **Ukrainian status text** and configurable letter case for Epix (Gen 2) and both Venu 4 sizes.
+**Opening Air Alert UA now automatically attempts one refresh.** A pending request keeps the previous validated status visible instead of temporarily publishing N/A.
 
-In on-watch settings select **Text language → Українська** and **Text case → Default / UPPERCASE / lowercase**. Mobile settings provide **Status text language** and **Status text case**.
+- The initial view starts the same request path as manual Refresh. Returning from Settings does not fetch again. Opening from a complication works when the consuming watch face supports launching the associated app.
+- Rapid reopening within one minute reuses the cache. Existing requests, missing tokens, unsupported locations and failure backoff still prevent unnecessary requests; 429 limits are respected.
+- While fetching, the prior state and successful-check timestamp stay persisted. The app shows `Refreshing...`; a valid response updates the status and timestamp. Failed/malformed responses display unavailable while retaining history. Fetching never extends the stale deadline or restores a previously failed status as current.
+- Interrupted requests become unavailable when their lease expires and the status is next evaluated. Retrying requires a valid response before an old CLEAR value can become current again.
+- Reopening preserves an already registered matching network/stale deadline instead of postponing it another five minutes. Background intervals remain 5–60 minutes; wrist-raise refresh is still unsupported.
 
-| State | Default | UPPERCASE | lowercase |
-|---|---|---|---|
-| No applicable air-raid alert | Немає | НЕМАЄ | немає |
-| Yellow | Жовта | ЖОВТА | жовта |
-| Red | Червона | ЧЕРВОНА | червона |
-| Unknown / failed | н.д. | Н.Д. | н.д. |
-| Stale | Застар. | ЗАСТАР. | застар. |
-
-Try **Українська + lowercase** for a less prominent appearance. The watch face determines font size, glyph support and any additional capitalization. Language and case also apply to status words on the app's screen. English uppercase remains the default, and Status dots remain available.
-
-Presentation changes immediately republish the cached status without a new API request. They preserve failure backoff, in-flight requests and the background schedule. Settings selections update when returning from a picker.
+English/Ukrainian text, letter-case choices, Status dots and all three API providers remain available on Epix (Gen 2) and both Venu 4 sizes.
 
 Choose **only the PRG for your exact model**:
 
@@ -24,8 +18,8 @@ Choose **only the PRG for your exact model**:
 
 Rename the selected file to `air-alert.prg` and copy it to `GARMIN/APPS/air-alert.prg`, then safely disconnect. The multi-device IQ package is for Garmin distribution tooling, not USB sideloading. CI compiles and publishes every model's assets from the version tag.
 
-Verified with **89 passing simulator tests per device**, covering Ukrainian/English formatting, unknown/stale safety, cache/backoff preservation and reactive settings. Ukrainian strings were delivered through the public complication API to a separate consumer using mocked manual and background updates. All three production PRGs and the multi-device IQ package compile successfully with SDK 9.2.0. CI compiles and publishes the release assets; simulator execution is recorded separately in the repository.
+Verified with **102 passing simulator tests per device**, including launch lifecycle, shared request gating, pending-cache persistence, failure handling, interruption/retry safety and background deadlines. On all three models, a fixture using the production view's opening callback fetched YELLOW without a Refresh button/tap, and a separate subscribing watch face received YELLOW followed by background RED. All three production PRGs and the multi-device IQ package compile successfully with SDK 9.2.0. CI compiles and publishes the release assets; simulator execution is recorded separately in the repository.
 
-Informational only: continue using official air-alert notifications. Background delivery and complication expiry are not guaranteed; nationwide responses can exceed background memory on all supported devices. Cyrillic/emoji glyphs and colors depend on your watch face. Physical Venu installation and authenticated upstream requests remain unverified.
+Informational only: continue using official air-alert notifications. Background delivery and complication expiry are not guaranteed. Keeping a cached value during fetching also means OS termination can leave it published until another execution evaluates its lease/stale deadline. Nationwide responses can exceed background memory. Cyrillic/emoji glyphs and colors depend on your watch face. Physical Venu installation and authenticated upstream requests remain unverified.
 
 CI uses an ephemeral signing key unless `CIQ_SIGNING_KEY_BASE64` is configured. No live API token is embedded.

@@ -10,8 +10,16 @@ using Toybox.Math;
 class AlertView extends WatchUi.View {
     var _visible=false;
     var _expiryTimer;
-    function initialize() { View.initialize(); }
-    function onShow() { _visible=true;WatchUi.requestUpdate(); }
+    var _onOpen as Lang.Method or Null;
+    function initialize(onOpen as Lang.Method or Null) { View.initialize();_onOpen=onOpen; }
+    function onShow() {
+        _visible=true;
+        // Consume before invoking: returning from Settings or another view
+        // must not trigger a second automatic request in this launch.
+        var onOpen=_onOpen;_onOpen=null;
+        if (onOpen!=null) { onOpen.invoke(); }
+        WatchUi.requestUpdate();
+    }
     function onHide() { _visible=false;if (_expiryTimer!=null) { _expiryTimer.stop(); } }
     function expire() as Void {
         var loc=Config.location();Cache.publish(Cache.load(loc),loc,Time.now().value());
@@ -23,6 +31,7 @@ class AlertView extends WatchUi.View {
         // Stop it when the view leaves the screen; background uses temporal events.
         if (_expiryTimer!=null) { _expiryTimer.stop(); }
         var remaining=r["success"]+Config.staleSeconds()-now;
+        if (r["lease"]>0 && r["lease"]-now<remaining) { remaining=r["lease"]-now; }
         if (_visible && r["success"]>0 && remaining>0) {
             if (_expiryTimer==null) { _expiryTimer=new Timer.Timer(); }
             _expiryTimer.start(method(:expire),remaining*1000,false);

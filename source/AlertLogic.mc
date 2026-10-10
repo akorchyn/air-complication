@@ -113,6 +113,9 @@ module AlertLogic {
         if (last <= 0 || now < last) { return UNKNOWN; }
         if (now-last >= staleSeconds) { return STALE; }
         if (record["failed"]) { return UNKNOWN; }
+        // An expired nonzero lease means a request never completed. Keep the
+        // previous state in storage, but do not display it as current anymore.
+        if (record["lease"]>0 && now>=record["lease"]) { return UNKNOWN; }
         return record["state"];
     }
 

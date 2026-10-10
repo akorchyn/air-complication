@@ -30,7 +30,13 @@ module Cache {
         var due=r["next"];
         var expiry=r["success"]+Config.staleSeconds();
         if (r["success"]>0 && expiry>now && (due<=now || expiry<due)) { due=expiry; }
+        // A previously registered future event already satisfies Garmin's
+        // interval rules. Keep its deadline when foreground opening/Refresh
+        // is skipped instead of pushing it another five minutes into the future.
+        var registered=Background.getTemporalEventRegisteredTime();
+        if (registered instanceof Time.Moment && registered.value()==due && due>now) { return; }
         if (due<now+300) { due=now+300; }
+        if (registered instanceof Time.Moment && registered.value()==due) { return; }
         Background.registerForTemporalEvent(new Time.Moment(due));
     }
     function canRequest(r as Dictionary, now, manual) {

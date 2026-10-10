@@ -21,7 +21,8 @@ class FixtureApp extends AirAlertApp {
         var loc=Config.location();var r=Cache.load(loc);
         Cache.publish(r,loc,Time.now().value());Cache.schedule(r,Time.now().value());
         System.println("FIXTURE READY");
-        return [new FixtureView(),new AlertDelegate()];
+        var delegate=new AlertDelegate();
+        return [new FixtureView(ProbeConfig.AUTO_REFRESH ? delegate.method(:onSelect) : null),delegate];
     }
 }
 (:background)
@@ -68,8 +69,8 @@ class FixtureRequest extends AlertRequest {
         System.println("INTEGRATION: memory used="+stats.usedMemory+" free="+stats.freeMemory);
     }
 }
-class FixtureView extends WatchUi.View {
-    function initialize() { View.initialize(); }
+class FixtureView extends AlertView {
+    function initialize(onOpen as Lang.Method or Null) { AlertView.initialize(onOpen); }
     function onUpdate(dc) {
         var font=WatchUi.loadResource(Rez.Fonts.TestFont);
         var r=Cache.load(Config.location());

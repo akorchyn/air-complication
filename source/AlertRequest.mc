@@ -29,14 +29,19 @@ class AlertRequest {
             Cache.save(r);Cache.publish(r,_location,now);_done.invoke();return;
         }
         _queries=ApiProvider.queries(_provider,_location);_index=0;_aggregate=AlertLogic.NONE;_uncertain=false;
+        // Retrying an interrupted request must not turn its visible UNKNOWN
+        // back into CLEAR just by renewing the lease. Validation is required.
+        if (r["lease"]>0 && r["lease"]<=now) { r["failed"]=true; }
         _busy=true;_requestStamp=now;
         var sequence=Application.Storage.getValue("requestSequence");
         if (!(sequence instanceof Number)) { sequence=0; }
         _gateStamp=sequence+1;Application.Storage.setValue("requestSequence",_gateStamp);
         Application.Storage.setValue("requestGate",{"at"=>now,"until"=>now+60,"sequence"=>_gateStamp});
         r["request"]=now;r["sequence"]=_gateStamp;r["lease"]=now+60;
-        // Invalidate BEFORE networking/allocation; terminated requests stay N/A.
-        r["failed"]=true;r["error"]="Refreshing...";Cache.save(r);Cache.publish(r,_location,now);
+        // Keep the last validated result and its original success timestamp
+        // while fetching. Unknown/failed/stale caches remain visibly so. Only
+        // a validated response clears failure; lease expiry covers interruption.
+        r["error"]="Refreshing...";Cache.save(r);Cache.publish(r,_location,now);
         next();
     }
     function next() {
