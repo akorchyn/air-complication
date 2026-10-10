@@ -1,4 +1,6 @@
 <strings>
+ <string id="DisplayModeTitle">Complication display mode</string>
+ <string id="DisplayText">Text</string><string id="DisplayDots">Status dots (Unicode circles)</string>
  <string id="ProviderTitle">Air alert API provider</string>
  <string id="ProviderAlerts">alerts.in.ua (token required)</string><string id="ProviderUkraine">Ukraine Alarm (token required)</string><string id="ProviderSiren">UA Siren (no token)</string>
  <string id="UkraineTokenTitle">Ukraine Alarm API key (different from alerts.in.ua)</string>

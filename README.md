@@ -42,7 +42,7 @@ The workflow uses Java 17, official Garmin SDK 9.2.0 and the existing public Epi
 
 No secrets are required for a build. By default CI creates a temporary development signing key, then deletes it; the signing identity changes between runs. For a consistent identity, set repository Actions secret **CIQ_SIGNING_KEY_BASE64** to the base64 representation of your own DER developer key. Never put the key in Git. Fork pull requests use a temporary key because repository secrets are withheld. No provider token is used or embedded by CI.
 
-CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **79-test** verification log.
+CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the executed **83-test** verification log.
 
 ## Installation and settings
 
@@ -93,7 +93,23 @@ Use [Tronic by frinkr](https://apps.garmin.com/en-UA/apps/a67586af-b888-4c60-984
 
 These steps follow [the author's complication instructions](https://ko-fi.com/Post/Complications-S6S21PPWWW). The author describes a long press on the field launching its associated app; this has not been tested on physical Tronic. Opening Air Alert UA from the app list always provides the explicit Refresh action. Tronic advertises some Pro-only features, but the available instructions do not establish whether this particular field requires a Pro unlock. Confirm that in your installed version; no Pro requirement is assumed here.
 
-The publisher supplies text and a short label. **Tronic controls colors, font, placement, truncation and repainting.** Dynamic text/background coloring is not implemented or claimed. `YELLOW` is the longest value (six characters); actual truncation in each Tronic layout needs hardware checking.
+The publisher supplies text and a short label. **Tronic controls colors, font, placement, truncation and repainting.** Dynamic text/background coloring is not implemented or claimed. `YELLOW` is the longest value in Text mode (six characters); actual truncation in each Tronic layout needs hardware checking.
+
+## Complication display mode
+
+Choose **Complication display mode** in mobile settings or **hold MENU → Display mode** on the watch:
+
+| Status | Text (default) | Status dots |
+|---|---|---|
+| No applicable active air-raid alert after a validated check | CLEAR | 🟢 |
+| Yellow-level air-raid alert | YELLOW | 🟡 |
+| Red-level air-raid alert | RED | 🔴 |
+| Unavailable / failed / unknown | N/A | `?` |
+| Last successful check is stale | STALE | `!` |
+
+These are literal Unicode characters (U+1F7E2, U+1F7E1, U+1F534), not published images or instructions to recolor text. Dot mode is optional: **Tronic's actual font must support those characters**. They may appear monochrome, as missing-glyph boxes or blank. Colored emoji rendering on Epix/Tronic is **unverified** and cannot be guaranteed by the publisher; switch back to Text if the symbols are unreadable. The included ASCII-font consumer proves the Unicode values arrive, but draws captions rather than claiming to render color emoji.
+
+The app's own status screen keeps readable status words. Changing only the display mode republishes the same cached state immediately without an API request, resetting failure backoff, interrupting an in-flight request or moving the existing background event. After a restart, the app still applies the saved mode to its cache. Selecting a different provider/location continues to invalidate old status.
 
 ## Refresh and stale data
 
@@ -101,7 +117,7 @@ The publisher supplies text and a short label. **Tronic controls colors, font, p
 
 The app uses supported, one-shot `Background.registerForTemporalEvent(Time.Moment)` events, registering the next event before starting networking. Intervals are **5, 10, 15, 30 or 60 minutes**, default 5. No event is scheduled sooner than five minutes from registration. Services can run late or be suspended/terminated; Garmin's background service execution window is limited to 30 seconds.
 
-Opening the app displays the cache and arms background work. Press **START** for **Refresh**. Manual refresh starts a check immediately unless a check is already active, another check started within the last minute, or failure backoff is active. A city check can make up to three sequential requests when verifying parents. It does not bypass a 429 rate limit. Cached values are reused between checks. Changing settings resets failure backoff for recovery after replacing a token; the shared one-minute gate still applies.
+Opening the app displays the cache and arms background work. Press **START** for **Refresh**. Manual refresh starts a check immediately unless a check is already active, another check started within the last minute, or failure backoff is active. A city check can make up to three sequential requests when verifying parents. It does not bypass a 429 rate limit. Cached values are reused between checks. Data/refresh-setting changes reset failure backoff for recovery after replacing a token; the shared one-minute gate still applies. Display-mode-only changes retain that backoff.
 
 The default stale threshold is **10 minutes** after the last successful check. The next execution publishes `STALE` at or beyond that boundary. Longer refresh intervals also schedule a supported stale-transition event; that event does not fetch early if the network interval has not elapsed. Failures show `N/A` while the prior successful check is fresh, and `STALE` once it is old. First launch with the default provider and no token shows `N/A` without requesting data. UA Siren needs no token but still requires a successful Refresh before showing a status.
 
@@ -123,7 +139,7 @@ For the latter two, a city check verifies the selected location and applicable p
 
 Only validated HTTP 200 data can produce `CLEAR`. alerts.in.ua requires an `alerts` array and recognized `red`/`yellow` severity for applicable `air_raid` alerts; threats can raise severity to red. Ukraine Alarm/UA Siren require an array of valid regional records; applicable `AIR` alerts need a nonempty `activeAlertLevels` array containing recognized `Red`/`Yellow` levels. Red wins over yellow and uncertain additional rows. Missing/unknown levels, malformed relevant rows, unsupported relevant types, invalid JSON and contradictory ended alerts yield `N/A` unless an applicable red warning exists. Unknown location classification is conservative; recognized unrelated alert types are excluded.
 
-Application storage retains selected scope/ancestry, provider identity, state, successful-check epoch, request sequence/lease/gate, retry time, failure count and error message. Application properties retain selection and settings. Responses from an old location/provider or settings generation are discarded. The shared gate spans those changes; requests have expiring leases. No token or authorization header is logged.
+Application storage retains selected scope/ancestry, provider identity, state, successful-check epoch, request sequence/lease/gate, retry time, failure count and error message. Application properties retain selection and settings. Responses from an old location/provider or data-setting generation are discarded; a display-mode-only edit keeps the in-flight request and formats its result with the current mode. The shared gate spans data-setting changes; requests have expiring leases. No token or authorization header is logged. The foreground settings comparison is held only in memory, not copied into storage.
 
 | Outcome | Behavior |
 |---|---|
@@ -188,6 +204,8 @@ scripts/build.sh consumer
 ```
 
 The integration subclass replaces only the transport and test scheduling gate, uses a fixture-only token, and exercises the production cache, parser, request lifecycle and publication. Its simulator event override permits immediate manual injection; production still enforces five-minute scheduling. Optional Linux X11 automation: install `python-xlib` and ImageMagick, position the standard simulator window at the top left, then run `python3 scripts/verify_simulator.py 1` (or `10`, `25`) with `DISPLAY` set. It is tailored to the standard Epix simulator layout; use the manual steps on other desktops.
+
+To check Unicode delivery with the same publisher/consumer paths, compile the consumer and run `python3 scripts/verify_simulator.py 1 dots`. Its log must contain the exact values `CONSUMER RECEIVED: 🟡`, `CONSUMER RECEIVED: 🔴`, and `CONSUMER RECEIVED: 🟢`. This validates publication and delivery, not Tronic's glyphs or colors.
 
 The production UI uses native system fonts and simple system settings widgets. Test views use bundled ASCII raster fonts to remain readable in environments missing authenticated simulator font downloads. The release UI's native-font rendering was not visually verified here; fixture UI and consuming-face values were. See the verification record for the local Linux simulator runtime workaround and the remaining hardware checks.
 

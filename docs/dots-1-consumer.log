@@ -1,0 +1,14 @@
+CONSUMER RECEIVED: 🟡
+Background: INTEGRATION: background event
+Background: INTEGRATION: response red
+Background: INTEGRATION: response memory used=32592 free=28664
+Background: MEMORY: before rows=1 used=32792 free=28464
+Background: MEMORY: after rows=1 used=34904 free=26352
+CONSUMER RECEIVED: 🔴
+CONSUMER RECEIVED: 🔴
+CONSUMER RECEIVED: 🔴
+Background: INTEGRATION: background event
+Background: INTEGRATION: response clear
+CONSUMER RECEIVED: 🟢
+CONSUMER RECEIVED: 🟢
+CONSUMER RECEIVED: 🟢

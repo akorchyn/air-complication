@@ -22,7 +22,7 @@ module Cache {
     }
     function save(r as Dictionary) { Application.Storage.setValue("cache",r); }
     function publish(r as Dictionary, location as Dictionary, now) {
-        var value=AlertLogic.text(AlertLogic.visible(r,now,Config.staleSeconds()));
+        var value=AlertDisplay.value(AlertLogic.visible(r,now,Config.staleSeconds()));
         // No TTL exists in this API. See README for delayed delivery limitation.
         Complications.updateComplication(0,{:value=>value,:shortLabel=>location["label"]});
     }

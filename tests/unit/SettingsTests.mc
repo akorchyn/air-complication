@@ -33,5 +33,7 @@ function settings_return_updates_location_and_intervals(logger) {
     Test.assertEqual(menu.getItem(menu.findItemById("stale")).getSubLabel(),"15 minutes");
     Test.assertEqual(menu.getItem(menu.findItemById("custom")).getSubLabel(),"964");
     Test.assertEqual(menu.getItem(menu.findItemById("label")).getSubLabel(),"ODESA");
+    Application.Properties.setValue("displayMode",1);menu.onShow();
+    Test.assertEqual(menu.getItem(menu.findItemById("display")).getSubLabel(),"Status dots");
     return true;
 }

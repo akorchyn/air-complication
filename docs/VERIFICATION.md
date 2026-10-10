@@ -6,13 +6,21 @@
 - Before implementing REST integration, installed a standalone public TEST publisher and a separate subscribing watch face in the actual Garmin simulator. The consumer displayed TEST. The final source tree retains both targets for reproduction.
 
   The final clean spike was also re-run: [spike-consumer.log](spike-consumer.log) and [spike-test.png](spike-test.png) show `CONSUMER RECEIVED: TEST` and the consumer display.
-- Executed **79 actual Monkey C Run No Evil tests** for version 1.1.1: `PASSED (passed=79, failed=0, errors=0)` (77 passed in 1.1.0). See [unit-tests.log](unit-tests.log). These compile and invoke production Monkey C logic, not a Python reimplementation. New cases cover both response formats, separate tokens, provider switching, whole-oblast partial alerts, Crimea's alias, unsupported provider locations and all-parent request aggregation.
+- Executed **83 actual Monkey C Run No Evil tests** for version 1.2.0: `PASSED (passed=83, failed=0, errors=0)` (79 passed in 1.1.1; 77 in 1.1.0). See [unit-tests.log](unit-tests.log). These compile and invoke production Monkey C logic, not a Python reimplementation. New cases cover both response formats, separate tokens, provider switching, whole-oblast partial alerts, Crimea's alias, unsupported provider locations and all-parent request aggregation.
 - Made a **real HTTPS UA Siren request** through the official simulator's `Communications.makeWebRequest` transport, using the production request/cache/parser path and a temporary diagnostic subclass. A decoded root JSON array arrived with HTTP 200 and the cache recorded a successful check. See [network-uasiren.log](network-uasiren.log). This checks the SDK callback boundary, whose published static type omits root arrays despite runtime support. The log contains no alert body, API token or headers; live events are not test fixtures. Authenticated providers still need personal-token/hardware checks.
 - Pressed simulated Epix START through the production Refresh delegate with a mocked transport. It published YELLOW; subsequently loaded consumer read YELLOW.
 - Injected a Garmin simulator temporal background event for the publisher while the consumer watch face was active. The real service/request/cache/parser path published RED; subscribed consumer received RED and repainted. See [probe-1-consumer.log](probe-1-consumer.log), [manual-yellow.png](manual-yellow.png), and [background-red.png](background-red.png).
 - Tested 10 and 25 distinct realistic alert dictionaries with long threat messages in the service. Ten propagated RED. Twenty-five exhausted memory; the consumer received N/A, which had been published before allocation. See the logs below.
 
 The temporal integration fixture makes the request immediately due when a simulator event is injected. This tests the service and delivery path without waiting five minutes; production does not have that override. Automated tests and consumer/memory probes use mocked data exclusively; the separate live smoke check is listed above.
+
+## Display modes — 1.2.0
+
+Four new simulator tests validate Text/dot mappings, invalid-mode fallback, failed/stale checks never producing green, immediate formatting-only changes preserving cached success/request generation/next-check time, and preserving 429 failure backoff. The settings lifecycle regression also checks the mode label updates on return. All 83 tests passed.
+
+The mode publishes literal Unicode strings for green/yellow/red and ASCII ?/! for unknown/stale. Background callbacks use the selected mode; the foreground status view intentionally retains words. Emoji glyph/color support in Tronic is unverified. The ASCII-only test consumer logs the exact received Unicode string and draws an explanatory caption; it does not demonstrate native colored emoji.
+
+The actual simulator consumer received 🟡 after a mocked manual refresh, 🔴 after a temporal background event, and 🟢 after a subsequent background event returning a validated empty response. See [dots-1-consumer.log](dots-1-consumer.log), [publisher log](dots-1-publisher.log), and [build log](dots-1-build.log). Reproduce with `scripts/verify_simulator.py 1 dots` after compiling the consumer. The current one-alert dot-mode background probe used 34,904 B after synthetic payload allocation; large-response constraints still apply.
 
 ## Settings reactivity patch — 1.1.1
 

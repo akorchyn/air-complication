@@ -27,5 +27,14 @@ class ConsumerApp extends Application.AppBase {
 }
 class ConsumerView extends WatchUi.WatchFace {
  function initialize() { WatchFace.initialize(); }
- function onUpdate(dc) { dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_BLACK); dc.clear(); dc.drawText(208,190,WatchUi.loadResource(Rez.Fonts.TestFont),Application.getApp().textValue,Graphics.TEXT_JUSTIFY_CENTER); }
+ function onUpdate(dc) {
+  dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_BLACK);dc.clear();
+  var value=Application.getApp().textValue;
+  // This fixture font is ASCII-only. The callback log retains the exact Unicode
+  // value; these captions do not claim to verify a consumer's emoji rendering.
+  if (value.equals("🟢")) { value="GREEN DOT"; }
+  else if (value.equals("🟡")) { value="YELLOW DOT"; }
+  else if (value.equals("🔴")) { value="RED DOT"; }
+  dc.drawText(208,190,WatchUi.loadResource(Rez.Fonts.TestFont),value,Graphics.TEXT_JUSTIFY_CENTER);
+ }
 }

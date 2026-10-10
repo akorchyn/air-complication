@@ -1,12 +1,19 @@
-Fixes on-watch settings showing old values after returning from a selection dialog.
+Adds **Display mode** with two choices: **Text** (default) and **Status dots**.
 
-- Selecting an API provider immediately updates its name and whether a token is required, without reopening settings.
-- Location, custom UID/label, refresh interval and stale threshold also refresh when their picker closes.
-- Settings delivered from the phone update the currently visible settings menu.
-- The existing menu is updated in place, retaining its position.
+| State | Text | Status dots |
+|---|---|---|
+| No applicable active air-raid alert after a validated check | CLEAR | 🟢 |
+| Yellow alert | YELLOW | 🟡 |
+| Red alert | RED | 🔴 |
+| Unavailable or unknown | N/A | ? |
+| Stale | STALE | ! |
 
-Download **air-alert.prg** and copy it to `GARMIN/APPS/air-alert.prg` on the watch, then safely disconnect. The IQ package is for Garmin distribution tooling, not USB sideloading. CI builds and publishes these release assets automatically from the version tag.
+Choose the mode in mobile settings or hold MENU → Display mode on the watch. Switching modes immediately republishes cached status without a network request or resetting failure backoff. The app's own screen keeps readable status words.
 
-The three providers and all region presets remain available. This is an informational display: keep using official air-alert notifications. Garmin service delivery and complication expiry are not guaranteed; whole-oblast responses can exceed background memory. Physical Tronic integration and authenticated upstream requests remain unverified.
+**Glyph/color support depends on Tronic's font.** The publisher sends Unicode text, not colored images. These circles may render monochrome, as boxes, or blank; switch to Text if unreadable. Physical Tronic emoji/color rendering is unverified. Never interpret ? or ! as clear.
+
+Download **air-alert.prg** and replace `GARMIN/APPS/air-alert.prg` on the watch, then safely disconnect. The IQ package is for Garmin distribution tooling, not USB sideloading. CI builds and publishes these assets from the version tag.
+
+All three providers and the region presets remain available. Informational only: continue using official air-alert notifications. Garmin background delivery and complication expiry are not guaranteed; whole-oblast responses can exceed background memory. Authenticated upstream requests remain unverified.
 
 CI uses an ephemeral signing key unless `CIQ_SIGNING_KEY_BASE64` is configured. No live API token is embedded.

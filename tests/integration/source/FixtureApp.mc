@@ -12,6 +12,7 @@ class FixtureApp extends AirAlertApp {
     function getInitialView() {
         Application.Properties.setValue("cityUid",31);
         Application.Properties.setValue("apiProvider",0);
+        Application.Properties.setValue("displayMode",ProbeConfig.DISPLAY_MODE);
         Application.Properties.setValue("apiToken","SIMULATOR_FIXTURE_ONLY");
         Application.Properties.setValue("refreshMinutes",5);
         Application.Storage.deleteValue("cache");Application.Storage.deleteValue("requestGate");Application.Storage.setValue("fixtureStep",0);
@@ -38,6 +39,10 @@ class FixtureRequest extends AlertRequest {
         var step=Application.Storage.getValue("fixtureStep");
         if (!(step instanceof Number)) { step=0; }
         Application.Storage.setValue("fixtureStep",step+1);
+        if (step>=2) {
+            System.println("INTEGRATION: response clear");
+            response(200,{"alerts"=>[]});return;
+        }
         var level=step==0 ? "yellow" : "red";
         System.println("INTEGRATION: response "+level);
         var before=System.getSystemStats();System.println("INTEGRATION: response memory used="+before.usedMemory+" free="+before.freeMemory);

@@ -17,6 +17,8 @@ module Config {
     function provider() { var p=number("apiProvider",0);return (p>=0 && p<=2) ? p : 0; }
     function providerName() { return ["alerts.in.ua","Ukraine Alarm","UA Siren"][provider()]; }
     function needsToken() { return provider()!=2; }
+    function displayMode() { return number("displayMode",0)==1 ? 1 : 0; }
+    function displayModeName() { return displayMode()==1 ? "Status dots" : "Text"; }
     function staleSeconds() { var n=number("staleMinutes",10); return (n>=5 && n<=60) ? n*60 : 600; }
     function location() as Dictionary {
         var id=number("cityUid",31);

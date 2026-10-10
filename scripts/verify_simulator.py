@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Optional Linux X11 automation for the separate publisher + consumer fixtures.
 Requires python-xlib and a RUNNING Garmin simulator. Never uses the live API.
-Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50]
+Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50] [text|dots]
 The test temporarily changes only tests/integration/source/ProbeConfig.mc.
 """
 import os,sys,time,subprocess
@@ -10,6 +10,9 @@ from Xlib import display,X,XK
 from Xlib.ext import xtest
 ROOT=Path(__file__).resolve().parents[1]
 SDK=Path(os.environ['CIQ_SDK']);KEY=os.environ['CIQ_KEY'];rows=int(sys.argv[1]) if len(sys.argv)>1 else 1
+mode=sys.argv[2] if len(sys.argv)>2 else 'text'
+if mode not in ['text','dots']:raise SystemExit('Mode must be text or dots')
+prefix=f'probe-{rows}' if mode=='text' else f'dots-{rows}'
 probe=ROOT/'tests/integration/source/ProbeConfig.mc';original=probe.read_text()
 d=display.Display()
 def click(x,y):
@@ -21,6 +24,11 @@ def window(title):
     for w in d.screen().root.query_tree().children:
         if title in (w.get_wm_name() or ''):return w
     raise RuntimeError('Window not found: '+title)
+def temporal():
+    key('Escape');click(145,12);click(180,179) # Simulation > Background Events
+    w=window('Background Events');g=w.get_geometry();x,y=g.x,g.y
+    click(x+200,y+125);key('Home');key('Down');key('Return') # Air Alert UA
+    click(x+166,y+170);time.sleep(1)
 def run(prg,log):
     handle=log.open('w')
     p=subprocess.Popen(['java','-classpath',str(SDK/'bin/monkeybrains.jar'),'com.garmin.monkeybrains.monkeydodeux.MonkeyDoDeux','-f',str(prg),'-d','epix2','-s',str(SDK/'bin/shell')],cwd=ROOT,stdout=handle,stderr=subprocess.STDOUT)
@@ -30,24 +38,23 @@ def run(prg,log):
     time.sleep(.3);return p,handle
 processes=[]
 try:
-    probe.write_text(f'(:background)\nmodule ProbeConfig {{ const ROWS={rows}; }}\n')
+    probe.write_text(f'(:background)\nmodule ProbeConfig {{ const ROWS={rows}; const DISPLAY_MODE={1 if mode=="dots" else 0}; }}\n')
     result=subprocess.run([str(ROOT/'scripts/build.sh'),'integration'],cwd=ROOT,capture_output=True,text=True)
-    (ROOT/f'docs/probe-{rows}-build.log').write_text(result.stdout+result.stderr)
+    (ROOT/f'docs/{prefix}-build.log').write_text(result.stdout+result.stderr)
     if result.returncode:raise RuntimeError('Fixture compilation failed')
-    processes.append(run(ROOT/'artifacts/integration.prg',ROOT/f'docs/probe-{rows}-publisher.log'))
+    processes.append(run(ROOT/'artifacts/integration.prg',ROOT/f'docs/{prefix}-publisher.log'))
     key('Escape');click(614,360) # Epix START: production manual Refresh delegate
     time.sleep(.5)
-    processes.append(run(ROOT/'artifacts/consumer.prg',ROOT/f'docs/probe-{rows}-consumer.log'))
-    key('Escape');click(145,12);click(180,179) # Simulation > Background Events
-    w=window('Background Events');g=w.get_geometry();pos=w.translate_coords(d.screen().root,0,0)
-    # Popup is centered at 204,383 on the standard Epix simulation window.
-    x,y=g.x,g.y
-    click(x+200,y+125);key('Home');key('Down');key('Return') # Air Alert UA
-    click(x+166,y+170);time.sleep(1)
-    out=(ROOT/f'docs/probe-{rows}-consumer.log').read_text()
+    processes.append(run(ROOT/'artifacts/consumer.prg',ROOT/f'docs/{prefix}-consumer.log'))
+    temporal()
+    if mode=='dots' and rows<=10:temporal() # Valid empty response must publish green.
+    out=(ROOT/f'docs/{prefix}-consumer.log').read_text()
     print(out)
-    if rows<=10 and 'CONSUMER RECEIVED: RED' not in out:raise RuntimeError('No consumer RED update')
-    if rows==1:
+    expected='RED' if mode=='text' else '🔴'
+    yellow='YELLOW' if mode=='text' else '🟡'
+    if rows<=10 and (f'CONSUMER RECEIVED: {expected}' not in out or f'CONSUMER RECEIVED: {yellow}' not in out):raise RuntimeError('Missing consumer manual/background update')
+    if mode=='dots' and rows<=10 and 'CONSUMER RECEIVED: 🟢' not in out:raise RuntimeError('Missing consumer green update')
+    if rows==1 and mode=='text':
         subprocess.run(['import','-window',str(window('CIQ Simulator').id),str(ROOT/'docs/background-red.png')],check=True)
 finally:
     probe.write_text(original)
