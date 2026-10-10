@@ -31,13 +31,13 @@ def run(prg,log):
 processes=[]
 try:
     probe.write_text(f'(:background)\nmodule ProbeConfig {{ const ROWS={rows}; }}\n')
-    result=subprocess.run([str(SDK/'bin/monkeyc'),'-f','tests/integration/monkey.jungle','-o','build/integration/integration.prg','-d','epix2','-y',KEY,'-l','1'],cwd=ROOT,capture_output=True,text=True)
+    result=subprocess.run([str(ROOT/'scripts/build.sh'),'integration'],cwd=ROOT,capture_output=True,text=True)
     (ROOT/f'docs/probe-{rows}-build.log').write_text(result.stdout+result.stderr)
     if result.returncode:raise RuntimeError('Fixture compilation failed')
-    processes.append(run(ROOT/'build/integration/integration.prg',ROOT/f'docs/probe-{rows}-publisher.log'))
+    processes.append(run(ROOT/'artifacts/integration.prg',ROOT/f'docs/probe-{rows}-publisher.log'))
     key('Escape');click(614,360) # Epix START: production manual Refresh delegate
     time.sleep(.5)
-    processes.append(run(ROOT/'build/consumer/consumer.prg',ROOT/f'docs/probe-{rows}-consumer.log'))
+    processes.append(run(ROOT/'artifacts/consumer.prg',ROOT/f'docs/probe-{rows}-consumer.log'))
     key('Escape');click(145,12);click(180,179) # Simulation > Background Events
     w=window('Background Events');g=w.get_geometry();pos=w.translate_coords(d.screen().root,0,0)
     # Popup is centered at 204,383 on the standard Epix simulation window.

@@ -1,5 +1,6 @@
 /build/
 /bin/
+/artifacts/
 *.der
 *.pem
 *.SET
@@ -11,8 +12,8 @@
 __pycache__/
 
 # Keep the verified production artifacts, but not intermediate/test binaries.
-!/bin/
-/bin/*
-!/bin/air-alert.prg
-!/bin/air-alert.iq
-!/bin/SHA256SUMS
+!/artifacts/
+/artifacts/*
+!/artifacts/air-alert.prg
+!/artifacts/air-alert.iq
+!/artifacts/SHA256SUMS

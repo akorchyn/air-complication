@@ -24,9 +24,21 @@ The project compiles for Epix Gen 2 and publisher-to-consumer updates were exerc
    scripts/build.sh app
    ```
 
-   Output: `build/app/air-alert.prg`. A prebuilt Epix binary is supplied as `bin/air-alert.prg`, signed with a development key. Use your own key for subsequent releases. Never commit private keys or API tokens. The source declares CIQ 4.2 minimum; the current Epix device profile used for this build requires firmware **23.16 or newer** (CIQ 5.2). Update the watch first.
+   Output: `artifacts/air-alert.prg`. Compiler intermediates remain in `build/`; published binaries are copied to `artifacts/`. A prebuilt Epix binary is supplied as `artifacts/air-alert.prg`, signed with a development key. Use your own key for subsequent releases. Never commit private keys or API tokens. The source declares CIQ 4.2 minimum; the current Epix device profile used for this build requires firmware **23.16 or newer** (CIQ 5.2). Update the watch first.
 
 To export an IQ package for your own beta/store workflow, run `scripts/build.sh package`. Nothing is uploaded or published by these scripts. On Windows, use equivalent `monkeyc` commands from `scripts/build.sh`, or run the shell scripts in a suitable shell.
+
+## GitHub Actions builds
+
+[Build Connect IQ](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) runs on pushes to `main`, pull requests, and manual **Run workflow** requests. It builds the Epix PRG and IQ package and compiles the separate spike, consumer, integration and unit-test targets. Open a successful run and download **Air-Alert-UA-Epix-Gen-2** under **Artifacts**. Extract the ZIP and copy `air-alert.prg` to your watch. The separate simulator-fixture download must not be installed on your everyday watch.
+
+Local builds publish `artifacts/air-alert.prg` and `artifacts/air-alert.iq`, with `artifacts/SHA256SUMS`. Fixture outputs are `artifacts/spike.prg`, `consumer.prg`, `integration.prg`, and `tests.prg`. Only production binaries are tracked in Git. CI stores downloadable artifacts; it does not commit generated binaries or publish a Garmin store release.
+
+The workflow uses Java 17, official Garmin SDK 9.2.0 and the existing public Epix-definition cache, pinned to an immutable commit and SHA-256 checksums. `scripts/setup-ci-sdk.sh /absolute/install/directory` reproduces the Linux CLI setup. Device/font downloads through Garmin SDK Manager require authentication; the public definition snapshot allows unattended compilation without a Garmin login. No simulator executable modifications are used for CI builds.
+
+No secrets are required for a build. By default CI creates a temporary development signing key, then deletes it; the signing identity changes between runs. For a consistent identity, set repository Actions secret **CIQ_SIGNING_KEY_BASE64** to the base64 representation of your own DER developer key. Never put the key in Git. Fork pull requests use a temporary key because repository secrets are withheld. No alerts.in.ua token is used or embedded by CI.
+
+CI **compiles** the Run No Evil tests; it does not execute the graphical Garmin simulator or claim fresh simulator test results. Run `scripts/test.sh` locally with a working simulator to execute them. The repository contains the previously executed 41-test verification log.
 
 ## Installation and settings
 
@@ -107,6 +119,8 @@ Actual simulator probes using the real request callback, parser and publisher me
 
 For dependable large-response operation or public distribution, a minimal HTTPS caching proxy is the justified next architecture: obtain the complete detailed response on a server, validate it, cache upstream requests, and return a small complete `alerts` wrapper containing exact-location and applicable whole-parent alerts, preserving severity and threats. Empty output is allowed only after a successful complete upstream validation; upstream failures must return an error. Retain the separate-city exceptions and the same fixture tests. Use per-user client authorization and keep the upstream token on the server. The proxy is **evaluated, not implemented** here; adding it requires an explicit HTTPS endpoint configuration and authentication change to `AlertRequest.send()`. The current release contacts the official endpoint directly. Do not publish a shared API token inside a downloadable PRG.
 
+See [the alternative API comparison](docs/API-ALTERNATIVES.md) for current regional endpoints from Ukraine Alarm and the public UA Siren wrapper. They support yellow/red levels and may avoid the nationwide-payload problem. The release still uses alerts.in.ua.
+
 ## Simulator and tests
 
 Start the official Garmin simulator with `"$CIQ_SDK/bin/connectiq"` (or SDK Manager / VS Code). Installed device profiles and fonts are required. The following targets are intentionally separate; build sequentially and do not install multiple publisher variants on hardware.
@@ -116,9 +130,9 @@ Compatibility spike, with no API integration:
 ```sh
 scripts/build.sh spike
 scripts/build.sh consumer
-"$CIQ_SDK/bin/monkeydo" build/spike/spike.prg epix2
+"$CIQ_SDK/bin/monkeydo" artifacts/spike.prg epix2
 # Then load the consumer in the same running simulator:
-"$CIQ_SDK/bin/monkeydo" build/consumer/consumer.prg epix2
+"$CIQ_SDK/bin/monkeydo" artifacts/consumer.prg epix2
 ```
 
 The consumer discovers the public complication by its long label, subscribes to it, draws `TEST`, and prints `CONSUMER RECEIVED: TEST`. Successful publisher API execution alone is not the assertion. This spike was performed before REST implementation.
@@ -136,9 +150,9 @@ To verify manual and background publication:
 ```sh
 scripts/build.sh integration
 scripts/build.sh consumer
-"$CIQ_SDK/bin/monkeydo" build/integration/integration.prg epix2
+"$CIQ_SDK/bin/monkeydo" artifacts/integration.prg epix2
 # Press START: production Refresh path publishes YELLOW.
-"$CIQ_SDK/bin/monkeydo" build/consumer/consumer.prg epix2
+"$CIQ_SDK/bin/monkeydo" artifacts/consumer.prg epix2
 # Simulator: Simulation > Background Events > Temporal Event > Air Alert UA > OK
 # Consumer must receive and draw RED.
 ```

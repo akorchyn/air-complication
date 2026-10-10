@@ -17,3 +17,15 @@ esac
 mkdir -p "build/$mode"
 if [[ "$mode" != package ]]; then args+=(-d epix2); fi
 "$CIQ_SDK/bin/monkeyc" -f "$jungle" -o "build/$mode/$name" -y "$CIQ_KEY" -l 1 -w "${args[@]}"
+mkdir -p artifacts
+cp "build/$mode/$name" "artifacts/$name"
+if [[ "$mode" == app || "$mode" == package ]]; then
+ python3 - <<'PY'
+from pathlib import Path
+import hashlib
+root=Path('artifacts')
+files=[root/name for name in ['air-alert.prg','air-alert.iq'] if (root/name).is_file()]
+(root/'SHA256SUMS').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in files))
+PY
+fi
+echo "Published artifacts/$name"
