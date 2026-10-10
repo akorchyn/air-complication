@@ -1,0 +1,18 @@
+/build/
+/bin/
+*.der
+*.pem
+*.SET
+*.set
+*.DAT
+*.dat
+/resources-private/
+*.iq
+__pycache__/
+
+# Keep the verified production artifacts, but not intermediate/test binaries.
+!/bin/
+/bin/*
+!/bin/air-alert.prg
+!/bin/air-alert.iq
+!/bin/SHA256SUMS

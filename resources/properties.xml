@@ -1,0 +1,8 @@
+<properties>
+ <property id="apiToken" type="string"></property>
+ <property id="cityUid" type="number">31</property>
+ <property id="customUid" type="string"></property>
+ <property id="customLabel" type="string">ALERT</property>
+ <property id="refreshMinutes" type="number">5</property>
+ <property id="staleMinutes" type="number">10</property>
+</properties>

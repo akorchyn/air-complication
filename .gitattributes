@@ -1,0 +1,13 @@
+* text=auto
+
+# Preserve the original official CSV bytes and captured simulator output.
+research/locations.csv -text whitespace=-trailing-space
+docs/*.log -text whitespace=-trailing-space
+
+# Preserve the bundled upstream license and generated raster-font metadata.
+docs/FONT-LICENSE.txt whitespace=-trailing-space,-blank-at-eof
+*.fnt whitespace=-trailing-space
+
+*.png binary
+*.prg binary
+*.iq binary

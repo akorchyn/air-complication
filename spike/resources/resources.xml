@@ -1,0 +1,5 @@
+<resources>
+ <strings><string id="AppName">Air Alert UA</string><string id="AlertLabel">Air Alert UA</string><string id="ShortLabel">ALERT</string></strings>
+ <drawables><bitmap id="LauncherIcon" filename="alert.svg"/><bitmap id="ComplicationIcon" filename="alert.svg"/></drawables>
+ <complications><complication id="0" access="public" longLabel="@Strings.AlertLabel" shortLabel="@Strings.ShortLabel" icon="@Drawables.ComplicationIcon"><faceIt defaultText="@Strings.ShortLabel"/></complication></complications>
+<fonts><font id="TestFont" filename="testfont.fnt"/></fonts></resources>

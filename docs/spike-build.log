@@ -1,0 +1,3 @@
+WARNING: epix2: The launcher icon (40x40) isn't compatible with the specified launcher icon size of the device 'epix2' (60x60). The image will be scaled to the target size.
+WARNING: epix2: The 'Background' permission was enabled but no source code was annotated. The entire application will be loaded as a background process.
+BUILD SUCCESSFUL

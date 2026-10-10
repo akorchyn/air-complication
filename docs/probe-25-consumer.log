@@ -1,0 +1,12 @@
+CONSUMER RECEIVED: YELLOW
+Background: INTEGRATION: background event
+Background: INTEGRATION: response red
+Background: INTEGRATION: response memory used=19440 free=41816
+Background: MEMORY: before rows=25 used=19640 free=41616
+
+Error: Out Of Memory Error
+Details: Failed invoking <symbol>
+Stack: 
+  -  at 
+CONSUMER RECEIVED: N/A
+CONSUMER RECEIVED: N/A

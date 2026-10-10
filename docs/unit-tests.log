@@ -1,0 +1,171 @@
+------------------------------------------------------------------------------
+Executing test ended_airraid...
+PASS
+------------------------------------------------------------------------------
+Executing test invalid_alerts...
+PASS
+------------------------------------------------------------------------------
+Executing test invalid_row...
+PASS
+------------------------------------------------------------------------------
+Executing test kharkiv_separate...
+PASS
+------------------------------------------------------------------------------
+Executing test known_red_bad_row...
+PASS
+------------------------------------------------------------------------------
+Executing test kyiv_oblast_separate...
+PASS
+------------------------------------------------------------------------------
+Executing test malformed_threat...
+PASS
+------------------------------------------------------------------------------
+Executing test missing_alerts...
+PASS
+------------------------------------------------------------------------------
+Executing test missing_level...
+PASS
+------------------------------------------------------------------------------
+Executing test missing_uid...
+PASS
+------------------------------------------------------------------------------
+Executing test no_alerts...
+PASS
+------------------------------------------------------------------------------
+Executing test oblast_inheritance...
+PASS
+------------------------------------------------------------------------------
+Executing test raion_inheritance...
+PASS
+------------------------------------------------------------------------------
+Executing test red_city...
+PASS
+------------------------------------------------------------------------------
+Executing test red_priority...
+PASS
+------------------------------------------------------------------------------
+Executing test red_threat_over_yellow...
+PASS
+------------------------------------------------------------------------------
+Executing test sibling_city...
+PASS
+------------------------------------------------------------------------------
+Executing test uid_bad_string...
+PASS
+------------------------------------------------------------------------------
+Executing test uid_is_number...
+PASS
+------------------------------------------------------------------------------
+Executing test unknown_location_type...
+PASS
+------------------------------------------------------------------------------
+Executing test unrelated_type...
+PASS
+------------------------------------------------------------------------------
+Executing test unsupported_level...
+PASS
+------------------------------------------------------------------------------
+Executing test unsupported_type...
+PASS
+------------------------------------------------------------------------------
+Executing test yellow_bad_row...
+PASS
+------------------------------------------------------------------------------
+Executing test yellow_city...
+PASS
+------------------------------------------------------------------------------
+Executing test zaporizhzhia_separate...
+PASS
+------------------------------------------------------------------------------
+Executing test missing_token_avoids_network...
+PASS
+------------------------------------------------------------------------------
+Executing test manual_request_updates_persisted_status...
+PASS
+------------------------------------------------------------------------------
+Executing test old_response_cannot_contaminate_new_city...
+PASS
+------------------------------------------------------------------------------
+Executing test shared_gate_survives_city_switch...
+PASS
+------------------------------------------------------------------------------
+Executing test malformed_json_callback_is_unknown...
+PASS
+------------------------------------------------------------------------------
+Executing test first_launch_without_token...
+PASS
+------------------------------------------------------------------------------
+Executing test stale_boundary_and_clock_rollback...
+PASS
+------------------------------------------------------------------------------
+Executing test switching_city_invalidates_cache...
+PASS
+------------------------------------------------------------------------------
+Executing test http_failures_never_clear...
+PASS
+------------------------------------------------------------------------------
+Executing test recovery_after_reconnection...
+PASS
+------------------------------------------------------------------------------
+Executing test overlapping_requests_and_manual_floor...
+PASS
+------------------------------------------------------------------------------
+Executing test rate_limit_backoff...
+PASS
+------------------------------------------------------------------------------
+Executing test custom_location_is_official_and_exact...
+PASS
+------------------------------------------------------------------------------
+Executing test intervals_are_validated...
+PASS
+------------------------------------------------------------------------------
+Executing test corrupted_cache_is_unknown...
+PASS
+
+==============================================================================
+RESULTS
+Test:                                    Status:
+ended_airraid                            PASS
+invalid_alerts                           PASS
+invalid_row                              PASS
+kharkiv_separate                         PASS
+known_red_bad_row                        PASS
+kyiv_oblast_separate                     PASS
+malformed_threat                         PASS
+missing_alerts                           PASS
+missing_level                            PASS
+missing_uid                              PASS
+no_alerts                                PASS
+oblast_inheritance                       PASS
+raion_inheritance                        PASS
+red_city                                 PASS
+red_priority                             PASS
+red_threat_over_yellow                   PASS
+sibling_city                             PASS
+uid_bad_string                           PASS
+uid_is_number                            PASS
+unknown_location_type                    PASS
+unrelated_type                           PASS
+unsupported_level                        PASS
+unsupported_type                         PASS
+yellow_bad_row                           PASS
+yellow_city                              PASS
+zaporizhzhia_separate                    PASS
+missing_token_avoids_network             PASS
+manual_request_updates_persisted_status  PASS
+old_response_cannot_contaminate_new_city PASS
+shared_gate_survives_city_switch         PASS
+malformed_json_callback_is_unknown       PASS
+first_launch_without_token               PASS
+stale_boundary_and_clock_rollback        PASS
+switching_city_invalidates_cache         PASS
+http_failures_never_clear                PASS
+recovery_after_reconnection              PASS
+overlapping_requests_and_manual_floor    PASS
+rate_limit_backoff                       PASS
+custom_location_is_official_and_exact    PASS
+intervals_are_validated                  PASS
+corrupted_cache_is_unknown               PASS
+Ran 41 tests
+
+PASSED (passed=41, failed=0, errors=0)

@@ -1,0 +1,18 @@
+{
+  "uid": 964,
+  "expected": 1,
+  "response": {
+    "alerts": [
+      {
+        "location_uid": "104",
+        "location_type": "raion",
+        "location_oblast_uid": "18",
+        "alert_type": "air_raid",
+        "alert_level": "yellow",
+        "started_at": "2026-10-10T08:00:00Z",
+        "updated_at": "2026-10-10T08:00:00Z",
+        "location_title": "Fixture location"
+      }
+    ]
+  }
+}

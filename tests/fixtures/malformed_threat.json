@@ -1,0 +1,23 @@
+{
+  "uid": 31,
+  "expected": 3,
+  "response": {
+    "alerts": [
+      {
+        "location_uid": "31",
+        "location_type": "city",
+        "location_oblast_uid": "0",
+        "alert_type": "air_raid",
+        "alert_level": "yellow",
+        "started_at": "2026-10-10T08:00:00Z",
+        "updated_at": "2026-10-10T08:00:00Z",
+        "location_title": "Fixture location",
+        "threats": [
+          {
+            "level": "green"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+<strings>
+ <string id="TokenTitle">alerts.in.ua API token (personal use)</string>
+ <string id="CityTitle">Monitored city</string><string id="Kyiv">Kyiv city (31)</string>
+ <string id="Kharkiv">Kharkiv (1293)</string><string id="Lviv">Lviv (845)</string>
+ <string id="Odesa">Odesa (964)</string><string id="Dnipro">Dnipro (332)</string>
+ <string id="Zaporizhzhia">Zaporizhzhia (564)</string><string id="Custom">Custom location UID</string>
+ <string id="CustomTitle">Custom UID (open app after changing)</string><string id="LabelTitle">Custom short label (5 characters)</string>
+ <string id="RefreshTitle">Refresh interval</string><string id="StaleTitle">Stale after (minutes)</string>
+ <string id="M5">5 minutes</string><string id="M10">10 minutes</string><string id="M15">15 minutes</string><string id="M30">30 minutes</string><string id="M60">60 minutes</string>
+</strings>

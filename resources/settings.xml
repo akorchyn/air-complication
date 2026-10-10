@@ -1,0 +1,16 @@
+<settings>
+ <setting propertyKey="@Properties.apiToken" title="@Strings.TokenTitle"><settingConfig type="alphaNumeric"/></setting>
+ <setting propertyKey="@Properties.cityUid" title="@Strings.CityTitle"><settingConfig type="list">
+  <listEntry value="31">@Strings.Kyiv</listEntry><listEntry value="1293">@Strings.Kharkiv</listEntry>
+  <listEntry value="845">@Strings.Lviv</listEntry><listEntry value="964">@Strings.Odesa</listEntry>
+  <listEntry value="332">@Strings.Dnipro</listEntry><listEntry value="564">@Strings.Zaporizhzhia</listEntry>
+  <listEntry value="0">@Strings.Custom</listEntry>
+ </settingConfig></setting>
+ <setting propertyKey="@Properties.customUid" title="@Strings.CustomTitle"><settingConfig type="alphaNumeric"/></setting>
+ <setting propertyKey="@Properties.customLabel" title="@Strings.LabelTitle"><settingConfig type="alphaNumeric" maxLength="5"/></setting>
+ <setting propertyKey="@Properties.refreshMinutes" title="@Strings.RefreshTitle"><settingConfig type="list">
+  <listEntry value="5">@Strings.M5</listEntry><listEntry value="10">@Strings.M10</listEntry>
+  <listEntry value="15">@Strings.M15</listEntry><listEntry value="30">@Strings.M30</listEntry><listEntry value="60">@Strings.M60</listEntry>
+ </settingConfig></setting>
+ <setting propertyKey="@Properties.staleMinutes" title="@Strings.StaleTitle"><settingConfig type="numeric" min="5" max="60"/></setting>
+</settings>
