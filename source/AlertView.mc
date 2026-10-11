@@ -14,7 +14,7 @@ class AlertView extends WatchUi.View {
     function initialize(onOpen as Lang.Method or Null) { View.initialize();_onOpen=onOpen; }
     function onShow() {
         _visible=true;
-        // Consume before invoking: returning from Settings or another view
+        // Consume before invoking: returning from another view
         // must not trigger a second automatic request in this launch.
         var onOpen=_onOpen;_onOpen=null;
         if (onOpen!=null) { onOpen.invoke(); }
@@ -43,7 +43,7 @@ class AlertView extends WatchUi.View {
             time="Updated "+t.hour.format("%02d")+":"+t.min.format("%02d")+"  "+((now-r["success"])/60).format("%d")+"m ago";
         }
         var rows=[
-            ["Air Alert UA",Graphics.FONT_TINY],
+            [WatchUi.loadResource(Rez.Strings.AppName),Graphics.FONT_TINY],
             [Config.providerName(),Graphics.FONT_XTINY],
             [loc["name"],Graphics.FONT_TINY],
             [AlertDisplay.text(AlertLogic.visible(r,now,Config.staleSeconds())),Graphics.FONT_LARGE],
@@ -90,9 +90,6 @@ class AlertView extends WatchUi.View {
 class AlertDelegate extends WatchUi.BehaviorDelegate {
     var _request;
     function initialize() { BehaviorDelegate.initialize(); }
-    function onMenu() as Boolean { SettingsMenu.open();return true; }
-    // Venu 4 has no Epix MENU button. A touch hold gives it a settings path.
-    function onHold(clickEvent) as Boolean { return onMenu(); }
     function onTap(clickEvent) as Boolean { return onSelect(); }
     function onSelect() as Boolean {
         if (_request==null) { _request=Application.getApp().newRequest(method(:done)); }

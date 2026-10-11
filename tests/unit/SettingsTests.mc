@@ -1,51 +1,54 @@
 using Toybox.Application;
+using Toybox.Time;
 using Toybox.Test;
 
+// Phone-delivered settings use the production AppBase callback. No watch menu
+// is involved; exercise cache invalidation and the surviving request callback.
 (:test)
-function settings_return_updates_provider_and_token_requirement(logger) {
-    resetTest();Application.Properties.setValue("apiToken","");
-    var menu=new AirAlertSettingsMenu();
-    Test.assertEqual(menu.getItem(menu.findItemById("provider")).getSubLabel(),"alerts.in.ua");
-    Application.Properties.setValue("apiProvider",2);
-    // Exercise the lifecycle used when a picker pops, on the SAME menu object.
-    menu.onShow();
-    Test.assertEqual(menu.getItem(menu.findItemById("provider")).getSubLabel(),"UA Siren");
-    Test.assertEqual(menu.getItem(menu.findItemById("token")).getSubLabel(),"Not required");
-    Application.Properties.setValue("apiProvider",1);
-    Application.Properties.setValue("ukraineAlarmToken","FIXTURE_ONLY");
-    menu.onShow();
-    Test.assertEqual(menu.getItem(menu.findItemById("provider")).getSubLabel(),"Ukraine Alarm");
-    Test.assertEqual(menu.getItem(menu.findItemById("token")).getSubLabel(),"Configured");
+function mobile_provider_change_preserves_tokens_and_rejects_previous_response(logger) {
+    var o=requestSetup();
+    Application.Properties.setValue("ukraineAlarmToken","UKRAINE_FIXTURE_ONLY");
+    var app=Application.getApp();app._settings=app.settingsSnapshot();
+    var req=new MockRequest(o.method(:done));req.start(true);
+    Application.Properties.setValue("apiProvider",1);app.onSettingsChanged();
+    Test.assertEqual(Config.token(),"UKRAINE_FIXTURE_ONLY");
+    Test.assertEqual(Application.Properties.getValue("apiToken"),"FIXTURE_ONLY");
+    var r=Cache.load(Config.location());Test.assert(r["failed"]);
+    Test.assertEqual(r["success"],0);Test.assertEqual(r["sequence"],0);
+    req.callbacks[0].invoke(200,{"alerts"=>[]});
+    Test.assertEqual(Cache.load(Config.location())["success"],0);
+    Application.Properties.setValue("apiProvider",2);app.onSettingsChanged();
+    Test.assert(!Config.needsToken());Test.assertEqual(Config.providerName(),"UA Siren");
     return true;
 }
 
 (:test)
-function settings_return_updates_location_and_intervals(logger) {
-    resetTest();var menu=new AirAlertSettingsMenu();
-    Application.Properties.setValue("cityUid",845);
+function mobile_location_and_intervals_resolve_without_watch_menu(logger) {
+    var r=resetTest();Cache.success(r,AlertLogic.NONE,Time.now().value());Cache.save(r);
+    var app=Application.getApp();app._settings=app.settingsSnapshot();
+    Application.Properties.setValue("cityUid",0);
+    Application.Properties.setValue("customUid","332");
+    Application.Properties.setValue("customLabel","DNIP");
     Application.Properties.setValue("refreshMinutes",30);
     Application.Properties.setValue("staleMinutes",15);
-    Application.Properties.setValue("customUid","964");
-    Application.Properties.setValue("customLabel","ODESA");
-    menu.onShow();
-    Test.assertEqual(menu.getItem(menu.findItemById("city")).getSubLabel(),"Lviv city");
-    Test.assertEqual(menu.getItem(menu.findItemById("interval")).getSubLabel(),"30 minutes");
-    Test.assertEqual(menu.getItem(menu.findItemById("stale")).getSubLabel(),"15 minutes");
-    Test.assertEqual(menu.getItem(menu.findItemById("custom")).getSubLabel(),"964");
-    Test.assertEqual(menu.getItem(menu.findItemById("label")).getSubLabel(),"ODESA");
-    Application.Properties.setValue("displayMode",1);menu.onShow();
-    Test.assertEqual(menu.getItem(menu.findItemById("display")).getSubLabel(),"Status dots");
+    app.onSettingsChanged();
+    var loc=Config.location();r=Cache.load(loc);
+    Test.assertEqual(loc["uid"],332);Test.assertEqual(loc["oblast"],9);
+    Test.assertEqual(Config.interval(),1800);Test.assertEqual(Config.staleSeconds(),900);
+    Test.assertEqual(r["success"],0);Test.assert(r["failed"]);
+    Test.assertEqual(AlertLogic.visible(r,Time.now().value(),900),AlertLogic.UNKNOWN);
     return true;
 }
 
 (:test)
-function settings_return_updates_language_and_case(logger) {
-    resetTest();var menu=new AirAlertSettingsMenu();
-    Test.assertEqual(menu.getItem(menu.findItemById("language")).getSubLabel(),"English");
-    Test.assertEqual(menu.getItem(menu.findItemById("case")).getSubLabel(),"Default");
-    Application.Properties.setValue("textLanguage",1);Application.Properties.setValue("textCase",2);menu.onShow();
-    Test.assertEqual(menu.getItem(menu.findItemById("language")).getSubLabel(),"Українська");
-    Test.assertEqual(menu.getItem(menu.findItemById("case")).getSubLabel(),"lowercase");
-    Application.Properties.setValue("textCase",1);menu.onShow();
-    Test.assertEqual(menu.getItem(menu.findItemById("case")).getSubLabel(),"UPPERCASE");return true;
+function mobile_token_edit_recovers_from_auth_backoff_without_revalidating_history(logger) {
+    var r=resetTest();var now=Time.now().value();
+    Cache.success(r,AlertLogic.NONE,now-120);Cache.failure(r,401,now);Cache.save(r);
+    var previous=r["success"];var app=Application.getApp();app._settings=app.settingsSnapshot();
+    Application.Properties.setValue("apiToken","NEW_FIXTURE_ONLY");app.onSettingsChanged();
+    r=Cache.load(Config.location());
+    Test.assertEqual(Config.token(),"NEW_FIXTURE_ONLY");Test.assertEqual(r["failures"],0);
+    Test.assertEqual(r["next"],0);Test.assertEqual(r["success"],previous);Test.assert(r["failed"]);
+    Test.assertEqual(AlertLogic.visible(r,now,600),AlertLogic.UNKNOWN);
+    return true;
 }

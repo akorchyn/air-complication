@@ -1,5 +1,15 @@
 # Verification record — updated 2026-10-11
 
+## Mobile configuration and beta builds — 1.6.0
+
+All **108 Monkey C Run No Evil tests passed on each of Epix Gen 2, Venu 4 41 mm and Venu 4 45 mm**. The three settings regressions now exercise the production phone-settings callback: switching provider preserves separate credentials and rejects an old in-flight reply; custom location/interval changes resolve and invalidate the previous check; replacing a token clears authentication backoff without revalidating old CLEAR history. Existing presentation tests verify language/case/mode edits preserve cached success, in-flight generations and failure backoff. See the three `unit-tests*.log` files.
+
+Compiled both production and beta PRGs for all three models and both multi-device IQ packages with stock SDK 9.2.0 and Java 17. Inspected the exported packages: distinct app IDs and complication labels, shared version 1.6.0, public complication 0, all 11 mobile settings, 33 location choices including Custom, and identical developer public keys. Checked both sets of binary SHA-256 checksums. The same private signing key therefore works for both identities.
+
+Validated workflow syntax with actionlint and executed its signing-key setup branches: production rejects a missing permanent key; beta permits a temporary key with a warning; a supplied permanent key is preserved. The local build default remains production, while automatic CI defaults to beta and manual workflow dispatch offers either variant.
+
+The watch settings editor was removed. Configuration now lives in Connect IQ mobile settings; the watch retains status, last update and Refresh with a phone-settings hint. Tests exercise delivery through `onSettingsChanged`; they do not verify a physical phone's settings editor or guarantee its availability for USB-sideloaded applications. Beta Garmin installation/account access and physical Venu behavior remain unverified. Historical watch-menu checks below describe older versions.
+
 ## Executed
 
 - Compiled the production Device App for `epix2` using Garmin Connect IQ SDK **9.2.0**, Java 17, strict type-check level 1. See `build.log` and the delivered `artifacts/air-alert.prg`.

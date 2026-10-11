@@ -25,7 +25,7 @@ class AlertRequest {
         _token=Config.needsToken() ? Config.token() : "";
         if ((Config.needsToken() && _token.length()==0) || !_location["valid"] || (_provider!=0 && !_location["uaSupported"])) {
             r["failed"]=true;r["lease"]=0;r["next"]=now+Config.interval();
-            r["error"]=!_location["valid"] ? "Open app to resolve location" : (_provider!=0 && !_location["uaSupported"]) ? "Location unsupported by API" : "Configure provider token";
+            r["error"]=!_location["valid"] ? "Open app to resolve location" : (_provider!=0 && !_location["uaSupported"]) ? "Location unsupported by API" : "Set token in Connect IQ";
             Cache.save(r);Cache.publish(r,_location,now);_done.invoke();return;
         }
         _queries=ApiProvider.queries(_provider,_location);_index=0;_aggregate=AlertLogic.NONE;_uncertain=false;

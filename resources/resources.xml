@@ -1,5 +1,5 @@
 <resources>
- <strings><string id="AppName">Air Alert UA</string><string id="AlertLabel">Air Alert UA</string><string id="ShortLabel">ALERT</string><string id="RefreshHint">START: Refresh</string><string id="SettingsHint">Hold MENU: Settings</string></strings>
+ <strings><string id="AppName">Air Alert UA</string><string id="AlertLabel">Air Alert UA</string><string id="ShortLabel">ALERT</string><string id="RefreshHint">START: Refresh</string><string id="SettingsHint">Settings: Connect IQ mobile</string></strings>
  <drawables><bitmap id="LauncherIcon" filename="alert.svg"/><bitmap id="ComplicationIcon" filename="alert.svg"/></drawables>
  <complications><complication id="0" access="public" longLabel="@Strings.AlertLabel" shortLabel="@Strings.ShortLabel" icon="@Drawables.ComplicationIcon"><faceIt defaultText="@Strings.ShortLabel"/></complication></complications>
 </resources>

@@ -34,7 +34,6 @@ class AirAlertApp extends Application.AppBase {
             Cache.save(r);Cache.schedule(r,Time.now().value());
         }
         Cache.publish(r,loc,Time.now().value());
-        SettingsMenu.refresh();
         WatchUi.requestUpdate();
     }
     function settingsSnapshot() as Array {
