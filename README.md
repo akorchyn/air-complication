@@ -187,9 +187,19 @@ Application storage retains selected scope/ancestry, provider identity, state, s
 | 429 | `N/A`; retry after at least 15 minutes, increasing to 60 |
 | 5xx / invalid JSON / network failure | `N/A`; backoff 5, 10, 20, 40, then 60 minutes |
 | No phone / timeout | Same failure policy; never substitute `CLEAR` |
-| Oversized response | Memory error where reported; `N/A` is already published before allocation |
+| Oversized response | Memory error where reported; if Garmin terminates the process, the previous published value can remain until another execution evaluates its lease/staleness |
 
-alerts.in.ua documents soft limits around 8–10 requests/minute/IP and a hard limit of 12, plus abnormal daily usage restrictions. UA Siren documents 200 requests/five minutes/IP. The app permits at most one refresh cycle/minute, normally one/five minutes; Ukraine Alarm/UA Siren city cycles make at most three sequential requests. Background cycles share the foreground gate. Other apps on your IP/key also count, and provider quotas can change. A 429 from any provider enforces backoff.
+alerts.in.ua documents soft limits around 8–10 requests/minute/IP and a hard limit of 12, plus abnormal daily usage restrictions. UA Siren's [official wrapper README](https://github.com/PaulAnnekov/uasiren#limitations) documents **50 requests/minute/IP**, rechecked on 11 October 2026. The app permits at most one refresh cycle/minute, normally one/five minutes; Ukraine Alarm/UA Siren city cycles make at most three sequential requests. Background cycles share the foreground gate. Other apps on your IP/key also count, and provider quotas can change. A 429 from any provider enforces backoff.
+
+### Troubleshooting updates and logs
+
+The current release persists the latest error and successful-check timestamp, shown on the main screen. It does **not** record a request-history log or emit production `System.println()` messages. Logs under `docs/` are developer simulator results, not logs from your watch.
+
+- Open Air Alert UA and check whether **Updated** advances. If it does but the watch-face field remains unchanged, the fetch succeeded; investigate the consumer's selected complication and repaint behavior.
+- If it does not, note the provider, selected location and message below the status. `429: Rate limited` blocks retries for at least 15 minutes; network/response failures initially block them for five minutes. Opening the app and manual Refresh respect these delays. Attempts within the shared one-minute request gate can also be skipped without a new message.
+- Keep Garmin Connect connected to the watch and allowed to run on the phone. A server reachable from a browser does not establish that Garmin's watch-to-phone transport works.
+- For an app crash or an IQ error, connect the watch by USB and look in `GARMIN/APPS/LOGS/` for `CIQ_LOG.YML` / `CIQ_LOG.YAML` (and any rotated `.BAK` files). These are Garmin crash reports, not HTTP request logs. Creating a matching app `.TXT` file will not add network logs to this release because production code does not print them.
+- If monitoring a whole oblast, the nationwide JSON response can exceed background memory even when foreground Refresh works. See the memory limitations below.
 
 The API supports `If-Modified-Since` and `Last-Modified`, but the documented `Communications.makeWebRequest` callback does not expose response headers. This implementation therefore does not issue conditional requests or invent modification metadata. The reserved `modified` cache field remains null. An unsolicited 304 is handled as unavailable rather than refreshing an unverified timestamp. Per-alert `updated_at` is not substituted for the endpoint's `Last-Modified` header.
 

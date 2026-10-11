@@ -31,7 +31,7 @@ AlertRegionModel.activeAlerts[]:
 
 Authentication is an API key in the `Authorization` header according to the schema. The adapter sends the raw Ukraine Alarm key, with a separate property from the alerts.in.ua Bearer token. Missing severity remains UNKNOWN; an active AIR alert alone does not establish a red level. Authenticated request limits and maximum regional payload sizes still need provider confirmation.
 
-**Public wrapper: UA Siren.** The site's [wrapper library](https://github.com/PaulAnnekov/uasiren) states a limit of **200 requests per five minutes per IP**. [Home Assistant's documentation](https://www.home-assistant.io/integrations/ukraine_alarm/) explicitly identifies this wrapper and documents simultaneous red and yellow levels. These requests succeeded without credentials:
+**Public wrapper: UA Siren.** The site's [wrapper library](https://github.com/PaulAnnekov/uasiren#limitations) states a limit of **50 requests per minute per IP**, rechecked on 11 October 2026; the previously listed 200/five minutes was incorrect. [Home Assistant's documentation](https://www.home-assistant.io/integrations/ukraine_alarm/) explicitly identifies this wrapper and documents simultaneous red and yellow levels. These requests succeeded without credentials:
 
 ```text
 GET https://siren.pp.ua/api/v3/regions
