@@ -53,9 +53,10 @@ jobs:
           path: |
             ${{ runner.temp }}/connectiq
             ~/.Garmin/ConnectIQ/Devices/epix2
+            ~/.Garmin/ConnectIQ/Devices/epix2pro51mm
             ~/.Garmin/ConnectIQ/Devices/venu441mm
             ~/.Garmin/ConnectIQ/Devices/venu445mm
-          key: ciq-linux-9.2.0-epix2-venu4-cd073d7fc408-v2
+          key: ciq-linux-9.2.0-epix2-pro51-venu4-cd073d7fc408-v3
       - name: Install SDK and device definition
         if: steps.sdk-cache.outputs.cache-hit != 'true'
         run: scripts/setup-ci-sdk.sh "$RUNNER_TEMP/connectiq"
@@ -94,7 +95,7 @@ jobs:
           PY
       - name: Build selected app variant and IQ package
         run: |
-          for device in epix2 venu441mm venu445mm; do
+          for device in epix2 epix2pro51mm venu441mm venu445mm; do
             scripts/build.sh app "$device" "$BUILD_VARIANT"
           done
           scripts/build.sh package epix2 "$BUILD_VARIANT"
@@ -110,7 +111,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Compile simulator and test targets
         run: |
-          for device in epix2 venu441mm venu445mm; do
+          for device in epix2 epix2pro51mm venu441mm venu445mm; do
             scripts/build.sh spike "$device"
             scripts/build.sh consumer "$device"
             scripts/build.sh integration "$device"
@@ -122,6 +123,7 @@ jobs:
           name: Air-Alert-UA-${{ env.BUILD_VARIANT }}-Epix-Gen-2-and-Venu-4
           path: |
             artifacts/${{ env.ARTIFACT_BASE }}.prg
+            artifacts/${{ env.ARTIFACT_BASE }}-epix2pro51mm.prg
             artifacts/${{ env.ARTIFACT_BASE }}-venu441mm.prg
             artifacts/${{ env.ARTIFACT_BASE }}-venu445mm.prg
             artifacts/${{ env.ARTIFACT_BASE }}.iq
@@ -169,6 +171,7 @@ jobs:
           } > "$RUNNER_TEMP/beta-release-notes.md"
           gh release create "$GITHUB_REF_NAME" \
             artifacts/air-alert-beta.prg artifacts/air-alert-beta-venu441mm.prg \
+            artifacts/air-alert-beta-epix2pro51mm.prg \
             artifacts/air-alert-beta-venu445mm.prg artifacts/air-alert-beta.iq artifacts/SHA256SUMS-beta \
             --verify-tag --prerelease --latest=false --title "Air Alert UA $GITHUB_REF_NAME (beta)" \
             --notes-file "$RUNNER_TEMP/beta-release-notes.md"

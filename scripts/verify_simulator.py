@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Optional Linux X11 automation for the separate publisher + consumer fixtures.
 Requires python-xlib and a RUNNING Garmin simulator. Never uses the live API.
-Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50] [text|dots|ua|ua-upper|ua-lower] [epix2|venu441mm|venu445mm] [manual|open]
+Usage: CIQ_SDK=/path/to/sdk CIQ_KEY=/path/to/key.der DISPLAY=:0 python scripts/verify_simulator.py [1|10|25|50] [text|dots|ua|ua-upper|ua-lower] [epix2|epix2pro51mm|venu441mm|venu445mm] [manual|open]
 The test temporarily changes only tests/integration/source/ProbeConfig.mc.
 """
 import os,sys,time,subprocess,json
@@ -13,7 +13,7 @@ SDK=Path(os.environ['CIQ_SDK']);KEY=os.environ['CIQ_KEY'];rows=int(sys.argv[1]) 
 mode=sys.argv[2] if len(sys.argv)>2 else 'text'
 if mode not in ['text','dots','ua','ua-upper','ua-lower']:raise SystemExit('Unsupported display mode')
 device=sys.argv[3] if len(sys.argv)>3 else 'epix2'
-if device not in ['epix2','venu441mm','venu445mm']:raise SystemExit('Unsupported device')
+if device not in ['epix2','epix2pro51mm','venu441mm','venu445mm']:raise SystemExit('Unsupported device')
 trigger=sys.argv[4] if len(sys.argv)>4 else 'manual'
 if trigger not in ['manual','open']:raise SystemExit('Trigger must be manual or open')
 suffix='' if device=='epix2' else '-'+device
@@ -74,7 +74,7 @@ try:
     key('Escape')
     if trigger=='manual':
         # Device image begins below the simulator's 27-pixel menu bar.
-        target=profile['display']['location'] if device!='epix2' else next(k['location'] for k in profile['keys'] if k['id']=='enter')
+        target=next(k['location'] for k in profile['keys'] if k['id']=='enter') if device.startswith('epix2') else profile['display']['location']
         click(target['x']+target['width']//2,target['y']+target['height']//2+27)
     else:
         # No START/tap input: the inherited production onShow must fetch.

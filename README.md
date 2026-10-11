@@ -11,10 +11,13 @@ Choose English or Ukrainian text, uppercase or lowercase, or Unicode status circ
 | Watch | Production download | Display |
 |---|---|---|
 | Epix (Gen 2) | [air-alert.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert.prg) | 416×416 |
+| Epix Pro (Gen 2), 51 mm | `air-alert-epix2pro51mm.prg` — [Actions builds](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) from 1.6.1 | 454×454 |
 | Venu 4, 41 mm | [air-alert-venu441mm.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert-venu441mm.prg) | 390×390 |
 | Venu 4, 45 mm | [air-alert-venu445mm.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert-venu445mm.prg) | 454×454 |
 
-Download from the [latest production release](https://github.com/akorchyn/air-complication/releases/latest). The pinned device profiles require Epix firmware **23.16 or newer**, or Venu 4 firmware **17.33 or newer**. Update your watch first.
+Download existing production assets from the [latest production release](https://github.com/akorchyn/air-complication/releases/latest). Epix Pro 51 mm is newly supported in 1.6.1; the older production release does not include it. Automatic Actions downloads use the beta filename `air-alert-beta-epix2pro51mm.prg`. The pinned device profiles require Epix firmware **23.16 or newer**, or Venu 4 firmware **17.33 or newer**. Update your watch first.
+
+The original Epix Gen 2 and Epix Pro 51 mm are separate SDK targets. Connect IQ Store installation requires the exact model to be included in the uploaded IQ package; a PRG working when sideloaded does not establish store compatibility. Epix Pro 42 mm and 47 mm are not included.
 
 Your watch face must support **external/custom Connect IQ complications**. Support for Garmin's built-in fields alone is not sufficient. Field selection, paid features and interaction with the complication depend on the watch face.
 
@@ -31,7 +34,7 @@ Keep Garmin Connect connected to the watch and allowed to run on your phone. **A
 
 | Watch | Manual Refresh |
 |---|---|
-| Epix (Gen 2) | START, or tap with touch enabled |
+| Epix (Gen 2), or Epix Pro 51 mm | START, or tap with touch enabled |
 | Venu 4, either size | Tap, or press the top-right button |
 
 The Venu bottom-right button goes back. The status screen includes these control hints.
@@ -121,6 +124,7 @@ For a bug report, include the app version, watch model/firmware, provider, selec
    export CIQ_SDK=/absolute/path/to/sdk
    export CIQ_KEY=/absolute/path/to/developer-key.der
    scripts/build.sh app                 # Epix Gen 2
+   scripts/build.sh app epix2pro51mm    # Epix Pro (Gen 2), 51 mm
    scripts/build.sh app venu441mm       # Venu 4, 41 mm
    scripts/build.sh app venu445mm       # Venu 4, 45 mm
    ```
@@ -135,6 +139,7 @@ Start the official Garmin simulator through SDK Manager / VS Code or `"$CIQ_SDK/
 
 ```sh
 scripts/test.sh epix2
+scripts/test.sh epix2pro51mm
 scripts/test.sh venu441mm
 scripts/test.sh venu445mm
 ```

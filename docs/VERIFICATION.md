@@ -1,5 +1,17 @@
 # Verification record — updated 2026-10-11
 
+## Epix Pro (Gen 2), 51 mm — 1.6.1
+
+The Connect IQ Store rejected the user's Epix Pro 51 mm because the previous package declared only original Epix Gen 2 and Venu 4 targets. Added the distinct official `epix2pro51mm` target, which has a 454×454 display and 64 KiB background memory, to production, beta and all simulator fixtures. Epix Pro 42 mm and 47 mm remain outside the supported targets.
+
+- Compiled all four supported models for both production and beta with stock SDK 9.2.0, and exported both multi-device IQ packages at version 1.6.1.
+- Extracted each IQ package and confirmed its manifest includes `006-B4314-00`, `006-B4542-00` and `006-B4556-00`, the part numbers in Garmin's Pro 51 mm SDK profile. Confirmed their binaries, all 11 settings and public complication 0 are present. The SDK profile also covers D2 Mach 1 Pro and tactix 7 AMOLED aliases. Each package now has eight device-part entries. Both app IDs are unchanged; binary checksums pass.
+- Executed **108 Run No Evil tests** on `epix2pro51mm`: `PASSED (passed=108, failed=0, errors=0)`. See [unit-tests-epix2pro51mm.log](unit-tests-epix2pro51mm.log).
+- On the Pro 51 mm simulator, invoked the production manual Refresh delegate through a mocked transport and received YELLOW in the separate subscribing watch face. Injecting a temporal background event delivered RED to that consumer. See [publisher log](probe-1-epix2pro51mm-publisher.log), [consumer log](probe-1-epix2pro51mm-consumer.log), [fixture build](probe-1-epix2pro51mm-build.log), [manual screenshot](probe-1-epix2pro51mm-manual.png) and [background screenshot](probe-1-epix2pro51mm-background.png). These screenshots show the diagnostic fixture/consumer, not third-party watch-face rendering.
+- Ran the SDK/device setup script with its pinned archives, confirming it extracts the Pro 51 mm profile. Updated the CI cache key, build loops, upload assets and tag-release assets to include the new target. Workflow syntax passes actionlint.
+
+Physical installation through the Connect IQ Store remains to be confirmed after the owner uploads the new IQ package to the existing beta listing. A sideloaded PRG running on the watch does not add that watch to the store's package compatibility list.
+
 ## Mobile configuration and beta builds — 1.6.0
 
 All **108 Monkey C Run No Evil tests passed on each of Epix Gen 2, Venu 4 41 mm and Venu 4 45 mm**. The three settings regressions now exercise the production phone-settings callback: switching provider preserves separate credentials and rejects an old in-flight reply; custom location/interval changes resolve and invalidate the previous check; replacing a token clears authentication backoff without revalidating old CLEAR history. Existing presentation tests verify language/case/mode edits preserve cached success, in-flight generations and failure backoff. See the three `unit-tests*.log` files.

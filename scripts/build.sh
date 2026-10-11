@@ -11,8 +11,8 @@ case "$variant" in
  *) echo 'Variant must be beta or production' >&2; exit 2 ;;
 esac
 case "$device" in
- epix2|venu441mm|venu445mm) ;;
- *) echo 'Device must be epix2, venu441mm, or venu445mm' >&2; exit 2 ;;
+ epix2|epix2pro51mm|venu441mm|venu445mm) ;;
+ *) echo 'Device must be epix2, epix2pro51mm, venu441mm, or venu445mm' >&2; exit 2 ;;
 esac
 args=()
 case "$mode" in
@@ -22,7 +22,7 @@ case "$mode" in
  consumer) jungle=tests/consumer/monkey.jungle; name=consumer.prg ;;
  integration) jungle=tests/integration/monkey.jungle; name=integration.prg ;;
  package) jungle=monkey.jungle; name=air-alert.iq; args+=(-e -r) ;;
- *) echo 'Usage: scripts/build.sh [app|tests|spike|consumer|integration|package] [epix2|venu441mm|venu445mm] [production|beta]' >&2; exit 2 ;;
+ *) echo 'Usage: scripts/build.sh [app|tests|spike|consumer|integration|package] [epix2|epix2pro51mm|venu441mm|venu445mm] [production|beta]' >&2; exit 2 ;;
 esac
 if [[ "$variant" == beta ]]; then
  if [[ "$mode" != app && "$mode" != package ]]; then
@@ -49,7 +49,7 @@ import hashlib,os
 root=Path('artifacts')
 beta=os.environ['BUILD_VARIANT']=='beta'
 base='air-alert-beta' if beta else 'air-alert'
-files=[root/(base+suffix) for suffix in ['.prg','-venu441mm.prg','-venu445mm.prg','.iq'] if (root/(base+suffix)).is_file()]
+files=[root/(base+suffix) for suffix in ['.prg','-epix2pro51mm.prg','-venu441mm.prg','-venu445mm.prg','.iq'] if (root/(base+suffix)).is_file()]
 (root/('SHA256SUMS-beta' if beta else 'SHA256SUMS')).write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in files))
 PY
 fi
