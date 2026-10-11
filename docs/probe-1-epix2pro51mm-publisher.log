@@ -1,6 +1,6 @@
 FIXTURE READY
 INTEGRATION: response yellow
-INTEGRATION: response memory used=73056 free=708832
-MEMORY: before rows=1 used=73256 free=708632
-MEMORY: after rows=1 used=75368 free=706520
-INTEGRATION: memory used=75568 free=706320
+INTEGRATION: response memory used=71688 free=710200
+MEMORY: before rows=1 used=71888 free=710000
+MEMORY: after rows=1 used=73544 free=708344
+INTEGRATION: memory used=73744 free=708144

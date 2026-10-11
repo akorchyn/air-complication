@@ -7,9 +7,11 @@ using Toybox.System;
 class AirAlertApp extends Application.AppBase {
     var _settings as Array or Null;
     function initialize() { AppBase.initialize(); }
+    function onStart(state as Dictionary or Null) as Void { Config.migrateProvider(); }
     function newRequest(done as Lang.Method) { return new AlertRequest(done); }
     function getServiceDelegate() { return [new AlertService()]; }
     function getInitialView() {
+        Config.migrateProvider();
         _settings=settingsSnapshot();
         LocationCatalog.resolveCustom();
         var loc=Config.location();var r=Cache.load(loc);var now=Time.now().value();
@@ -20,6 +22,7 @@ class AirAlertApp extends Application.AppBase {
         return [new AlertView(delegate.method(:onSelect)),delegate];
     }
     function onSettingsChanged() as Void {
+        Config.migrateProvider();
         var snapshot=settingsSnapshot();
         // Presentation-only edits must not discard a valid check, interrupt an
         // in-flight request, reset backoff, or move the next background event.
@@ -40,7 +43,7 @@ class AirAlertApp extends Application.AppBase {
         // In-memory only. Credentials remain in application properties; never
         // persist or print this snapshot. Presentation settings (displayMode,
         // textLanguage and textCase) are intentionally omitted.
-        var keys=["apiProvider","apiToken","ukraineAlarmToken","cityUid","customUid","customLabel","refreshMinutes","staleMinutes"];
+        var keys=["apiProvider","ukraineAlarmToken","cityUid","customUid","customLabel","refreshMinutes","staleMinutes"];
         var values=[];
         for (var i=0;i<keys.size();i++) { values.add(Application.Properties.getValue(keys[i])); }
         return values;

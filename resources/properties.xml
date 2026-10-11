@@ -1,6 +1,5 @@
 <properties>
- <property id="apiToken" type="string"></property>
- <property id="apiProvider" type="number">0</property>
+ <property id="apiProvider" type="number">2</property>
  <property id="displayMode" type="number">0</property>
  <property id="textLanguage" type="number">0</property>
  <property id="textCase" type="number">0</property>

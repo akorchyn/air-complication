@@ -58,14 +58,6 @@ module Cache {
         else if (code<0) { r["error"]="Phone/network unavailable"; }
         else { r["error"]="HTTP/response error "+code; }
     }
-    function accept(r as Dictionary, code, data, location as Dictionary, now) {
-        var value=AlertLogic.UNKNOWN;
-        if (code==200) { value=AlertLogic.parse(data,location); }
-        // We do not send conditional headers: makeWebRequest exposes no response
-        // headers / Last-Modified. An unsolicited 304 cannot validate the cache.
-        if (value==AlertLogic.UNKNOWN) { failure(r,code==200 ? -400 : code,now);return false; }
-        success(r,value,now);return true;
-    }
     function success(r as Dictionary, value, now) {
         r["state"]=value;r["success"]=now;r["failed"]=false;
         r["failures"]=0;r["lease"]=0;r["next"]=now+Config.interval();r["error"]="";

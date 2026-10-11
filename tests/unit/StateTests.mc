@@ -1,8 +1,9 @@
 using Toybox.Application;
 import Toybox.Lang;
 using Toybox.Test;
+using Toybox.Time;
 function resetTest() as Dictionary {
- Application.Properties.setValue("apiProvider",0);
+ Application.Properties.setValue("apiProvider",2);
  Application.Properties.setValue("displayMode",0);
  Application.Properties.setValue("textLanguage",0);
  Application.Properties.setValue("textCase",0);
@@ -14,19 +15,20 @@ function resetTest() as Dictionary {
 }
 (:test)
 function first_launch_without_token(logger) {
- var r=resetTest();Application.Properties.setValue("apiToken","");
+ var r=resetTest();Application.Properties.setValue("ukraineAlarmToken","");
+ Test.assertEqual(Config.provider(),2);Test.assert(!Config.needsToken());
  Test.assertEqual(AlertLogic.visible(r,1000,600),AlertLogic.UNKNOWN);return true;
 }
 (:test)
 function stale_boundary_and_clock_rollback(logger) {
- var r=resetTest();Cache.accept(r,200,{"alerts"=>[]},Config.location(),1000);
+ var r=resetTest();Cache.success(r,AlertLogic.NONE,1000);
  Test.assertEqual(AlertLogic.visible(r,1599,600),AlertLogic.NONE);
  Test.assertEqual(AlertLogic.visible(r,1600,600),AlertLogic.STALE);
  Test.assertEqual(AlertLogic.visible(r,999,600),AlertLogic.UNKNOWN);return true;
 }
 (:test)
 function switching_city_invalidates_cache(logger) {
- var r=resetTest();Cache.accept(r,200,{"alerts"=>[]},Config.location(),1000);Cache.save(r);
+ var r=resetTest();Cache.success(r,AlertLogic.NONE,1000);Cache.save(r);
  Application.Properties.setValue("cityUid",845);r=Cache.load(Config.location());
  Test.assertEqual(r["success"],0);Test.assertEqual(r["uid"],845);
  Test.assertEqual(AlertLogic.visible(r,1001,600),AlertLogic.UNKNOWN);return true;
@@ -35,10 +37,13 @@ function switching_city_invalidates_cache(logger) {
 function http_failures_never_clear(logger) {
  var codes=[304,401,403,429,500,503,-104,-300,-400,-402,-403,-1004];
  for(var i=0;i<codes.size();i++) {
-  var r=resetTest();Cache.accept(r,200,{"alerts"=>[]},Config.location(),1000);
-  Test.assert(!Cache.accept(r,codes[i],null,Config.location(),1001));
-  Test.assertEqual(AlertLogic.visible(r,1001,600),AlertLogic.UNKNOWN);
-  Test.assertEqual(r["success"],1000);Test.assert(r["next"]>=1301);
+  var o=requestSetup();var now=Time.now().value();var r=Cache.load(Config.location());
+  Cache.success(r,AlertLogic.NONE,now-120);Cache.save(r);
+  var req=new MockRequest(o.method(:done));req.start(true);req.response(codes[i],null);
+  r=Cache.load(Config.location());
+  Test.assertEqual(AlertLogic.visible(r,now,600),AlertLogic.UNKNOWN);
+  Test.assertEqual(r["success"],now-120);Test.assert(r["next"]>=now+300);
+  Test.assertEqual(o.finished,1);
  }
  return true;
 }
@@ -46,7 +51,7 @@ function http_failures_never_clear(logger) {
 function recovery_after_reconnection(logger) {
  var r=resetTest();Cache.failure(r,-104,1000);
  Test.assert(!Cache.canRequest(r,1001,true));Test.assert(Cache.canRequest(r,1300,true));
- Cache.accept(r,200,{"alerts"=>[]},Config.location(),1300);
+ Cache.success(r,AlertLogic.NONE,1300);
  Test.assertEqual(AlertLogic.visible(r,1300,600),AlertLogic.NONE);Test.assertEqual(r["failures"],0);return true;
 }
 (:test)

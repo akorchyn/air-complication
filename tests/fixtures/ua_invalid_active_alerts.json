@@ -1,0 +1,12 @@
+{
+  "uid": 31,
+  "provider": 2,
+  "response": [
+    {
+      "regionId": "31",
+      "regionType": "State",
+      "activeAlerts": "broken"
+    }
+  ],
+  "expected": 3
+}

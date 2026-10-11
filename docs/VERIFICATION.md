@@ -1,5 +1,19 @@
 # Verification record — updated 2026-10-11
 
+## Token-free default and removal of direct alerts.in.ua — 1.7.0
+
+UA Siren is now the default (stable provider ID 2), and Ukraine Alarm remains ID 1. Removed provider ID 0 and invalid selections normalize to UA Siren on foreground opening/settings synchronization; background requests also resolve them to UA Siren without needing a token. Cache provider identities ensure an old alerts.in.ua check/backoff cannot validate the new provider's status. Existing Ukraine Alarm keys and existing supported-provider caches remain intact; the shared request gate still prevents rapid overlapping cycles.
+
+Removed the alerts.in.ua endpoint, Bearer authentication, mobile token property/setting, detailed-response parser and obsolete provider fixtures. The remaining location catalog keeps its official UID provenance. The current exported settings contain ten fields and only the two supported providers, with UA Siren listed first. A fresh installation defaults to Kyiv city (31), five-minute background refresh and a ten-minute stale threshold.
+
+Updated fixtures exercise the shared Ukraine Alarm/UA Siren response contract, including no alerts, yellow/red priority, city/oblast/raion matching, separate cities, malformed values and unknown ancestry. Added six regression tests for token-free opening, migration, obsolete-cache invalidation, background use before foreground migration, preservation of Ukraine Alarm keys/caches and the shared request gate. HTTP 304/401/403/429/5xx and transport/memory failures now traverse the actual request callback rather than the removed provider's cache helper.
+
+All **98 Run No Evil tests passed on each supported model**: Epix Gen 2, Epix Pro 51 mm and Venu 4 41/45 mm. The four `unit-tests*.log` files record zero failures/errors. Both production and beta PRGs compiled for all four targets with stock SDK 9.2.0, and both IQ packages include all eight device-part entries. Package inspections confirmed unchanged app IDs, version 1.7.0, ten settings, only provider IDs 2/1, UA Siren as default and Kyiv as the default location. Both package manifest signatures and all binary SHA-256 checksums passed.
+
+On Epix Pro 51 mm, a mocked manual Refresh delivered YELLOW to a separate subscribing watch face, and an injected temporal event delivered RED. On Venu 4 45 mm, the production opening callback delivered YELLOW without Refresh input, followed by background RED. See [Pro consumer](probe-1-epix2pro51mm-consumer.log) and [Venu consumer](open-probe-1-venu445mm-consumer.log). The current fixture uses the remaining provider schema: one synthetic background alert used 34,416 B on Pro and 34,512 B on Venu. These samples do not bound nationwide payloads or prove physical phone transport.
+
+Whole-oblast requests still download nationwide data from the remaining providers, and can still exceed 64 KiB background memory. Removal of the detailed nationwide-only provider does not establish a size bound or guaranteed delivery for either remaining provider. The memory table below describes historical alerts.in.ua-shaped synthetic payloads and is retained for context, not as a measurement of the current response shape.
+
 ## Epix Pro (Gen 2), 51 mm — 1.6.1
 
 The Connect IQ Store rejected the user's Epix Pro 51 mm because the previous package declared only original Epix Gen 2 and Venu 4 targets. Added the distinct official `epix2pro51mm` target, which has a 454×454 display and 64 KiB background memory, to production, beta and all simulator fixtures. Epix Pro 42 mm and 47 mm remain outside the supported targets.
@@ -56,27 +70,27 @@ The consumer propagation, live transport and background memory evidence below wa
 
 | Case | Evidence |
 |---|---|
-| First launch, no token | `first_launch_without_token`, `missing_token_avoids_network` |
-| Valid empty/no relevant alerts | `no_alerts`, `unrelated_type` |
-| Yellow / red / both | `yellow_city`, `red_city`, `red_priority` |
-| Threat-level escalation | `red_threat_over_yellow` |
-| Whole oblast / raion coverage | `oblast_inheritance`, `raion_inheritance` |
-| Other city excluded | `sibling_city` |
-| Separate Kyiv, Kharkiv, Zaporizhzhia | `kyiv_oblast_separate`, `kharkiv_separate`, `zaporizhzhia_separate` |
+| First launch, no token | `default_public_provider_opens_and_fetches_without_credentials`; `missing_token_avoids_network` for Ukraine Alarm |
+| Valid empty/no relevant alerts | `ua_no_alerts`, `ua_unrelated_type` |
+| Yellow / red / both | `ua_yellow`, `ua_red`, `ua_both_levels` |
+| Missing/invalid severity | `ua_missing_levels`, `ua_invalid_levels`, `ua_missing_level_value` |
+| Whole oblast / raion coverage | `ua_oblast_parent`, `ua_raion_inheritance` |
+| Other city excluded | `ua_sibling_city` |
+| Separate Kyiv, Kharkiv, Zaporizhzhia | `ua_kyiv_oblast_separate`, `ua_kharkiv_separate`, `ua_zaporizhzhia_separate` |
 | Switch city | `switching_city_invalidates_cache`, `old_response_cannot_contaminate_new_city` |
-| Switch provider / separate tokens | `provider_switch_invalidates_cache`, `old_provider_response_is_discarded`, `official_provider_uses_separate_key` |
+| Switch provider / optional key | `provider_switch_invalidates_cache`, `old_provider_response_is_discarded`, `official_provider_uses_separate_key` |
 | Tokenless public provider | `public_provider_needs_no_token`; separate live transport smoke check |
 | City checks all parents | `city_requires_all_parent_checks_before_clear`, `parent_failure_never_clears_city`, `parent_red_stops_remaining_requests` |
-| Whole-oblast partial alert | `alerts_oblast_child`, `ua_oblast_partial`; separate cities/outside regions excluded |
+| Whole-oblast partial alert | `ua_oblast_partial`; separate cities/outside regions excluded |
 | Provider alias and unsupported region | `ua_crimea_alias`, `unsupported_provider_location_avoids_network` |
-| Volyn ancestry regression | `volyn_hierarchy_is_not_crimea`, `alerts_volyn_child` |
+| Volyn ancestry regression | `volyn_hierarchy_is_not_crimea`, `ua_volyn_child` |
 | Invalid body / unsupported values | Fixture tests; `malformed_json_callback_is_unknown` |
 | HTTP 304/401/403/429/5xx, memory and connection errors | `http_failures_never_clear`, `rate_limit_backoff` |
 | No phone / timeout | Negative error injection; never CLEAR |
 | Stale and clock rollback | `stale_boundary_and_clock_rollback` |
 | Recovery | `recovery_after_reconnection` |
-| Background publication reaches consumer | `probe-1-consumer.log`: YELLOW → background RED |
-| Manual publication reaches consumer | `probe-1-publisher.log` + consumer initial YELLOW |
+| Background publication reaches consumer | `probe-1-epix2pro51mm-consumer.log`: YELLOW → background RED |
+| Manual publication reaches consumer | `probe-1-epix2pro51mm-publisher.log` + consumer initial YELLOW |
 | Overlap / shared gate / persistence | `overlapping_requests_and_manual_floor`, `shared_gate_survives_city_switch`, `manual_request_updates_persisted_status` |
 
 HTTP/network outcomes are injected into the real callback/cache path. Tests do not prove Garmin Connect phone transport behavior or actual upstream authentication. `malformed.json.txt` supplies a raw invalid JSON fixture; the request test injects the documented invalid-body outcome, since Monkey C does not itself decode the transport JSON here.

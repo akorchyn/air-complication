@@ -1,6 +1,6 @@
 # Alternative air-alert APIs
 
-Researched **10 October 2026** for this Garmin publisher. Version **1.1.0 integrates alerts.in.ua, Ukraine Alarm and UA Siren** as selectable providers. Public documentation and unauthenticated endpoints were checked, and a real UA Siren request succeeded through Garmin's simulator transport. No Ukraine Alarm or alerts.in.ua key was available, so authenticated live responses remain unverified. Other services below are research findings only.
+Updated **11 October 2026**. Version **1.7.0 supports UA Siren (default, no token) and Ukraine Alarm**. Direct alerts.in.ua integration was removed: its nationwide detailed response can exceed Garmin's background memory, and its compact IoT routes do not preserve yellow/red severity. Existing alerts.in.ua users migrate to UA Siren; official location UID mappings remain in use. Historical research below was performed on 10 October 2026. Public documentation and unauthenticated endpoints were checked, and a real UA Siren request succeeded through Garmin's simulator transport. No Ukraine Alarm or alerts.in.ua key was available, so authenticated live responses remain unverified. Other services below are research findings only.
 
 ## Comparison
 
@@ -29,7 +29,7 @@ AlertRegionModel.activeAlerts[]:
   activeAlertLevels[].createdAt
 ```
 
-Authentication is an API key in the `Authorization` header according to the schema. The adapter sends the raw Ukraine Alarm key, with a separate property from the alerts.in.ua Bearer token. Missing severity remains UNKNOWN; an active AIR alert alone does not establish a red level. Authenticated request limits and maximum regional payload sizes still need provider confirmation.
+Authentication is an API key in the `Authorization` header according to the schema. The adapter sends the raw Ukraine Alarm key, using the optional `ukraineAlarmToken` property. Missing severity remains UNKNOWN; an active AIR alert alone does not establish a red level. Authenticated request limits and maximum regional payload sizes still need provider confirmation.
 
 **Public wrapper: UA Siren.** The site's [wrapper library](https://github.com/PaulAnnekov/uasiren#limitations) states a limit of **50 requests per minute per IP**, rechecked on 11 October 2026; the previously listed 200/five minutes was incorrect. [Home Assistant's documentation](https://www.home-assistant.io/integrations/ukraine_alarm/) explicitly identifies this wrapper and documents simultaneous red and yellow levels. These requests succeeded without credentials:
 
@@ -63,4 +63,4 @@ The Garmin five-minute temporal-event limit and complication expiry limitations 
 - alerts.in.ua's compact IoT routes discard the required severity. A small proxy preserving detailed real levels remains an option when staying with the original provider.
 - The old alerts.com.ua root/API pages returned 404 in this check; no current supported production endpoint was established. This does not establish that every legacy deployment is unavailable.
 
-The shipped providers retain separate settings, tokens and provider-specific parsing, with fail-closed cached status and shared rate limiting. Vadym Klymenko, Tryvoha and Ubilling are not integrated because their location/level contracts do not yet meet the same verified behavior.
+The two shipped providers share the validated regional response parser and retain selectable settings and an optional Ukraine Alarm key, with fail-closed cached status and shared rate limiting. Vadym Klymenko, Tryvoha and Ubilling are not integrated because their location/level contracts do not yet meet the same verified behavior.

@@ -1,9 +1,9 @@
 CONSUMER RECEIVED: YELLOW
 Background: INTEGRATION: background event
 Background: INTEGRATION: response red
-Background: INTEGRATION: response memory used=33968 free=27288
-Background: MEMORY: before rows=1 used=34168 free=27088
-Background: MEMORY: after rows=1 used=36280 free=24976
+Background: INTEGRATION: response memory used=32560 free=28696
+Background: MEMORY: before rows=1 used=32760 free=28496
+Background: MEMORY: after rows=1 used=34416 free=26840
 CONSUMER RECEIVED: RED
 CONSUMER RECEIVED: RED
 CONSUMER RECEIVED: RED

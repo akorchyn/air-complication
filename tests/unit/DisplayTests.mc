@@ -41,7 +41,7 @@ function mode_change_preserves_cache_schedule_and_request_generation(logger) {
     Test.assertEqual(r["next"],next);Test.assertEqual(r["sequence"],7);
     Test.assertEqual(AlertDisplay.value(AlertLogic.visible(r,now,600)),"🟢");
     // Data-affecting edits still invalidate in-flight generations.
-    Application.Properties.setValue("apiToken","CHANGED_FIXTURE_ONLY");app.onSettingsChanged();
+    Application.Properties.setValue("ukraineAlarmToken","CHANGED_FIXTURE_ONLY");app.onSettingsChanged();
     r=Cache.load(Config.location());Test.assert(r["failed"]);Test.assertEqual(r["sequence"],0);
     return true;
 }
@@ -134,7 +134,7 @@ function language_case_edit_preserves_inflight_response(logger) {
     var app=Application.getApp();app._settings=app.settingsSnapshot();
     Application.Properties.setValue("textLanguage",1);Application.Properties.setValue("textCase",2);app.onSettingsChanged();
     r=Cache.load(Config.location());Test.assertEqual(r["sequence"],sequence);Test.assertEqual(r["lease"],lease);
-    req.response(200,{"alerts"=>[{"location_uid"=>"31","location_type"=>"city","alert_type"=>"air_raid","alert_level"=>"red"}]});
+    req.response(200,uaRegion(31,[{"alertLevel"=>"Red"}]));
     r=Cache.load(Config.location());Test.assert(!r["failed"]);Test.assertEqual(req.sends,1);Test.assertEqual(o.finished,1);
     Test.assertEqual(AlertDisplay.value(r["state"]),"червона");return true;
 }

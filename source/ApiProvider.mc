@@ -3,21 +3,19 @@ import Toybox.Lang;
 module ApiProvider {
     function providerUid(uid) { return uid==29 ? 9999 : uid; }
     function queries(provider, location as Dictionary) as Array {
-        if (provider==0 || location["kind"].equals("oblast")) { return [0]; }
+        if (location["kind"].equals("oblast")) { return [0]; }
         var ids=[providerUid(location["uid"])];
         if (location["oblast"]>0) { ids.add(location["oblast"]); }
         if (location["raion"]>0) { ids.add(location["raion"]); }
         return ids;
     }
     function url(provider, query) {
-        if (provider==0) { return "https://api.alerts.in.ua/v1/alerts/active.json"; }
         var base=provider==1 ? "https://api.ukrainealarm.com/api/v3/alerts" : "https://siren.pp.ua/api/v3/alerts";
         return query==0 ? base : base+"/"+query;
     }
     function headers(provider, token) as Dictionary {
         var h={"Accept"=>"application/json"};
-        if (provider==0) { h["Authorization"]="Bearer "+token; }
-        else if (provider==1) { h["Authorization"]=token; }
+        if (provider==1) { h["Authorization"]=token; }
         return h;
     }
     function canonicalUid(value) { var id=AlertLogic.uid(value);return id==9999 ? 29 : id; }

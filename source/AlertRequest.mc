@@ -23,9 +23,9 @@ class AlertRequest {
         var gate=Application.Storage.getValue("requestGate");
         if (gate instanceof Dictionary && gate["until"] instanceof Number && gate["at"] instanceof Number && gate["until"]>now && gate["at"]<=now) { _done.invoke();return; }
         _token=Config.needsToken() ? Config.token() : "";
-        if ((Config.needsToken() && _token.length()==0) || !_location["valid"] || (_provider!=0 && !_location["uaSupported"])) {
+        if ((Config.needsToken() && _token.length()==0) || !_location["valid"] || !_location["uaSupported"]) {
             r["failed"]=true;r["lease"]=0;r["next"]=now+Config.interval();
-            r["error"]=!_location["valid"] ? "Open app to resolve location" : (_provider!=0 && !_location["uaSupported"]) ? "Location unsupported by API" : "Set token in Connect IQ";
+            r["error"]=!_location["valid"] ? "Open app to resolve location" : !_location["uaSupported"] ? "Location unsupported by API" : "Set token in Connect IQ";
             Cache.save(r);Cache.publish(r,_location,now);_done.invoke();return;
         }
         _queries=ApiProvider.queries(_provider,_location);_index=0;_aggregate=AlertLogic.NONE;_uncertain=false;
@@ -66,7 +66,7 @@ class AlertRequest {
         if (!_busy || Config.provider()!=_provider || current["uid"]!=_location["uid"] || r["sequence"]!=_gateStamp || r["request"]!=_requestStamp) { _busy=false;_token="";_done.invoke();return; }
         var value=AlertLogic.UNKNOWN;
         if (code==200) {
-            try { value=_provider==0 ? AlertLogic.parse(data,current) : ApiProvider.parse(data,current,_queries[_index]); }
+            try { value=ApiProvider.parse(data,current,_queries[_index]); }
             catch(e) { value=AlertLogic.UNKNOWN; }
         }
         if (code!=200) { Cache.failure(r,code,now);finish(r,current,now);return; }

@@ -28,14 +28,6 @@ module AlertLogic {
         return n > 0 ? n : null;
     }
 
-    function level(value) {
-        if (value instanceof String) {
-            if (value.equals("red")) { return RED; }
-            if (value.equals("yellow")) { return YELLOW; }
-        }
-        return UNKNOWN;
-    }
-
     // Exact city/community, entire parent oblast, or entire parent raion.
     // Never match a sibling city solely via location_oblast_uid.
     function applies(a as Dictionary, location as Dictionary) {
@@ -63,49 +55,6 @@ module AlertLogic {
         }
         if (type.equals("city") || type.equals("hromada")) { return false; }
         return null;
-    }
-
-    function parse(data, location as Dictionary) {
-        if (!(data instanceof Dictionary) || !(data["alerts"] instanceof Array) || !location["valid"]) { return UNKNOWN; }
-        var alerts=data["alerts"] as Array;
-        var result=NONE;
-        var uncertain=false;
-        for (var i=0; i<alerts.size(); i++) {
-            var a=alerts[i];
-            if (!(a instanceof Dictionary)) { uncertain=true; continue; }
-            var match=applies(a,location);
-            if (match == null) { uncertain=true; continue; }
-            if (!match) { continue; }
-            var type=a["alert_type"];
-            if (!(type instanceof String)) { uncertain=true; continue; }
-            if (!type.equals("air_raid")) {
-                if (!(type.equals("artillery_shelling") || type.equals("urban_fights") || type.equals("chemical") || type.equals("nuclear"))) { uncertain=true; }
-                continue;
-            }
-            // active.json must not contain ended applicable air raids.
-            if (a.hasKey("finished_at") && a["finished_at"] != null) { uncertain=true; continue; }
-            var value=level(a["alert_level"]);
-            if (value == UNKNOWN) { uncertain=true; }
-            var threats=a["threats"];
-            if (threats != null) {
-                if (!(threats instanceof Array)) { uncertain=true; }
-                else {
-                    for (var j=0; j<threats.size(); j++) {
-                        var threat=threats[j];
-                        if (!(threat instanceof Dictionary)) { uncertain=true; continue; }
-                        var threatLevel=level(threat["level"]);
-                        if (threatLevel == UNKNOWN) { uncertain=true; }
-                        else if (threatLevel == RED) { value=RED; }
-                        else if (value == NONE) { value=YELLOW; }
-                    }
-                }
-            }
-            if (value == RED) { result=RED; }
-            else if (value == YELLOW && result != RED) { result=YELLOW; }
-        }
-        // A known RED remains an actionable warning even if another row is bad.
-        if (result == RED) { return RED; }
-        return uncertain ? UNKNOWN : result;
     }
 
     function visible(record as Dictionary, now, staleSeconds) {

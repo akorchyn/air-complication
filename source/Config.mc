@@ -7,16 +7,24 @@ module Config {
         return v instanceof Number ? v : fallback;
     }
     function token() {
-        var v=Application.Properties.getValue(provider()==1 ? "ukraineAlarmToken" : "apiToken");
+        if (!needsToken()) { return ""; }
+        var v=Application.Properties.getValue("ukraineAlarmToken");
         return v instanceof String ? v : "";
     }
     function interval() {
         var n=number("refreshMinutes",5);
         return (n==5 || n==10 || n==15 || n==30 || n==60) ? n*60 : 300;
     }
-    function provider() { var p=number("apiProvider",0);return (p>=0 && p<=2) ? p : 0; }
-    function providerName() { return ["alerts.in.ua","Ukraine Alarm","UA Siren"][provider()]; }
-    function needsToken() { return provider()!=2; }
+    // Preserve existing IDs: 1 = Ukraine Alarm, 2 = UA Siren. Removed ID 0
+    // and corrupt/missing values select the public provider in every context.
+    function provider() { return number("apiProvider",2)==1 ? 1 : 2; }
+    function migrateProvider() {
+        if (Application.Properties.getValue("apiProvider")!=provider()) {
+            Application.Properties.setValue("apiProvider",provider());
+        }
+    }
+    function providerName() { return provider()==1 ? "Ukraine Alarm" : "UA Siren"; }
+    function needsToken() { return provider()==1; }
     function displayMode() { return number("displayMode",0)==1 ? 1 : 0; }
     function displayModeName() { return displayMode()==1 ? "Status dots" : "Text"; }
     function textLanguage() { return number("textLanguage",0)==1 ? 1 : 0; }

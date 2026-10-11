@@ -2,20 +2,20 @@
 
 Ukrainian air-alert status on your Garmin watch, available as a **custom Connect IQ complication**. Monitor a city or region and display its status in any watch face that supports third-party complications. The app also has a simple status screen with the selected location, last successful check, manual Refresh and a hint directing you to phone settings.
 
-Choose English or Ukrainian text, uppercase or lowercase, or Unicode status circles. Data comes from **alerts.in.ua**, **Ukraine Alarm**, or **UA Siren**.
+Choose English or Ukrainian text, uppercase or lowercase, or Unicode status circles. Data comes from **UA Siren** (free, no token required) or **Ukraine Alarm**.
 
 **Informational only. Continue using official air-alert notifications.** Updates depend on the phone connection, provider availability and Garmin background execution. This app does not provide emergency sounds or guaranteed real-time notifications.
 
 ## Supported watches
 
-| Watch | Production download | Display |
+| Watch | Production PRG filename | Display |
 |---|---|---|
-| Epix (Gen 2) | [air-alert.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert.prg) | 416×416 |
-| Epix Pro (Gen 2), 51 mm | `air-alert-epix2pro51mm.prg` — [Actions builds](https://github.com/akorchyn/air-complication/actions/workflows/build.yml) from 1.6.1 | 454×454 |
-| Venu 4, 41 mm | [air-alert-venu441mm.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert-venu441mm.prg) | 390×390 |
-| Venu 4, 45 mm | [air-alert-venu445mm.prg](https://github.com/akorchyn/air-complication/releases/latest/download/air-alert-venu445mm.prg) | 454×454 |
+| Epix (Gen 2) | `air-alert.prg` | 416×416 |
+| Epix Pro (Gen 2), 51 mm | `air-alert-epix2pro51mm.prg` | 454×454 |
+| Venu 4, 41 mm | `air-alert-venu441mm.prg` | 390×390 |
+| Venu 4, 45 mm | `air-alert-venu445mm.prg` | 454×454 |
 
-Download existing production assets from the [latest production release](https://github.com/akorchyn/air-complication/releases/latest). Epix Pro 51 mm is newly supported in 1.6.1; the older production release does not include it. Automatic Actions downloads use the beta filename `air-alert-beta-epix2pro51mm.prg`. The pinned device profiles require Epix firmware **23.16 or newer**, or Venu 4 firmware **17.33 or newer**. Update your watch first.
+Get current builds from [GitHub Actions](https://github.com/akorchyn/air-complication/actions/workflows/build.yml). Choose a successful run at version **1.7.0 or newer** and download its application artifact; automatic builds use beta filenames. The [older production release](https://github.com/akorchyn/air-complication/releases/latest) predates the token-free default and Epix Pro support. The pinned device profiles require Epix firmware **23.16 or newer**, or Venu 4 firmware **17.33 or newer**. Update your watch first.
 
 The original Epix Gen 2 and Epix Pro 51 mm are separate SDK targets. Connect IQ Store installation requires the exact model to be included in the uploaded IQ package; a PRG working when sideloaded does not establish store compatibility. Epix Pro 42 mm and 47 mm are not included.
 
@@ -25,12 +25,12 @@ Your watch face must support **external/custom Connect IQ complications**. Suppo
 
 1. Download the **PRG for your exact watch model**.
 2. Connect the watch by USB. Using an MTP-capable file manager, copy the file to `GARMIN/APPS/air-alert.prg`, renaming it if necessary. Safely disconnect. The `.iq` package is not a USB installation file.
-3. Open **Air Alert UA** from the watch's activity/app list.
-4. On your phone, open **Connect IQ → My Device → My Apps → Air Alert UA → Settings** (choose **Air Alert UA Beta** for beta). Select a provider, enter its token if needed, choose a location, and save. **UA Siren requires no token**; the default provider, alerts.in.ua, does.
+3. Open **Air Alert UA** from the watch's activity/app list. On a fresh installation, it attempts a check for **Kyiv city using UA Siren**, with no API token or settings changes required.
+4. On your phone, open **Connect IQ → My Device → My Apps → Air Alert UA → Settings** (choose **Air Alert UA Beta** for beta). Choose your location and display preferences, then save. **UA Siren is the default and requires no token**. Provider selection and a token are needed only if you prefer Ukraine Alarm.
 5. Use Refresh and check that a successful update time appears.
 6. In your watch face's settings, assign a custom/external complication to a field and select **Air Alert UA**. Return to the face and check the displayed value.
 
-Keep Garmin Connect connected to the watch and allowed to run on your phone. **All configuration lives in Connect IQ mobile settings**: provider, tokens, location, display language/case/mode, refresh interval and stale threshold. The watch shows status, last update and Refresh; its settings hint directs you to the phone. Save phone changes and let them sync to the watch. Mobile settings availability for USB-sideloaded apps varies by Garmin tooling; a sideloaded installation may not expose the configuration page. These phone-only controls apply to version 1.6.0 and newer; older releases also have on-watch settings.
+Keep Garmin Connect connected to the watch and allowed to run on your phone. **All configuration lives in Connect IQ mobile settings**: provider, optional Ukraine Alarm key, location, display language/case/mode, refresh interval and stale threshold. The watch shows status, last update and Refresh; its settings hint directs you to the phone. Save phone changes and let them sync to the watch. Mobile settings availability for USB-sideloaded apps varies by Garmin tooling; a sideloaded installation may not expose the configuration page. These phone-only controls apply to version 1.6.0 and newer; older releases also have on-watch settings.
 
 | Watch | Manual Refresh |
 |---|---|
@@ -45,11 +45,12 @@ Development downloads from [GitHub Actions](https://github.com/akorchyn/air-comp
 
 | Provider | Required configuration |
 |---|---|
-| alerts.in.ua (default) | Obtain a personal token at [devs.alerts.in.ua](https://devs.alerts.in.ua/) and enter **alerts.in.ua API token** |
-| Ukraine Alarm | Request a key at [api.ukrainealarm.com](https://api.ukrainealarm.com/) and enter **Ukraine Alarm API token** |
-| UA Siren | No token; public [Ukraine Alarm wrapper](https://siren.pp.ua/) |
+| UA Siren (default) | None; free public [Ukraine Alarm wrapper](https://siren.pp.ua/) |
+| Ukraine Alarm | Request a key at [api.ukrainealarm.com](https://api.ukrainealarm.com/) and enter **Ukraine Alarm API key** |
 
-In Connect IQ mobile settings, enter the token itself, without `Bearer`. The two authenticated providers keep separate tokens. Switching provider retains those tokens but invalidates the old status; there is no automatic provider fallback. Tokens are stored in application properties and are never logged. Treat mobile settings and their synchronization as sensitive; Garmin controls whether its editor displays or masks token values.
+For Ukraine Alarm, enter the key itself, without `Bearer`. Switching provider retains this key but invalidates the old status; there is no automatic provider fallback. The key is stored in application properties and is never logged. Treat mobile settings and their synchronization as sensitive; Garmin controls whether its editor displays or masks key values.
+
+**Upgrading to 1.7.0:** direct alerts.in.ua integration was removed because its nationwide detailed response can exceed Garmin's background memory. Existing alerts.in.ua selections automatically switch to UA Siren, and their cached status is discarded until a new valid check succeeds. Existing Ukraine Alarm selections/keys and UA Siren selections remain intact. The official location catalog is still used for verified UID mappings.
 
 Location choices include all oblasts, Crimea, Kyiv, Sevastopol and major cities. The default is **Kyiv city, UID 31**; **Kyiv Oblast, UID 14**, is a different selection. For another supported city/community, choose **Custom location UID**, enter its official UID, and optionally a short label. Open the app after changing a custom UID so it can resolve the location. Changing location invalidates the previous location's cached status.
 
@@ -102,10 +103,10 @@ The default stale threshold is **10 minutes** after the last successful check. T
 
 Use **v1.5.1 or newer**: older versions can crash during a network callback, especially on a connection-error path.
 
-- **No status on first launch:** configure the default provider's token, or select UA Siren, then Refresh. Check your location is supported.
+- **No status on first launch:** the default UA Siren provider needs no token. Check your phone connection and the app's error, then Refresh when retry backoff permits. If you selected Ukraine Alarm, configure its key. Check your location is supported.
 - **Status does not update:** open the app and note its error and **Updated** time. Keep the phone powered on, connected, and Garmin Connect permitted to run. If Updated advances but the face remains unchanged, check its selected complication and repaint behavior.
 - **Phone/network unavailable or response error:** retries initially wait five minutes, increasing to 10, 20, 40 and 60 minutes after repeated failures. Opening/manual Refresh respects that backoff.
-- **401 / 403:** check the selected provider's token/access. These errors back off for 60 minutes; changing the token allows recovery, subject to the shared one-minute gate.
+- **401 / 403:** check provider access, or the key if using Ukraine Alarm. These errors back off for 60 minutes; changing the token allows recovery, subject to the shared one-minute gate.
 - **429: Rate limited:** wait at least 15 minutes; repeated failures increase the delay up to 60. UA Siren documents [50 requests/minute/IP](https://github.com/PaulAnnekov/uasiren#limitations). Other apps/devices sharing the same IP can count toward that limit.
 - **Region updates work in the foreground but fail in the background:** whole-oblast monitoring needs the nationwide response. All supported watches allow only **64 KiB background memory**; decoded JSON can exceed it before the app can filter it. City requests from Ukraine Alarm/UA Siren generally use smaller regional responses, but their maximum size is not guaranteed either. [Measured limits](docs/VERIFICATION.md#background-memory).
 - **App crash or IQ error:** connect by USB and look in `GARMIN/APPS/LOGS/` for `CIQ_LOG.YML` / `CIQ_LOG.YAML` and rotated `.BAK` files. These are Garmin crash reports. The app retains its latest error but has no request-history log; files under `docs/` are developer verification results.
@@ -144,8 +145,8 @@ scripts/test.sh venu441mm
 scripts/test.sh venu445mm
 ```
 
-The repository records **108 passing Monkey C tests per model**, covering parsing, regional inheritance, provider/location changes, invalid data, network errors, retries, staleness, opening/manual refresh and callback compatibility. Fixtures do not depend on live alert events. GitHub CI compiles these tests; it does not execute the graphical simulator.
+All **98 Monkey C simulator tests pass on each of the four supported models**, covering token-free startup, upgrade migration, parsing, regional inheritance, provider/location changes, invalid data, network errors, retries, staleness, opening/manual refresh and callback compatibility. Fixtures do not depend on live alert events. GitHub CI compiles these tests; it does not execute the graphical simulator.
 
 A separate publisher/consumer fixture verifies actual complication delivery in the simulator. See [verification results and remaining limits](docs/VERIFICATION.md). This does not establish immediate refresh or native font/emoji rendering in every third-party watch face. Authenticated live upstream requests and physical Venu verification remain incomplete.
 
-Official references: [Complications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html), [Background services](https://developer.garmin.com/connect-iq/articles/core-topics/Backgrounding.html), [Communications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Communications.html), and [alerts.in.ua API](https://devs.alerts.in.ua/). [Test-font license](docs/FONT-LICENSE.txt).
+Official references: [Complications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Complications.html), [Background services](https://developer.garmin.com/connect-iq/articles/core-topics/Backgrounding.html), [Communications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Communications.html), and [Ukraine Alarm API](https://api.ukrainealarm.com/). [Test-font license](docs/FONT-LICENSE.txt). [Changelog](CHANGELOG.md).

@@ -15,7 +15,7 @@ class RequestObserver {
  function done() as Void { finished+=1; }
 }
 function requestSetup() as RequestObserver {
- resetTest();Application.Properties.setValue("apiToken","FIXTURE_ONLY");
+ resetTest();Application.Properties.setValue("ukraineAlarmToken","");
  Application.Storage.deleteValue("requestGate");return new RequestObserver();
 }
 (:test)
@@ -53,21 +53,21 @@ function duplicate_parent_callback_cannot_be_used_for_next_query(logger) {
 (:test)
 function old_bound_callback_cannot_update_a_later_cycle(logger) {
  var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
- req.callbacks[0].invoke(200,{"alerts"=>[]});
+ req.callbacks[0].invoke(200,uaRegion(31,null));
  var r=Cache.load(Config.location());r["request"]=0;r["next"]=0;Cache.save(r);Application.Storage.deleteValue("requestGate");
- req.start(true);req.callbacks[0].invoke(200,{"alerts"=>[]});Test.assertEqual(o.finished,1);
- req.callbacks[1].invoke(200,{"alerts"=>[{"location_uid"=>"31","location_type"=>"city","alert_type"=>"air_raid","alert_level"=>"red"}]});
+ req.start(true);req.callbacks[0].invoke(200,uaRegion(31,null));Test.assertEqual(o.finished,1);
+ req.callbacks[1].invoke(200,uaRegion(31,[{"alertLevel"=>"Red"}]));
  Test.assertEqual(o.finished,2);Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.RED);return true;
 }
 (:test)
 function two_argument_callback_discards_result_after_location_change(logger) {
  var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
- Application.Properties.setValue("cityUid",845);req.callbacks[0].invoke(200,{"alerts"=>[]});
+ Application.Properties.setValue("cityUid",845);req.callbacks[0].invoke(200,uaRegion(31,null));
  Test.assertEqual(Cache.load(Config.location())["uid"],845);Test.assertEqual(Cache.load(Config.location())["success"],0);return true;
 }
 (:test)
 function missing_token_avoids_network(logger) {
- var o=requestSetup();Application.Properties.setValue("apiToken","");
+ var o=requestSetup();Application.Properties.setValue("apiProvider",1);Application.Properties.setValue("ukraineAlarmToken","");
  var req=new MockRequest(o.method(:done));req.start(true);
  Test.assertEqual(req.sends,0);Test.assertEqual(o.finished,1);return true;
 }
@@ -76,14 +76,14 @@ function manual_request_updates_persisted_status(logger) {
  var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
  Test.assertEqual(req.sends,1);
  var r=Cache.load(Config.location());Test.assert(r["failed"]);
- req.response(200,{"alerts"=>[{"location_uid"=>"31","location_type"=>"city","alert_type"=>"air_raid","alert_level"=>"yellow"}]});
+ req.response(200,uaRegion(31,[{"alertLevel"=>"Yellow"}]));
  r=Cache.load(Config.location());Test.assertEqual(r["state"],AlertLogic.YELLOW);Test.assert(!r["failed"]);Test.assertEqual(o.finished,1);return true;
 }
 (:test)
 function old_response_cannot_contaminate_new_city(logger) {
  var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
  Application.Properties.setValue("cityUid",845);Cache.load(Config.location());
- req.response(200,{"alerts"=>[]});var r=Cache.load(Config.location());
+ req.response(200,uaRegion(31,null));var r=Cache.load(Config.location());
  Test.assertEqual(r["uid"],845);Test.assertEqual(r["success"],0);return true;
 }
 (:test)
@@ -105,7 +105,7 @@ function uaRegion(uid, levels) {
 }
 (:test)
 function public_provider_needs_no_token(logger) {
- var o=requestSetup();Application.Properties.setValue("apiToken","");Application.Properties.setValue("apiProvider",2);
+ var o=requestSetup();Application.Properties.setValue("ukraineAlarmToken","");Application.Properties.setValue("apiProvider",2);
  var req=new MockRequest(o.method(:done));req.start(true);Test.assertEqual(req.sends,1);
  req.response(200,uaRegion(31,null));Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.NONE);return true;
 }
@@ -118,13 +118,13 @@ function official_provider_uses_separate_key(logger) {
 }
 (:test)
 function provider_switch_invalidates_cache(logger) {
- var r=resetTest();Cache.accept(r,200,{"alerts"=>[]},Config.location(),1000);Cache.save(r);
- Application.Properties.setValue("apiProvider",2);r=Cache.load(Config.location());Test.assertEqual(r["success"],0);return true;
+ var r=resetTest();Cache.success(r,AlertLogic.NONE,1000);Cache.save(r);
+ Application.Properties.setValue("apiProvider",1);r=Cache.load(Config.location());Test.assertEqual(r["success"],0);return true;
 }
 (:test)
 function old_provider_response_is_discarded(logger) {
  var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
- Application.Properties.setValue("apiProvider",2);req.response(200,{"alerts"=>[]});
+ Application.Properties.setValue("apiProvider",1);req.response(200,uaRegion(31,null));
  Test.assertEqual(Cache.load(Config.location())["success"],0);return true;
 }
 (:test)
@@ -155,8 +155,9 @@ function unsupported_provider_location_avoids_network(logger) {
 }
 (:test)
 function provider_auth_headers_and_request_scope(logger) {
- Test.assertEqual(ApiProvider.headers(0,"TOKEN")["Authorization"],"Bearer TOKEN");
  Test.assertEqual(ApiProvider.headers(1,"KEY")["Authorization"],"KEY");Test.assert(!ApiProvider.headers(2,"").hasKey("Authorization"));
+ Test.assertEqual(ApiProvider.url(2,31),"https://siren.pp.ua/api/v3/alerts/31");
+ Test.assertEqual(ApiProvider.url(1,31),"https://api.ukrainealarm.com/api/v3/alerts/31");
  resetTest();Application.Properties.setValue("cityUid",845);Test.assertEqual(ApiProvider.queries(2,Config.location()).size(),3);
  Application.Properties.setValue("cityUid",27);LocationCatalog.resolveCustom();Test.assertEqual(ApiProvider.queries(2,Config.location())[0],0);return true;
 }

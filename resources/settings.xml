@@ -1,8 +1,7 @@
 <settings>
  <setting propertyKey="@Properties.apiProvider" title="@Strings.ProviderTitle"><settingConfig type="list">
-  <listEntry value="0">@Strings.ProviderAlerts</listEntry><listEntry value="1">@Strings.ProviderUkraine</listEntry><listEntry value="2">@Strings.ProviderSiren</listEntry>
+  <listEntry value="2">@Strings.ProviderSiren</listEntry><listEntry value="1">@Strings.ProviderUkraine</listEntry>
  </settingConfig></setting>
- <setting propertyKey="@Properties.apiToken" title="@Strings.TokenTitle"><settingConfig type="alphaNumeric"/></setting>
  <setting propertyKey="@Properties.ukraineAlarmToken" title="@Strings.UkraineTokenTitle"><settingConfig type="alphaNumeric"/></setting>
  <setting propertyKey="@Properties.displayMode" title="@Strings.DisplayModeTitle"><settingConfig type="list">
   <listEntry value="0">@Strings.DisplayText</listEntry><listEntry value="1">@Strings.DisplayDots</listEntry>

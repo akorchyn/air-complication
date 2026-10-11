@@ -11,11 +11,10 @@ class FixtureApp extends AirAlertApp {
     function newRequest(done as Lang.Method) { return new FixtureRequest(done); }
     function getInitialView() {
         Application.Properties.setValue("cityUid",31);
-        Application.Properties.setValue("apiProvider",0);
+        Application.Properties.setValue("apiProvider",2);
         Application.Properties.setValue("displayMode",ProbeConfig.DISPLAY_MODE);
         Application.Properties.setValue("textLanguage",ProbeConfig.TEXT_LANGUAGE);
         Application.Properties.setValue("textCase",ProbeConfig.TEXT_CASE);
-        Application.Properties.setValue("apiToken","SIMULATOR_FIXTURE_ONLY");
         Application.Properties.setValue("refreshMinutes",5);
         Application.Storage.deleteValue("cache");Application.Storage.deleteValue("requestGate");Application.Storage.setValue("fixtureStep",0);
         var loc=Config.location();var r=Cache.load(loc);
@@ -44,7 +43,7 @@ class FixtureRequest extends AlertRequest {
         Application.Storage.setValue("fixtureStep",step+1);
         if (step>=2) {
             System.println("INTEGRATION: response clear");
-            responseHandler().method(:onReceive).invoke(200,{"alerts"=>[]});return;
+            responseHandler().method(:onReceive).invoke(200,[{"regionId"=>"31","regionType"=>"State","activeAlerts"=>[]}]);return;
         }
         var level=step==0 ? "yellow" : "red";
         System.println("INTEGRATION: response "+level);
@@ -58,13 +57,12 @@ class FixtureRequest extends AlertRequest {
             // threat source text, rather than recycling one object reference.
             var message="Synthetic threat text for memory measurement "+i+" ";
             for(var j=0;j<4;j++) { message=message+message; }
-            alerts.add({"id"=>i,"location_uid"=>"31","location_type"=>"city","alert_type"=>"air_raid","alert_level"=>level,
-                "location_title"=>"Kyiv city "+i,"location_oblast_uid"=>"31",
-                "started_at"=>"2026-10-10T08:00:00Z","updated_at"=>"2026-10-10T08:01:00Z",
-                "threats"=>[{"threat_type"=>"drones","level"=>level,"source_message"=>message}]});
+            alerts.add({"regionId"=>"31","regionType"=>"State","type"=>"AIR",
+                "activeAlertLevels"=>[{"alertLevel"=>step==0 ? "Yellow" : "Red","reason"=>message,
+                    "createdAt"=>"2026-10-10T08:00:00Z"}]});
         }
         var peak=System.getSystemStats();System.println("MEMORY: after rows="+rows+" used="+peak.usedMemory+" free="+peak.freeMemory);
-        responseHandler().method(:onReceive).invoke(200,{"alerts"=>alerts});
+        responseHandler().method(:onReceive).invoke(200,[{"regionId"=>"31","regionType"=>"State","activeAlerts"=>alerts}]);
         var stats=System.getSystemStats();
         System.println("INTEGRATION: memory used="+stats.usedMemory+" free="+stats.freeMemory);
     }
