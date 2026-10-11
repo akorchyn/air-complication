@@ -51,15 +51,14 @@ class AlertRequest {
         try { send(_token); } catch(e) { response(-1,null); }
     }
     function send(token) {
+        var handler=responseHandler();
         Communications.makeWebRequest(ApiProvider.url(_provider,_queries[_index]),null,
             {:method=>Communications.HTTP_REQUEST_METHOD_GET,:headers=>ApiProvider.headers(_provider,token),
-             :responseType=>Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
-             :context=>{"sequence"=>_gateStamp,"index"=>_index}},method(:webResponse));
+             :responseType=>Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON},handler.method(:onReceive));
     }
-    // Match the SDK callback typedef at the boundary. JSON root arrays arrive
-    // dynamically despite being omitted from that typedef; dispatch without a cast.
-    function webResponse(code as Number, data as Dictionary or String or Null, context as Object) as Void {
-        if (!(context instanceof Dictionary) || context["sequence"]!=_gateStamp || context["index"]!=_index) { return; }
+    function responseHandler() { return new AlertResponse(self,_gateStamp,_index); }
+    function webResponse(code, data, sequence, index) as Void {
+        if (!_busy || sequence!=_gateStamp || index!=_index) { return; }
         response(code,data);
     }
     function response(code, data) as Void {
@@ -83,5 +82,23 @@ class AlertRequest {
     }
     function finish(r as Dictionary, location as Dictionary, now) {
         _busy=false;_token="";Cache.save(r);Cache.publish(r,location,now);_done.invoke();
+    }
+}
+
+// Keep correlation in a bound callback object, not makeWebRequest's :context.
+// Physical firmware can deliver two arguments even with :context populated,
+// including immediate transport errors. The two-argument API works in either
+// case and the captured sequence/index still rejects old or duplicate replies.
+(:background)
+class AlertResponse {
+    var _request;
+    var _sequence;
+    var _index;
+    function initialize(request, sequence, index) {
+        _request=request;_sequence=sequence;_index=index;
+    }
+    // JSON root arrays arrive dynamically despite the SDK callback typedef.
+    function onReceive(code as Number, data as Dictionary or String or Null) as Void {
+        _request.webResponse(code,data,_sequence,_index);
     }
 }

@@ -193,6 +193,8 @@ alerts.in.ua documents soft limits around 8–10 requests/minute/IP and a hard l
 
 ### Troubleshooting updates and logs
 
+**Use release 1.5.1 or newer.** Earlier releases can crash in `AlertRequest.webResponse` with `Not Enough Arguments Error` when Garmin invokes the network callback without the optional context argument. This affects manual and background updates. Version 1.5.1 uses a two-argument callback with correlation stored in a bound handler object. Replace the installed PRG with the latest release for your exact model; no API settings change is needed.
+
 The current release persists the latest error and successful-check timestamp, shown on the main screen. It does **not** record a request-history log or emit production `System.println()` messages. Logs under `docs/` are developer simulator results, not logs from your watch.
 
 - Open Air Alert UA and check whether **Updated** advances. If it does but the watch-face field remains unchanged, the fetch succeeded; investigate the consumer's selected complication and repaint behavior.

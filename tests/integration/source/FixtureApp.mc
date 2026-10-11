@@ -44,7 +44,7 @@ class FixtureRequest extends AlertRequest {
         Application.Storage.setValue("fixtureStep",step+1);
         if (step>=2) {
             System.println("INTEGRATION: response clear");
-            response(200,{"alerts"=>[]});return;
+            responseHandler().method(:onReceive).invoke(200,{"alerts"=>[]});return;
         }
         var level=step==0 ? "yellow" : "red";
         System.println("INTEGRATION: response "+level);
@@ -64,7 +64,7 @@ class FixtureRequest extends AlertRequest {
                 "threats"=>[{"threat_type"=>"drones","level"=>level,"source_message"=>message}]});
         }
         var peak=System.getSystemStats();System.println("MEMORY: after rows="+rows+" used="+peak.usedMemory+" free="+peak.freeMemory);
-        response(200,{"alerts"=>alerts});
+        responseHandler().method(:onReceive).invoke(200,{"alerts"=>alerts});
         var stats=System.getSystemStats();
         System.println("INTEGRATION: memory used="+stats.usedMemory+" free="+stats.freeMemory);
     }

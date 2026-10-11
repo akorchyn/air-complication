@@ -53,6 +53,14 @@ def run(prg,log):
     while time.monotonic()<deadline and log.stat().st_size==0 and p.poll() is None:time.sleep(.2)
     if log.stat().st_size==0:raise RuntimeError("Simulator did not start "+str(prg))
     time.sleep(.3);return p,handle
+def wait_for_value(value):
+    # Publisher completion and consumer notification are asynchronous. Wait for
+    # the received value instead of assuming a one-second service/repaint delay.
+    log=ROOT/f'docs/{prefix}-consumer.log';deadline=time.monotonic()+10
+    while time.monotonic()<deadline:
+        if f'CONSUMER RECEIVED: {value}' in log.read_text():return
+        time.sleep(.1)
+    raise RuntimeError('Consumer did not receive '+value+' within 10 seconds')
 processes=[]
 try:
     language=1 if mode.startswith('ua') else 0
@@ -77,13 +85,16 @@ try:
     processes.append(run(ROOT/f'artifacts/consumer{suffix}.prg',ROOT/f'docs/{prefix}-consumer.log'))
     if rows==1 and device!='epix2':
         subprocess.run(['import','-window',hex(window('CIQ Simulator').id),str(ROOT/f'docs/{prefix}-manual.png')],check=True,timeout=10)
-    temporal()
-    if (mode=='dots' or language==1) and rows<=10:temporal() # Valid empty response.
-    out=(ROOT/f'docs/{prefix}-consumer.log').read_text()
-    print(out)
     expected,yellow,clear={'text':('RED','YELLOW','CLEAR'),'dots':('🔴','🟡','🟢'),
         'ua':('Червона','Жовта','Немає'),'ua-upper':('ЧЕРВОНА','ЖОВТА','НЕМАЄ'),
         'ua-lower':('червона','жовта','немає')}[mode]
+    if rows<=10:wait_for_value(yellow)
+    temporal()
+    if rows<=10:wait_for_value(expected)
+    if (mode=='dots' or language==1) and rows<=10:
+        temporal();wait_for_value(clear) # Valid empty response.
+    out=(ROOT/f'docs/{prefix}-consumer.log').read_text()
+    print(out)
     if rows<=10 and (f'CONSUMER RECEIVED: {expected}' not in out or f'CONSUMER RECEIVED: {yellow}' not in out):raise RuntimeError('Missing consumer manual/background update')
     if (mode=='dots' or language==1) and rows<=10 and f'CONSUMER RECEIVED: {clear}' not in out:raise RuntimeError('Missing consumer clear update')
     if rows==1 and mode=='text':

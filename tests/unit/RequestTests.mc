@@ -5,8 +5,9 @@ import Toybox.Lang;
 // A controllable transport exercises the real request lifecycle and persistence.
 class MockRequest extends AlertRequest {
  var sends=0;
+ var callbacks=[];
  function initialize(done as Lang.Method) { AlertRequest.initialize(done); }
- function send(token) { sends+=1; }
+ function send(token) { sends+=1;callbacks.add(responseHandler().method(:onReceive)); }
 }
 class RequestObserver {
  var finished=0;
@@ -16,6 +17,53 @@ class RequestObserver {
 function requestSetup() as RequestObserver {
  resetTest();Application.Properties.setValue("apiToken","FIXTURE_ONLY");
  Application.Storage.deleteValue("requestGate");return new RequestObserver();
+}
+(:test)
+function two_argument_callback_accepts_public_provider_root_array(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiProvider",2);
+ var req=new MockRequest(o.method(:done));req.start(true);
+ req.callbacks[0].invoke(200,uaRegion(31,[{"alertLevel"=>"Yellow"}]));
+ Test.assertEqual(o.finished,1);Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.YELLOW);return true;
+}
+(:test)
+function two_argument_immediate_network_error_finishes_without_crash(logger) {
+ var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
+ req.callbacks[0].invoke(-104,null);
+ var r=Cache.load(Config.location());Test.assert(r["failed"]);Test.assertEqual(r["lease"],0);
+ Test.assertEqual(r["error"],"Phone/network unavailable");Test.assertEqual(o.finished,1);return true;
+}
+(:test)
+function two_argument_rate_limit_callback_preserves_history_and_backoff(logger) {
+ var o=requestSetup();var now=Time.now().value();var r=Cache.load(Config.location());
+ Cache.success(r,AlertLogic.RED,now-120);Cache.save(r);
+ var req=new MockRequest(o.method(:done));req.start(true);req.callbacks[0].invoke(429,null);
+ r=Cache.load(Config.location());Test.assertEqual(r["state"],AlertLogic.RED);Test.assertEqual(r["success"],now-120);
+ Test.assertEqual(r["error"],"429: Rate limited");Test.assert(r["next"]>=now+900);Test.assertEqual(o.finished,1);return true;
+}
+(:test)
+function duplicate_parent_callback_cannot_be_used_for_next_query(logger) {
+ var o=requestSetup();Application.Properties.setValue("apiProvider",2);Application.Properties.setValue("cityUid",845);
+ var req=new MockRequest(o.method(:done));req.start(true);
+ req.callbacks[0].invoke(200,uaRegion(845,null));Test.assertEqual(req.sends,2);
+ req.callbacks[0].invoke(200,uaRegion(845,null));Test.assertEqual(req.sends,2);Test.assertEqual(o.finished,0);
+ req.callbacks[1].invoke(200,uaRegion(27,null));req.callbacks[2].invoke(200,uaRegion(90,null));
+ Test.assertEqual(o.finished,1);Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.NONE);
+ req.callbacks[2].invoke(200,uaRegion(90,null));Test.assertEqual(o.finished,1);return true;
+}
+(:test)
+function old_bound_callback_cannot_update_a_later_cycle(logger) {
+ var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
+ req.callbacks[0].invoke(200,{"alerts"=>[]});
+ var r=Cache.load(Config.location());r["request"]=0;r["next"]=0;Cache.save(r);Application.Storage.deleteValue("requestGate");
+ req.start(true);req.callbacks[0].invoke(200,{"alerts"=>[]});Test.assertEqual(o.finished,1);
+ req.callbacks[1].invoke(200,{"alerts"=>[{"location_uid"=>"31","location_type"=>"city","alert_type"=>"air_raid","alert_level"=>"red"}]});
+ Test.assertEqual(o.finished,2);Test.assertEqual(Cache.load(Config.location())["state"],AlertLogic.RED);return true;
+}
+(:test)
+function two_argument_callback_discards_result_after_location_change(logger) {
+ var o=requestSetup();var req=new MockRequest(o.method(:done));req.start(true);
+ Application.Properties.setValue("cityUid",845);req.callbacks[0].invoke(200,{"alerts"=>[]});
+ Test.assertEqual(Cache.load(Config.location())["uid"],845);Test.assertEqual(Cache.load(Config.location())["success"],0);return true;
 }
 (:test)
 function missing_token_avoids_network(logger) {

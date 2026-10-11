@@ -130,6 +130,20 @@ The consumer callback logs show actual delivery through `getComplication()`, bey
 
 The one-alert background probe used 36,200 B after allocation on Epix (25,056 B free) and 36,296 B on each Venu (24,960 B free). Earlier full-response memory limits still apply. Pre-1.5.0 logs describing N/A published before allocation are historical: 1.5.0 intentionally keeps validated history visible during requests. If Garmin terminates the process, consumers can retain that value until another execution evaluates lease/staleness; there is still no complication TTL. This does not guarantee physical delivery or native third-party rendering.
 
+## Network callback compatibility fix — 1.5.1
+
+A supplied physical-watch log identified three `Not Enough Arguments Error` crashes at `AlertRequest.webResponse`, during manual Refresh and two temporal events. The app expected a third context argument; the device invoked the callback with fewer arguments. These records do not establish an upstream HTTP status or rate-limit failure. The private device log is not committed.
+
+Production networking now omits `:context` and binds a two-argument callback to a small handler that captures the request sequence and query index. Late/duplicate replies are still rejected. The integration fixture traverses that same callback adapter. Consumer verification now waits up to ten seconds for actual notification delivery: an initial Venu 41 mm run failed the previous one-second assumption; the bounded wait passed without another production change.
+
+- **108 tests passed on each model**, with zero failures/errors: [Epix](unit-tests.log), [Venu 41 mm](unit-tests-venu441mm.log), [Venu 45 mm](unit-tests-venu445mm.log). Six added cases cover two-argument root-array success, network error, HTTP 429 with retained history/backoff, duplicate parent replies, replies from a previous cycle, and location changes.
+- Stock SDK 9.2.0 production builds passed: [Epix](epix2-build-1.5.1.log), [Venu 41 mm](venu441mm-build-1.5.1.log), [Venu 45 mm](venu445mm-build-1.5.1.log), [multi-device package](package-build-1.5.1.log). SHA-256 checks passed for all four local binaries.
+- A temporary test app using production `AlertRequest.send` fetched UA Siren's public Kyiv endpoint through Garmin's simulator transport. The bound callback received HTTP 200 and an array, and cache validation succeeded. [Metadata-only log](network-uasiren-1.5.1.log). No response body, token or authorization headers were logged; live alert state was not used as a test assertion.
+- On all three models, the fixture fetched YELLOW on opening without pressing Refresh; a separate subscribing watch face then received background RED: [Epix](open-probe-1-consumer.log), [Venu 41 mm](open-probe-1-venu441mm-consumer.log), [Venu 45 mm](open-probe-1-venu445mm-consumer.log). These logs exercise mocked values through the new callback.
+- The one-alert background probe used 36,352 B on Epix (24,904 B free), and 36,448 B on each Venu (24,808 B free). The large-response memory constraint remains.
+
+Physical-watch confirmation of the corrected binary and Garmin Connect disconnection/reconnection behavior is still needed. Simulator success does not establish compatibility with every consuming watch face or firmware error path.
+
 ## Verification environment and remaining checks
 
 The official Garmin Linux simulator was run under X11 with Epix Gen 2 and both Venu 4 definitions. This workspace lacked the old WebKit/libs required by the downloaded simulator and authenticated Garmin simulator fonts. Legacy runtime libraries were supplied locally. A collision between the simulator's exported static FreeType symbols and the host FreeType was corrected by hiding those exported symbols in the local simulator executable. This is an environment workaround only: no patched simulator is distributed, and application APIs/VM logic were not replaced.

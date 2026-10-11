@@ -221,6 +221,24 @@ PASS
 Executing test retrying_interrupted_fetch_does_not_restore_clear_before_response...
 PASS
 ------------------------------------------------------------------------------
+Executing test two_argument_callback_accepts_public_provider_root_array...
+PASS
+------------------------------------------------------------------------------
+Executing test two_argument_immediate_network_error_finishes_without_crash...
+PASS
+------------------------------------------------------------------------------
+Executing test two_argument_rate_limit_callback_preserves_history_and_backoff...
+PASS
+------------------------------------------------------------------------------
+Executing test duplicate_parent_callback_cannot_be_used_for_next_query...
+PASS
+------------------------------------------------------------------------------
+Executing test old_bound_callback_cannot_update_a_later_cycle...
+PASS
+------------------------------------------------------------------------------
+Executing test two_argument_callback_discards_result_after_location_change...
+PASS
+------------------------------------------------------------------------------
 Executing test missing_token_avoids_network...
 PASS
 ------------------------------------------------------------------------------
@@ -382,6 +400,12 @@ fetching_failure_keeps_history_but_never_shows_previous_clear       PASS
 fetching_does_not_extend_stale_deadline                             PASS
 interrupted_fetch_expires_lease_and_does_not_revalidate_history     PASS
 retrying_interrupted_fetch_does_not_restore_clear_before_response   PASS
+two_argument_callback_accepts_public_provider_root_array            PASS
+two_argument_immediate_network_error_finishes_without_crash         PASS
+two_argument_rate_limit_callback_preserves_history_and_backoff      PASS
+duplicate_parent_callback_cannot_be_used_for_next_query             PASS
+old_bound_callback_cannot_update_a_later_cycle                      PASS
+two_argument_callback_discards_result_after_location_change         PASS
 missing_token_avoids_network                                        PASS
 manual_request_updates_persisted_status                             PASS
 old_response_cannot_contaminate_new_city                            PASS
@@ -410,6 +434,6 @@ rate_limit_backoff                                                  PASS
 custom_location_is_official_and_exact                               PASS
 intervals_are_validated                                             PASS
 corrupted_cache_is_unknown                                          PASS
-Ran 102 tests
+Ran 108 tests
 
-PASSED (passed=102, failed=0, errors=0)
+PASSED (passed=108, failed=0, errors=0)
