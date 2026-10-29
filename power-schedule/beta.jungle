@@ -1,0 +1,5 @@
+project.manifest = build/beta-manifest.xml
+base.sourcePath = source
+base.resourcePath = resources;resources-beta
+venu441mm.resourcePath = $(base.resourcePath);resources-venu441mm
+venu445mm.resourcePath = $(base.resourcePath);resources-venu445mm

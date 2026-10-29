@@ -1,0 +1,1 @@
+<resources><strings><string id="AppName">Power Test Consumer</string></strings><drawables><bitmap id="LauncherIcon" filename="alert.svg"/></drawables><fonts><font id="TestFont" filename="testfont.fnt"/></fonts></resources>

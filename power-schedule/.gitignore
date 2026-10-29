@@ -1,0 +1,12 @@
+/artifacts/
+/build/
+/adapter/node_modules/
+/adapter/.wrangler/
+*.der
+*.pem
+*.set
+*.SET
+*.dat
+*.DAT
+*.iq
+__pycache__/

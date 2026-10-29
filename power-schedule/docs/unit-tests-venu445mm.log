@@ -1,0 +1,99 @@
+------------------------------------------------------------------------------
+Executing test scheduled_off_and_restoration...
+PASS
+------------------------------------------------------------------------------
+Executing test scheduled_on_next_outage...
+PASS
+------------------------------------------------------------------------------
+Executing test half_open_boundaries_and_no_known_future...
+PASS
+------------------------------------------------------------------------------
+Executing test waiting_and_emergency_are_not_on...
+PASS
+------------------------------------------------------------------------------
+Executing test incomplete_day_gap_is_unknown...
+PASS
+------------------------------------------------------------------------------
+Executing test explicit_no_outages_requires_whole_day_on...
+PASS
+------------------------------------------------------------------------------
+Executing test stale_boundary_does_not_extend_on_fetch...
+PASS
+------------------------------------------------------------------------------
+Executing test failed_pending_interrupted_and_clock_rollback...
+PASS
+------------------------------------------------------------------------------
+Executing test malformed_or_wrong_scope_payloads_are_rejected...
+PASS
+------------------------------------------------------------------------------
+Executing test unconfigured_adapter_is_setup_not_on...
+PASS
+------------------------------------------------------------------------------
+Executing test group_profiles_https_validation_and_defaults...
+PASS
+------------------------------------------------------------------------------
+Executing test group_change_discards_previous_status...
+PASS
+------------------------------------------------------------------------------
+Executing test network_success_two_argument_callback_and_duplicate...
+PASS
+------------------------------------------------------------------------------
+Executing test http_and_transport_errors_keep_history_without_showing_on...
+PASS
+------------------------------------------------------------------------------
+Executing test failure_backoff_and_recovery...
+PASS
+------------------------------------------------------------------------------
+Executing test manual_gate_and_background_fresh_cache_avoid_polling...
+PASS
+------------------------------------------------------------------------------
+Executing test old_callback_after_settings_change_is_discarded...
+PASS
+------------------------------------------------------------------------------
+Executing test unknown_data_in_200_is_not_success...
+PASS
+------------------------------------------------------------------------------
+Executing test glance_factory_does_not_start_request...
+PASS
+------------------------------------------------------------------------------
+Executing test adjacent_outages_merge_across_midnight...
+PASS
+------------------------------------------------------------------------------
+Executing test no_restoration_claim_at_unknown_horizon...
+PASS
+------------------------------------------------------------------------------
+Executing test opening_fetches_once_per_view_and_uses_manual_request_gate...
+PASS
+------------------------------------------------------------------------------
+Executing test glance_renders_cache_and_changes_to_unavailable_without_network...
+PASS
+
+==============================================================================
+RESULTS
+Test:                                                           Status:
+scheduled_off_and_restoration                                   PASS
+scheduled_on_next_outage                                        PASS
+half_open_boundaries_and_no_known_future                        PASS
+waiting_and_emergency_are_not_on                                PASS
+incomplete_day_gap_is_unknown                                   PASS
+explicit_no_outages_requires_whole_day_on                       PASS
+stale_boundary_does_not_extend_on_fetch                         PASS
+failed_pending_interrupted_and_clock_rollback                   PASS
+malformed_or_wrong_scope_payloads_are_rejected                  PASS
+unconfigured_adapter_is_setup_not_on                            PASS
+group_profiles_https_validation_and_defaults                    PASS
+group_change_discards_previous_status                           PASS
+network_success_two_argument_callback_and_duplicate             PASS
+http_and_transport_errors_keep_history_without_showing_on       PASS
+failure_backoff_and_recovery                                    PASS
+manual_gate_and_background_fresh_cache_avoid_polling            PASS
+old_callback_after_settings_change_is_discarded                 PASS
+unknown_data_in_200_is_not_success                              PASS
+glance_factory_does_not_start_request                           PASS
+adjacent_outages_merge_across_midnight                          PASS
+no_restoration_claim_at_unknown_horizon                         PASS
+opening_fetches_once_per_view_and_uses_manual_request_gate      PASS
+glance_renders_cache_and_changes_to_unavailable_without_network PASS
+Ran 23 tests
+
+PASSED (passed=23, failed=0, errors=0)

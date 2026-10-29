@@ -1,0 +1,6 @@
+<strings>
+ <string id="UrlTitle">Schedule adapter HTTPS base URL</string><string id="KeyTitle">Adapter access key (optional)</string>
+ <string id="ProfileTitle">Electricity region / provider</string><string id="Kyiv">Kyiv city / DTEK</string><string id="Dnem">Dnipro / DnEM</string><string id="Cek">Dnipro / CEK</string>
+ <string id="GroupTitle">Outage group (for example 19.1)</string><string id="RefreshTitle">Check schedule every</string><string id="StaleTitle">Stale after (minutes)</string>
+ <string id="M5">5 minutes</string><string id="M10">10 minutes</string><string id="M15">15 minutes</string><string id="M30">30 minutes</string><string id="M60">60 minutes</string>
+</strings>

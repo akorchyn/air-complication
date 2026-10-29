@@ -1,0 +1,11 @@
+export const profile = {region: 25, dso: 902};
+export const now = Date.parse('2026-10-29T07:00:00Z') / 1000; // 09:00 Kyiv
+export function raw() {
+  return {'19.1': {
+    today: {date: '2026-10-29T00:00:00+02:00', status: 'ScheduleApplies', slots: [
+      {start: 0, end: 480, type: 'NotPlanned'}, {start: 480, end: 600, type: 'Definite'}, {start: 600, end: 1440, type: 'NotPlanned'},
+    ]},
+    tomorrow: {date: '2026-10-30T00:00:00+02:00', status: 'WaitingForSchedule', slots: []},
+    updatedOn: '2026-10-29T06:45:00Z',
+  }, '20.1': {today: {date: '2026-10-29T00:00:00+02:00',status: 'EmergencyShutdowns',slots: []}, updatedOn: '2026-10-29T06:45:00Z'}};
+}

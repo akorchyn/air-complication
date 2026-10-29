@@ -1,0 +1,42 @@
+✔ projection returns only selected group, provenance and small numeric slots (3.111412ms)
+✔ Kyiv wall time 2026-01-15T00:00:00+03:00 + 480 (0.25422ms)
+✔ Kyiv wall time 2026-07-15T00:00:00+02:00 + 480 (0.158099ms)
+✔ Kyiv wall time 2026-03-29T00:00:00+02:00 + 480 (0.123127ms)
+✔ Kyiv wall time 2026-10-25T00:00:00+03:00 + 480 (0.136997ms)
+✔ Kyiv wall time 2026-03-29T00:00:00+02:00 + 1440 (0.120831ms)
+✔ Kyiv wall time 2026-10-25T00:00:00+03:00 + 1440 (1.230779ms)
+✔ Kyiv wall time 2026-10-25T00:00:00+03:00 + 195 (0.144447ms)
+✔ Kyiv wall time 2026-03-29T00:00:00+02:00 + 195 (0.153949ms)
+✔ WaitingForSchedule never implies scheduled ON (0.5677ms)
+✔ EmergencyShutdowns never implies scheduled ON (0.243616ms)
+✔ NewStatus never implies scheduled ON (0.235639ms)
+✔ NoOutages with empty slots is explicit whole-day coverage (0.238965ms)
+✔ touching intervals of same type merge (0.3372ms)
+✔ invalid day rejected (0.29006ms)
+✔ invalid date rejected (0.121823ms)
+✔ invalid slot rejected (0.129752ms)
+✔ negative minute rejected (0.109623ms)
+✔ oversized minute rejected (0.09566ms)
+✔ reversed interval rejected (0.091307ms)
+✔ overlap rejected (0.233435ms)
+✔ missing slots rejected (0.135108ms)
+✔ future update rejected (0.082208ms)
+✔ contradictory NoOutages rejected (0.158289ms)
+✔ missing group rejected (0.065033ms)
+✔ maximum supported 64 half-open slots per day stays under 8 KiB (6.952101ms)
+✔ 60 source groups still produce same one-group response (0.987455ms)
+✔ HTTP handler fetches exact official route, with no upstream credentials (26.569792ms)
+✔ optional access key enforced before network (1.379228ms)
+✔ unknown region/provider and malformed group rejected before network (0.838953ms)
+✔ HTTP errors, timeout and invalid JSON never become empty/no-outages (1.498373ms)
+✔ cache retains original checkedAt instead of revalidating old data (3.429023ms)
+✔ missing group returns 404, never a different group (0.477017ms)
+✔ catalog contains only independently verified region/provider pairs (0.145792ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 144.677942
