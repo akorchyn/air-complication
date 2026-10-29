@@ -1,0 +1,8 @@
+<settings>
+ <setting propertyKey="@Properties.adapterUrl" title="@Strings.UrlTitle"><settingConfig type="url"/></setting>
+ <setting propertyKey="@Properties.adapterToken" title="@Strings.KeyTitle"><settingConfig type="alphaNumeric"/></setting>
+ <setting propertyKey="@Properties.profile" title="@Strings.ProfileTitle"><settingConfig type="list"><listEntry value="0">@Strings.Kyiv</listEntry><listEntry value="1">@Strings.Dnem</listEntry><listEntry value="2">@Strings.Cek</listEntry></settingConfig></setting>
+ <setting propertyKey="@Properties.group" title="@Strings.GroupTitle"><settingConfig type="alphaNumeric" maxLength="6"/></setting>
+ <setting propertyKey="@Properties.refreshMinutes" title="@Strings.RefreshTitle"><settingConfig type="list"><listEntry value="5">@Strings.M5</listEntry><listEntry value="10">@Strings.M10</listEntry><listEntry value="15">@Strings.M15</listEntry><listEntry value="30">@Strings.M30</listEntry><listEntry value="60">@Strings.M60</listEntry></settingConfig></setting>
+ <setting propertyKey="@Properties.staleMinutes" title="@Strings.StaleTitle"><settingConfig type="numeric" min="5" max="120"/></setting>
+</settings>

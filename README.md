@@ -6,6 +6,8 @@ Choose English or Ukrainian text, uppercase or lowercase, or Unicode status circ
 
 **Informational only. Continue using official air-alert notifications.** Updates depend on the phone connection, provider availability and Garmin background execution. This app does not provide emergency sounds or guaranteed real-time notifications.
 
+Electricity schedules are available in the separate [Power Schedule UA project](power-schedule/README.md), with its own complications and swipe-list glance. Installing it does not replace Air Alert UA.
+
 ## Supported watches
 
 | Watch | Production PRG filename | Display |

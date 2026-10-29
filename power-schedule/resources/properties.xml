@@ -1,0 +1,8 @@
+<properties>
+ <property id="adapterUrl" type="string"></property>
+ <property id="adapterToken" type="string"></property>
+ <property id="profile" type="number">0</property>
+ <property id="group" type="string">19.1</property>
+ <property id="refreshMinutes" type="number">15</property>
+ <property id="staleMinutes" type="number">30</property>
+</properties>

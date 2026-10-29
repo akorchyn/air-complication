@@ -1,0 +1,9 @@
+<resources>
+ <strings><string id="ScreenTitle">Power Schedule</string><string id="AppName">Power Schedule UA</string><string id="PowerLabel">Power Schedule UA</string><string id="OutLabel">Next outage UA</string><string id="BackLabel">Next restoration UA</string><string id="PlanShort">PLAN</string><string id="OutShort">OUT</string><string id="BackShort">BACK</string><string id="PagesHint">UP/DOWN: schedule</string><string id="RefreshHint">START or tap: Refresh</string></strings>
+ <drawables><bitmap id="LauncherIcon" filename="bolt.svg"/><bitmap id="ComplicationIcon" filename="bolt.svg"/></drawables>
+ <complications>
+  <complication id="0" access="public" longLabel="@Strings.PowerLabel" shortLabel="@Strings.PlanShort" icon="@Drawables.ComplicationIcon"><faceIt defaultText="@Strings.PlanShort"/></complication>
+  <complication id="1" access="public" longLabel="@Strings.OutLabel" shortLabel="@Strings.OutShort" icon="@Drawables.ComplicationIcon"><faceIt defaultText="@Strings.OutShort"/></complication>
+  <complication id="2" access="public" longLabel="@Strings.BackLabel" shortLabel="@Strings.BackShort" icon="@Drawables.ComplicationIcon"><faceIt defaultText="@Strings.BackShort"/></complication>
+ </complications>
+</resources>
